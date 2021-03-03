@@ -47,7 +47,7 @@
       </template>
     </Card>
 
-    <customers-addresses :id="this.$route.params.id" class="my-4" />
+    <customers-addresses :id="$route.params.id" class="my-4" />
 
     <v-dialog v-model="dialog" width="500">
       <v-card>
