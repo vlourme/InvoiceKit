@@ -58,7 +58,7 @@ export default Vue.extend({
   },
   methods: {
     navigateToInvoice(invoice: InvoiceIndex) {
-      this.$router.push(`/invoices/${invoice.customer.id}/${invoice.link}`)
+      this.$router.push(`/invoices/${invoice.customer.$key}/${invoice.link}`)
     },
   },
 })

@@ -1,5 +1,5 @@
 export interface Customer {
-  id: string | null
+  $key: string | null
   fullName: string
   society: string
   email: string

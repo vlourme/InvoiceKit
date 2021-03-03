@@ -280,7 +280,7 @@ export default Vue.extend({
       .doc(customer)
       .onSnapshot((snapshot) => {
         this.customer = {
-          id: snapshot.id,
+          $key: snapshot.id,
           ...snapshot.data(),
         } as Customer
       })
@@ -322,7 +322,7 @@ export default Vue.extend({
     },
 
     async updateInvoice() {
-      if (!this.customer.id || !this.valid) {
+      if (!this.customer.$key || !this.valid) {
         return
       }
 
@@ -333,7 +333,7 @@ export default Vue.extend({
         .collection('teams')
         .doc(this.user.team)
         .collection('customers')
-        .doc(this.customer.id)
+        .doc(this.customer.$key)
         .collection('invoices')
         .doc(id)
         .update(this.invoice.data)

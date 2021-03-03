@@ -109,9 +109,6 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState } from 'vuex'
-import Auth from '~/types/auth'
-import Team from '~/types/team'
-import User from '~/types/user'
 
 export default Vue.extend({
   name: 'Dashboard',

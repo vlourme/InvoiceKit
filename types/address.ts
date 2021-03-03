@@ -1,5 +1,5 @@
 export interface Address {
-  id: string | null
+  $key: string | null
   street: string
   zip: string
   city: string

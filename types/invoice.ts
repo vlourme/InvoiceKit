@@ -15,6 +15,7 @@ export interface Field {
 }
 
 export interface Invoice {
+  $key: string | null
   id: string
   date: string
   type: Type
@@ -27,6 +28,7 @@ export interface Invoice {
 }
 
 export interface InvoiceIndex {
+  $key: string | null
   id: string
   link: string
   customer: Customer
@@ -42,6 +44,7 @@ export const defaultField = (): Field => ({
 })
 
 export const defaultInvoice = (): Invoice => ({
+  $key: null,
   id: '',
   date: new Date().toISOString().substr(0, 10),
   type: Type.Invoice,

@@ -55,8 +55,8 @@ export default Vue.extend({
         this.customers = snapshot.docs.map(
           (v) =>
             ({
+              $key: v.id,
               ...v.data(),
-              id: v.id,
             } as Customer)
         )
       })
@@ -69,7 +69,7 @@ export default Vue.extend({
   },
   methods: {
     navigateToCustomer(customer: Customer) {
-      this.$router.push(`/customers/${customer.id}`)
+      this.$router.push(`/customers/${customer.$key}`)
     },
   },
 })

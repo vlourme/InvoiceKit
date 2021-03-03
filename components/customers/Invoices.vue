@@ -9,7 +9,11 @@
       </v-btn>
     </template>
 
-    <v-data-table :items="invoices" :headers="invoiceHeaders">
+    <v-data-table
+      :items="invoices"
+      :headers="invoiceHeaders"
+      @click:row="navigateToInvoice"
+    >
       <template #item.updatedAt="{ item }">
         {{ new Date(item.updatedAt * 1000).toLocaleString() }}
       </template>
@@ -91,7 +95,7 @@ export default Vue.extend({
           (d) =>
             ({
               ...d.data(),
-              id: d.id,
+              $key: d.id,
             } as Invoice)
         )
       })
@@ -105,9 +109,13 @@ export default Vue.extend({
         path: '/invoices/create',
         query: {
           customer: this.$route.params.id,
-          address: item.id,
+          address: item.$key,
         },
       })
+    },
+
+    navigateToInvoice(invoice: Invoice) {
+      this.$router.push(`/invoices/${this.$route.params.id}/${invoice.$key}`)
     },
   },
 })

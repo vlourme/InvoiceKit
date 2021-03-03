@@ -1,5 +1,5 @@
 export default interface User {
-  id: string | null
+  $key: string | null
   email: string
   image: string
   name: string

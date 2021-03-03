@@ -1,4 +1,6 @@
 export default interface Team {
+  $key: string | null
+
   // Team details
   name: string
   owner: string

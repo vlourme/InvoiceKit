@@ -109,7 +109,7 @@ export default Vue.extend({
         this.addresses = snapshot.docs.map(
           (d) =>
             ({
-              id: d.id,
+              $key: d.id,
               ...d.data(),
             } as Address)
         )
