@@ -6,7 +6,7 @@ InvoiceKit is a static website using Nuxt and Firebase to manage customers, invo
 
 A more documented README will be redacted soon, you can still contribute!
 
-**This project is a work-in-progress. This is actually not usable.**
+**This project is a work-in-progress. This is actually not meant to be used in production environment.**
 
 ## Contribute
 
