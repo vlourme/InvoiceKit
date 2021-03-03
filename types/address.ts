@@ -1,4 +1,4 @@
-import Model from './Model'
+import Model from './model'
 
 export interface Address extends Model {
   street: string

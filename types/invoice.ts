@@ -1,6 +1,6 @@
 import { DataTableHeader } from 'vuetify'
 import { Customer } from './customer'
-import Model from './Model'
+import Model from './model'
 import { Address } from '~/types/address'
 
 export enum Type {
