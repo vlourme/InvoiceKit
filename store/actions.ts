@@ -2,6 +2,7 @@ import { ActionTree } from 'vuex'
 import firebase from 'firebase'
 import { RootState } from './root'
 import Team from '~/types/team'
+import { Notification } from '~/types/notification'
 
 const actions: ActionTree<RootState, RootState> = {
   /**
@@ -78,6 +79,10 @@ const actions: ActionTree<RootState, RootState> = {
       })
 
     this.$router.go(0)
+  },
+
+  sendNotification({ commit }, notification: Notification) {
+    commit('SET_NOTIFICATION', notification)
   },
 }
 

@@ -4,6 +4,7 @@ import InitialState from './state'
 import { RootState } from './root'
 import User from '~/types/user'
 import Team from '~/types/team'
+import { Notification } from '~/types/notification'
 
 const mutations: MutationTree<RootState> = {
   RESET_STORE: (state) => {
@@ -31,6 +32,10 @@ const mutations: MutationTree<RootState> = {
 
   SET_DRAWER: (state, drawer) => {
     state.drawer = drawer
+  },
+
+  SET_NOTIFICATION: (state, notification: Notification) => {
+    state.notification = notification
   },
 }
 
