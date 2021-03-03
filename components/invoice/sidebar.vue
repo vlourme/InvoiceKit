@@ -71,9 +71,9 @@
           <v-icon>mdi-plus-minus-variant</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
-          <v-list-item-title
-            >— {{ invoice.data.promotion }} %</v-list-item-title
-          >
+          <v-list-item-title>
+            — {{ invoice.data.promotion || 0 }} %
+          </v-list-item-title>
           <v-list-item-subtitle>Réduction</v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action>
@@ -87,7 +87,9 @@
           <v-icon>mdi-bank</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
-          <v-list-item-title>— {{ invoice.data.deposit }} €</v-list-item-title>
+          <v-list-item-title>
+            — {{ invoice.data.deposit || 0 }} €
+          </v-list-item-title>
           <v-list-item-subtitle>Acompte</v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action>
