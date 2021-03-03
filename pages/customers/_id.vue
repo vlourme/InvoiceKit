@@ -36,18 +36,17 @@
       </v-form>
     </Card>
 
-    <Card no-body no-divider class="my-4">
-      <template #title> Créer </template>
+    <customers-addresses
+      :id="$route.params.id"
+      :addresses="addresses"
+      class="my-4"
+    />
 
-      <template #actions>
-        <v-btn text @click="invoiceDialog = true">
-          <v-icon left>mdi-table</v-icon>
-          Facture
-        </v-btn>
-      </template>
-    </Card>
-
-    <customers-addresses :id="$route.params.id" class="my-4" />
+    <customers-invoices
+      :id="$route.params.id"
+      :addresses="addresses"
+      class="my-4"
+    />
 
     <v-dialog v-model="dialog" width="500">
       <v-card>
@@ -64,32 +63,6 @@
           <v-spacer></v-spacer>
           <v-btn color="warning" text @click="dialog = false">Annuler</v-btn>
           <v-btn color="error" text @click="deleteCustomer">Supprimer</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="invoiceDialog" width="500">
-      <v-card>
-        <v-card-title> Créer une nouvelle facture </v-card-title>
-
-        <v-card-text>
-          Séléctionnez l'adresse à utiliser pour la facture.
-        </v-card-text>
-
-        <v-data-table
-          :headers="addressHeaders"
-          :items="addresses"
-          @click:row="makeInvoice"
-        >
-        </v-data-table>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="warning" text @click="invoiceDialog = false"
-            >Annuler</v-btn
-          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -180,16 +153,6 @@ export default Vue.extend({
         .then(() => {
           this.$router.push('/customers')
         })
-    },
-
-    makeInvoice(item: Address) {
-      this.$router.push({
-        path: '/invoices/create',
-        query: {
-          customer: this.$route.params.id,
-          address: item.id,
-        },
-      })
     },
   },
 })

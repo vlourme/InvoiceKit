@@ -81,31 +81,17 @@ export default Vue.extend({
       type: String,
       required: true,
     } as PropOptions<string>,
+    addresses: {
+      type: Array,
+      required: true,
+    } as PropOptions<Address[]>,
   },
   data: () => ({
     addressHeaders: AddressHeaders,
-    addresses: [] as Address[],
     address: {} as Address,
     dialog: false,
     update: false,
   }),
-  fetch() {
-    this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('customers')
-      .doc(this.id)
-      .collection('addresses')
-      .onSnapshot((snapshot) => {
-        this.addresses = snapshot.docs.map(
-          (d) =>
-            ({
-              ...d.data(),
-              id: d.id,
-            } as Address)
-        )
-      })
-  },
   computed: {
     ...mapState(['user']),
   },
