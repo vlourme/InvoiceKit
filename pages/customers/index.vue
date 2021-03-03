@@ -37,6 +37,7 @@
 import Vue from 'vue'
 import { mapState } from 'vuex'
 import { Customer, CustomerHeaders } from '@/types/customer'
+import { mapSnapshot } from '~/helpers/DocumentMapper'
 
 export default Vue.extend({
   name: 'Customers',
@@ -52,13 +53,7 @@ export default Vue.extend({
       .doc(this.user.team)
       .collection('customers')
       .onSnapshot((snapshot) => {
-        this.customers = snapshot.docs.map(
-          (v) =>
-            ({
-              $key: v.id,
-              ...v.data(),
-            } as Customer)
-        )
+        this.customers = mapSnapshot<Customer>(snapshot)
       })
   },
   head: {

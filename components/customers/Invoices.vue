@@ -49,6 +49,7 @@
 import Vue, { PropOptions } from 'vue'
 import { DataTableHeader } from 'vuetify'
 import { mapState } from 'vuex'
+import { mapSnapshot } from '~/helpers/DocumentMapper'
 import { Address, AddressHeaders } from '~/types/address'
 import { Invoice } from '~/types/invoice'
 
@@ -91,13 +92,7 @@ export default Vue.extend({
       .doc(this.id)
       .collection('invoices')
       .onSnapshot((snapshot) => {
-        this.invoices = snapshot.docs.map(
-          (d) =>
-            ({
-              ...d.data(),
-              $key: d.id,
-            } as Invoice)
-        )
+        this.invoices = mapSnapshot<Invoice>(snapshot)
       })
   },
   computed: {

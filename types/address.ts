@@ -1,5 +1,6 @@
-export interface Address {
-  $key: string | null
+import Model from './Model'
+
+export interface Address extends Model {
   street: string
   zip: string
   city: string

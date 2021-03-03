@@ -74,6 +74,7 @@ import { mapState } from 'vuex'
 import Vue from 'vue'
 import { Customer } from '~/types/customer'
 import { Address, AddressHeaders } from '~/types/address'
+import { mapDocument, mapSnapshot } from '~/helpers/DocumentMapper'
 
 export default Vue.extend({
   name: 'ViewCustomer',
@@ -96,7 +97,7 @@ export default Vue.extend({
       .collection('customers')
       .doc(this.$route.params.id)
       .onSnapshot((snapshot) => {
-        this.customer = snapshot.data() as Customer
+        this.customer = mapDocument<Customer>(snapshot)
       })
 
     this.$fire.firestore
@@ -106,13 +107,7 @@ export default Vue.extend({
       .doc(this.$route.params.id)
       .collection('addresses')
       .onSnapshot((snapshot) => {
-        this.addresses = snapshot.docs.map(
-          (d) =>
-            ({
-              $key: d.id,
-              ...d.data(),
-            } as Address)
-        )
+        this.addresses = mapSnapshot<Address>(snapshot)
       })
   },
   head() {

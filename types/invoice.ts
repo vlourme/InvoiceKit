@@ -1,5 +1,6 @@
 import { DataTableHeader } from 'vuetify'
 import { Customer } from './customer'
+import Model from './Model'
 import { Address } from '~/types/address'
 
 export enum Type {
@@ -14,8 +15,7 @@ export interface Field {
   tax: number
 }
 
-export interface Invoice {
-  $key: string | null
+export interface Invoice extends Model {
   id: string
   date: string
   type: Type
@@ -27,8 +27,7 @@ export interface Invoice {
   updatedAt: Date
 }
 
-export interface InvoiceIndex {
-  $key: string | null
+export interface InvoiceIndex extends Model {
   id: string
   link: string
   customer: Customer

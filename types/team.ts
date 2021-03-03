@@ -1,6 +1,6 @@
-export default interface Team {
-  $key: string | null
+import Model from './Model'
 
+export default interface Team extends Model {
   // Team details
   name: string
   owner: string

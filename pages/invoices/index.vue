@@ -32,6 +32,7 @@
 import Vue from 'vue'
 import { mapState } from 'vuex'
 import { InvoiceHeaders, InvoiceIndex } from '@/types/invoice'
+import { mapSnapshot } from '~/helpers/DocumentMapper'
 
 export default Vue.extend({
   name: 'Invoices',
@@ -47,7 +48,7 @@ export default Vue.extend({
       .doc(this.user.team)
       .collection('invoices')
       .onSnapshot((snapshot) => {
-        this.invoices = snapshot.docs.map((v) => v.data() as InvoiceIndex)
+        this.invoices = mapSnapshot<InvoiceIndex>(snapshot)
       })
   },
   head: {

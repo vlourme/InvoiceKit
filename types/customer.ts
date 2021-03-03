@@ -1,5 +1,6 @@
-export interface Customer {
-  $key: string | null
+import Model from './Model'
+
+export interface Customer extends Model {
   fullName: string
   society: string
   email: string

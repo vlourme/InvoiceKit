@@ -97,14 +97,14 @@ export default Vue.extend({
   },
   methods: {
     async addAddress() {
-      if (this.update && this.address.id) {
+      if (this.update && this.address.$key) {
         await this.$fire.firestore
           .collection('teams')
           .doc(this.user.team)
           .collection('customers')
           .doc(this.id)
           .collection('addresses')
-          .doc(this.address.id)
+          .doc(this.address.$key)
           .update(this.address)
       } else {
         await this.$fire.firestore

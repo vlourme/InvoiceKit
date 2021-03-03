@@ -247,6 +247,7 @@ import {
 import draggable from 'vuedraggable'
 import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
+import { mapDocument } from '~/helpers/DocumentMapper'
 
 export default Vue.extend({
   name: 'UpdateInvoice',
@@ -279,10 +280,7 @@ export default Vue.extend({
       .collection('customers')
       .doc(customer)
       .onSnapshot((snapshot) => {
-        this.customer = {
-          $key: snapshot.id,
-          ...snapshot.data(),
-        } as Customer
+        this.customer = mapDocument<Customer>(snapshot)
       })
 
     const doc = await this.$fire.firestore
@@ -294,7 +292,7 @@ export default Vue.extend({
       .doc(invoice)
       .get()
 
-    this.invoice.data = doc.data() as Invoice
+    this.invoice.data = mapDocument<Invoice>(doc)
   },
   head: {
     title: 'Créer une facture',

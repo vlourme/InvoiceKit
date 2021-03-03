@@ -110,7 +110,7 @@ export default Vue.extend({
 
         this.members.push({
           ...doc.data(),
-          id: member,
+          $key: member,
         } as User)
       })
     },
