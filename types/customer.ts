@@ -4,7 +4,7 @@ export interface Customer {
   society: string
   email: string
   phone: string
-  note: string
+  notes: string
 }
 
 export const CustomerHeaders = [
