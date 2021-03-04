@@ -78,23 +78,13 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
+import Vue from 'vue'
 import { Address, AddressHeaders } from '@/types/address'
 import { mapState } from 'vuex'
 import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
   name: 'Addresses',
-  props: {
-    id: {
-      type: String,
-      required: true,
-    } as PropOptions<string>,
-    addresses: {
-      type: Array,
-      required: true,
-    } as PropOptions<Address[]>,
-  },
   data: () => ({
     addressHeaders: AddressHeaders,
     address: {} as Address,
@@ -103,6 +93,7 @@ export default Vue.extend({
   }),
   computed: {
     ...mapState('auth', ['user']),
+    ...mapState('payload', ['customer', 'addresses']),
   },
   methods: {
     async addAddress() {
@@ -111,7 +102,7 @@ export default Vue.extend({
           .collection('teams')
           .doc(this.user.team)
           .collection('customers')
-          .doc(this.id)
+          .doc(this.customer.$key)
           .collection('addresses')
           .doc(this.address.$key)
           .update(this.address)
@@ -120,7 +111,7 @@ export default Vue.extend({
           .collection('teams')
           .doc(this.user.team)
           .collection('customers')
-          .doc(this.id)
+          .doc(this.customer.$key)
           .collection('addresses')
           .add(this.address)
       }
@@ -144,7 +135,7 @@ export default Vue.extend({
         .collection('teams')
         .doc(this.user.team)
         .collection('customers')
-        .doc(this.id)
+        .doc(this.customer.$key)
         .collection('addresses')
         .doc(id)
         .delete()

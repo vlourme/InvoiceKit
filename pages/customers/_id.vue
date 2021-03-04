@@ -1,7 +1,7 @@
 <template>
   <Header>
     <Card margin>
-      <template #title>Créer une fiche client</template>
+      <template #title>Modifier une fiche client</template>
 
       <template #actions>
         <v-btn text color="error" @click="dialog = true">
@@ -36,17 +36,9 @@
       </v-form>
     </Card>
 
-    <customers-addresses
-      :id="$route.params.id"
-      :addresses="addresses"
-      class="my-4"
-    />
+    <customers-addresses class="my-4" />
 
-    <customers-invoices
-      :id="$route.params.id"
-      :addresses="addresses"
-      class="my-4"
-    />
+    <customers-invoices class="my-4" />
 
     <v-dialog v-model="dialog" width="500">
       <v-card>
@@ -72,52 +64,38 @@
 <script lang="ts">
 import { mapState } from 'vuex'
 import Vue from 'vue'
-import { Customer } from '~/types/customer'
-import { Address, AddressHeaders } from '~/types/address'
-import { mapDocument, mapSnapshot } from '~/helpers/DocumentMapper'
 import { NotificationType } from '~/types/notification'
+import { Customer } from '~/types/customer'
 
 export default Vue.extend({
   name: 'ViewCustomer',
   layout: 'dashboard',
+  async asyncData({ route, store }) {
+    const { id } = route.params
+    await store.dispatch('payload/fetchCustomer', id)
+    await store.dispatch('payload/fetchAddresses', id)
+  },
   data: () => ({
     valid: false,
-    customer: {} as Customer,
     rules: {
       email: [(v: string) => !v || /.+@.+/.test(v) || "L'email est invalide."],
     },
+    customer: {} as Customer,
     dialog: false,
-    invoiceDialog: false,
-    addressHeaders: AddressHeaders,
-    addresses: [] as Address[],
   }),
-  fetch() {
-    this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('customers')
-      .doc(this.$route.params.id)
-      .onSnapshot((snapshot) => {
-        this.customer = mapDocument<Customer>(snapshot)
-      })
-
-    this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('customers')
-      .doc(this.$route.params.id)
-      .collection('addresses')
-      .onSnapshot((snapshot) => {
-        this.addresses = mapSnapshot<Address>(snapshot)
-      })
-  },
   head() {
     return {
-      title: `${this.customer.fullName} — Fiche client`,
+      title: `${this.customerState.fullName} — Fiche client`,
     }
   },
   computed: {
     ...mapState('auth', ['user']),
+    ...mapState('payload', {
+      customerState: 'customer',
+    }),
+  },
+  mounted() {
+    this.customer = Object.assign({}, this.customerState)
   },
   methods: {
     async updateCustomer(): Promise<void> {
@@ -132,7 +110,7 @@ export default Vue.extend({
         .collection('teams')
         .doc(this.user.team)
         .collection('customers')
-        .doc(this.$route.params.id)
+        .doc(this.customerState.$key)
         .update(this.customer)
 
       this.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
@@ -147,7 +125,7 @@ export default Vue.extend({
         .collection('teams')
         .doc(this.user.team)
         .collection('customers')
-        .doc(this.$route.params.id)
+        .doc(this.customerState.$key)
         .delete()
         .then(() => {
           this.$router.push('/customers')

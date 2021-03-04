@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
+import Vue from 'vue'
 import { DataTableHeader } from 'vuetify'
 import { mapState } from 'vuex'
 import { mapSnapshot } from '~/helpers/DocumentMapper'
@@ -55,16 +55,6 @@ import { Invoice } from '~/types/invoice'
 
 export default Vue.extend({
   name: 'Invoices',
-  props: {
-    id: {
-      type: String,
-      required: true,
-    } as PropOptions<string>,
-    addresses: {
-      type: Array,
-      required: true,
-    } as PropOptions<Address[]>,
-  },
   data: () => ({
     invoiceHeaders: [
       {
@@ -89,7 +79,7 @@ export default Vue.extend({
       .collection('teams')
       .doc(this.user.team)
       .collection('customers')
-      .doc(this.id)
+      .doc(this.customer.$key)
       .collection('invoices')
       .onSnapshot((snapshot) => {
         this.invoices = mapSnapshot<Invoice>(snapshot)
@@ -97,20 +87,21 @@ export default Vue.extend({
   },
   computed: {
     ...mapState('auth', ['user']),
+    ...mapState('payload', ['customer', 'addresses']),
   },
   methods: {
     makeInvoice(item: Address) {
       this.$router.push({
         path: '/invoices/create',
         query: {
-          customer: this.$route.params.id,
+          customer: this.customer.$key,
           address: item.$key,
         },
       })
     },
 
     navigateToInvoice(invoice: Invoice) {
-      this.$router.push(`/invoices/${this.$route.params.id}/${invoice.$key}`)
+      this.$router.push(`/invoices/${this.customer.$key}/${invoice.$key}`)
     },
   },
 })
