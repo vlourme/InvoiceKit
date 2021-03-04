@@ -15,7 +15,7 @@
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
 
-        <v-btn color="error" icon @click="deleteAddress(item.id)">
+        <v-btn color="error" icon @click="deleteAddress(item.$key)">
           <v-icon>mdi-delete</v-icon>
         </v-btn>
       </template>
