@@ -103,6 +103,9 @@
     <v-main class="main-bg">
       <nuxt />
     </v-main>
+
+    <!-- Plugins -->
+    <notification />
   </v-app>
 </template>
 
