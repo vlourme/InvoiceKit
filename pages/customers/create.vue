@@ -37,6 +37,7 @@
 import { mapState } from 'vuex'
 import Vue from 'vue'
 import { Customer } from '~/types/customer'
+import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
   name: 'CreateCustomer',
@@ -58,6 +59,7 @@ export default Vue.extend({
     async createCustomer(): Promise<void> {
       // Check validity
       if (!this.valid) {
+        this.$notify('Le formulaire est invalide', NotificationType.WARNING)
         return
       }
 

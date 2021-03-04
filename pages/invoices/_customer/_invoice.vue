@@ -248,6 +248,7 @@ import draggable from 'vuedraggable'
 import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { mapDocument } from '~/helpers/DocumentMapper'
+import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
   name: 'UpdateInvoice',
@@ -321,6 +322,7 @@ export default Vue.extend({
 
     async updateInvoice() {
       if (!this.customer.$key || !this.valid) {
+        this.$notify('Impossible de sauvegarder', NotificationType.WARNING)
         return
       }
 
@@ -356,6 +358,8 @@ export default Vue.extend({
             updatedAt: new Date(),
           } as InvoiceIndex)
       }
+
+      this.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
     },
   },
 })

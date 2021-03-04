@@ -73,6 +73,7 @@
 import Vue, { PropOptions } from 'vue'
 import { Address, AddressHeaders } from '@/types/address'
 import { mapState } from 'vuex'
+import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
   name: 'Addresses',
@@ -118,6 +119,10 @@ export default Vue.extend({
 
       this.address = {} as Address
       this.dialog = false
+      this.$notify(
+        'Les changements ont étés sauvegardés',
+        NotificationType.SUCCESS
+      )
     },
 
     editAddress(address: Address) {
@@ -135,6 +140,8 @@ export default Vue.extend({
         .collection('addresses')
         .doc(id)
         .delete()
+
+      this.$notify("L'adresse à été supprimée", NotificationType.SUCCESS)
     },
   },
 })

@@ -75,6 +75,7 @@ import Vue from 'vue'
 import { Customer } from '~/types/customer'
 import { Address, AddressHeaders } from '~/types/address'
 import { mapDocument, mapSnapshot } from '~/helpers/DocumentMapper'
+import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
   name: 'ViewCustomer',
@@ -122,6 +123,7 @@ export default Vue.extend({
     async updateCustomer(): Promise<void> {
       // Check validity
       if (!this.valid) {
+        this.$notify('Le formulaire est invalide', NotificationType.WARNING)
         return
       }
 
@@ -132,6 +134,8 @@ export default Vue.extend({
         .collection('customers')
         .doc(this.$route.params.id)
         .update(this.customer)
+
+      this.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
     },
 
     /**

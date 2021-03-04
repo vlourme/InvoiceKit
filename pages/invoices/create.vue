@@ -245,6 +245,7 @@ import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { Address } from '~/types/address'
 import { mapDocument } from '~/helpers/DocumentMapper'
+import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
   name: 'CreateInvoice',
@@ -319,6 +320,7 @@ export default Vue.extend({
 
     async createInvoice() {
       if (!this.customer.$key || !this.valid) {
+        this.$notify('Impossible de sauvegarder', NotificationType.WARNING)
         return
       }
 

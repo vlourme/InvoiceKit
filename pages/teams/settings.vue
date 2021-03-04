@@ -26,10 +26,6 @@
 
       <teams-fields :team.sync="teamModel" class="my-4" />
     </v-form>
-
-    <v-snackbar v-model="snackbar" :timeout="3000">
-      {{ text }}
-    </v-snackbar>
   </Header>
 </template>
 
@@ -37,6 +33,7 @@
 import { mapState } from 'vuex'
 import Vue from 'vue'
 import Team from '~/types/team'
+import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
   name: 'Settings',
@@ -49,8 +46,6 @@ export default Vue.extend({
   data: () => ({
     valid: false,
     teamModel: {} as Team,
-    text: '',
-    snackbar: false,
   }),
   fetch() {
     this.teamModel = Object.assign({}, this.team)
@@ -74,12 +69,16 @@ export default Vue.extend({
         .doc(this.user.team)
         .update(this.teamModel)
         .then(() => {
-          this.text = 'Les paramètres ont étés sauvegardés.'
-          this.snackbar = true
+          this.$notify(
+            'Les paramètres ont étés sauvegardés.',
+            NotificationType.SUCCESS
+          )
         })
         .catch(() => {
-          this.text = 'Une erreur est survenue lors de la sauvegarde.'
-          this.snackbar = true
+          this.$notify(
+            'Une erreur est survenue lors de la sauvegarde.',
+            NotificationType.WARNING
+          )
         })
     },
   },
