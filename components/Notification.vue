@@ -25,7 +25,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { MutationPayload } from 'vuex/types/index'
-import { RootState } from '~/store/root'
+import { NotificationModuleState } from '@/store/notification'
 import { Notification } from '~/types/notification'
 
 export default Vue.extend({
@@ -35,12 +35,14 @@ export default Vue.extend({
     notification: null as Notification | null,
   }),
   mounted() {
-    this.$store.subscribe((mutation: MutationPayload, state: RootState) => {
-      if (mutation.type === 'SET_NOTIFICATION') {
-        this.notification = state.notification
-        this.snackbar = true
+    this.$store.subscribe(
+      (mutation: MutationPayload, state: NotificationModuleState) => {
+        if (mutation.type === 'notification/SET_NOTIFICATION') {
+          this.notification = state.notification
+          this.snackbar = true
+        }
       }
-    })
+    )
   },
 })
 </script>

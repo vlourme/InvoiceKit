@@ -297,7 +297,7 @@ export default Vue.extend({
     title: 'Créer une facture',
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState('auth', ['user']),
   },
   methods: {
     addField(): void {

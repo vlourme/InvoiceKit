@@ -52,7 +52,7 @@ const config: NuxtConfig = {
         services: {
           auth: {
             initialize: {
-              onAuthStateChangedAction: 'onAuthStateChanged',
+              onAuthStateChangedAction: 'auth/onAuthStateChanged',
             },
           },
           firestore: {

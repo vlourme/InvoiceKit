@@ -117,7 +117,7 @@ export default Vue.extend({
     }
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState('auth', ['user']),
   },
   methods: {
     async updateCustomer(): Promise<void> {

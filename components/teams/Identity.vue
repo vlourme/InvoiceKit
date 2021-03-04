@@ -87,7 +87,7 @@ export default Vue.extend({
     image: '',
   }),
   computed: {
-    ...mapState(['user']),
+    ...mapState('auth', ['user']),
   },
   watch: {
     teamModel: {

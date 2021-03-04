@@ -53,7 +53,7 @@ export default Vue.extend({
     title: 'Créer une fiche client',
   },
   computed: {
-    ...mapState(['auth', 'user']),
+    ...mapState('auth', ['auth', 'user']),
   },
   methods: {
     async createCustomer(): Promise<void> {

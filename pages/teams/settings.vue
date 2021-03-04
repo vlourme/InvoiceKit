@@ -39,7 +39,7 @@ export default Vue.extend({
   name: 'Settings',
   layout: 'dashboard',
   middleware({ store, redirect }) {
-    if (!store.state.team) {
+    if (!store.state.team.team) {
       redirect('/dashboard')
     }
   },
@@ -54,7 +54,8 @@ export default Vue.extend({
     title: 'Paramètres de la team',
   },
   computed: {
-    ...mapState(['auth', 'user', 'team']),
+    ...mapState('auth', ['auth', 'user']),
+    ...mapState('team', ['team']),
   },
   methods: {
     updateTeam(): void {

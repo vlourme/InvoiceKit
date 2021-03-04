@@ -15,7 +15,7 @@ export default {
     title: 'Tableau de bord',
   }),
   computed: {
-    ...mapState(['user']),
+    ...mapState('auth', ['user']),
   },
 }
 </script>

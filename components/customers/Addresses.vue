@@ -94,7 +94,7 @@ export default Vue.extend({
     update: false,
   }),
   computed: {
-    ...mapState(['user']),
+    ...mapState('auth', ['user']),
   },
   methods: {
     async addAddress() {

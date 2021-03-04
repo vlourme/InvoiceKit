@@ -83,7 +83,7 @@ export default Vue.extend({
     title: 'Paramètres du compte',
   },
   computed: {
-    ...mapState(['auth', 'user']),
+    ...mapState('auth', ['auth', 'user']),
   },
   mounted() {
     this.name = this.user.name

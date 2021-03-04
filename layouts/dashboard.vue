@@ -136,13 +136,14 @@ export default Vue.extend({
     ],
   }),
   computed: {
-    ...mapState(['auth', 'user', 'teams']),
+    ...mapState('auth', ['auth', 'user']),
+    ...mapState('team', ['teams']),
     drawer: {
       get() {
-        return this.$store.state.drawer
+        return this.$store.state.sidebar.drawer
       },
       set(val) {
-        this.$store.commit('SET_DRAWER', val)
+        this.$store.commit('sidebar/SET_DRAWER', val)
       },
     },
   },
@@ -154,7 +155,7 @@ export default Vue.extend({
     },
 
     async switchTeam(id: string) {
-      await this.$store.dispatch('switchTeam', id)
+      await this.$store.dispatch('team/switchTeam', id)
     },
   },
 })

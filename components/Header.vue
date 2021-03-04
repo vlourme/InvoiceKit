@@ -9,22 +9,17 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-
 export default {
   name: 'Header',
   computed: {
     drawer: {
       get() {
-        return this.$store.state.drawer
+        return this.$store.state.sidebar.drawer
       },
       set(val) {
-        this.$store.commit('SET_DRAWER', val)
+        this.$store.commit('sidebar/SET_DRAWER', val)
       },
     },
-  },
-  methods: {
-    ...mapActions(['toggleDrawer']),
   },
 }
 </script>

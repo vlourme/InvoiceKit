@@ -96,7 +96,7 @@ export default Vue.extend({
       })
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState('auth', ['user']),
   },
   methods: {
     makeInvoice(item: Address) {

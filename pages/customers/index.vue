@@ -60,7 +60,7 @@ export default Vue.extend({
     title: 'Clients',
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState('auth', ['user']),
   },
   methods: {
     navigateToCustomer(customer: Customer) {

@@ -55,7 +55,7 @@ export default Vue.extend({
     title: 'Factures',
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState('auth', ['user']),
   },
   methods: {
     navigateToInvoice(invoice: InvoiceIndex) {

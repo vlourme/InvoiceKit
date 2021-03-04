@@ -52,7 +52,7 @@ export default Vue.extend({
     title: 'Créer une team',
   },
   computed: {
-    ...mapState(['auth', 'user']),
+    ...mapState('auth', ['auth', 'user']),
   },
   methods: {
     async createTeam(): Promise<void> {
