@@ -61,7 +61,15 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="warning" text @click="dialog = false">Annuler</v-btn>
+          <v-btn
+            color="warning"
+            text
+            @click="
+              address = {}
+              dialog = false
+            "
+            >Annuler</v-btn
+          >
           <v-btn color="success" text @click="addAddress">Ajouter</v-btn>
         </v-card-actions>
       </v-card>
