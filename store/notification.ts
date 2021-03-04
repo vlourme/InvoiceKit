@@ -15,7 +15,7 @@ export const mutations: MutationTree<NotificationModuleState> = {
 }
 
 export const actions: ActionTree<NotificationModuleState, AuthModuleState> = {
-  sendNotification({ commit }, notification: Notification) {
+  send({ commit }, notification: Notification) {
     commit('SET_NOTIFICATION', notification)
   },
 }

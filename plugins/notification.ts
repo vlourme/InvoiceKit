@@ -4,6 +4,6 @@ import { Notification, NotificationType } from '~/types/notification'
 
 export default ({ store }: Context, inject: Inject) => {
   inject('notify', (message: string, type: NotificationType) => {
-    store.dispatch('sendNotification', { message, type } as Notification)
+    store.dispatch('notification/send', { message, type } as Notification)
   })
 }
