@@ -1,5 +1,5 @@
 <template>
-  <v-snackbar v-if="notification" v-model="snackbar" :timeout="3000">
+  <v-snackbar v-if="notification" v-model="snackbar" top :timeout="3000">
     <div class="d-flex align-center">
       <v-icon v-if="notification.type === 0" color="success" left>
         mdi-check
