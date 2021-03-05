@@ -72,53 +72,8 @@
 
     <invoice-table :invoice-state.sync="invoice" />
 
-    <v-dialog v-model="promotionDialog" width="500">
-      <v-card>
-        <v-card-title>Ajouter une réduction</v-card-title>
-
-        <v-card-text>
-          <v-text-field
-            v-model.number="invoice.data.promotion"
-            label="Réduction (en pourcentage)"
-            append-icon="mdi-percentage"
-            type="number"
-          ></v-text-field>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="success" text @click="promotionDialog = false">
-            Fermer
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="depositDialog" width="500">
-      <v-card>
-        <v-card-title>Ajouter un acompte</v-card-title>
-
-        <v-card-text>
-          <v-text-field
-            v-model.number="invoice.data.deposit"
-            label="Acompte (en Euro)"
-            append-icon="mdi-currency-eur"
-            type="number"
-          ></v-text-field>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="success" text @click="depositDialog = false">
-            Fermer
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <invoice-deposit :invoice.sync="invoice" :dialog.sync="depositDialog" />
+    <invoice-promotion :invoice.sync="invoice" :dialog.sync="promotionDialog" />
 
     <invoice-sidebar
       :customer="customer"
