@@ -9,6 +9,8 @@
     "sourceMap": true,
     "strict": true,
     "noEmit": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
     "experimentalDecorators": true,
     "importHelpers": true,
     "baseUrl": ".",
@@ -16,8 +18,9 @@
       "~/*": ["./*"],
       "@/*": ["./*"]
     },
-    "types": ["@nuxt/types", "@types/node", "@nuxtjs/firebase", "vuetify"],
+    "outDir": "dist",
+    "types": ["@nuxt/types", "@types/node", "@nuxtjs/firebase", "vuetify", "lodash"],
     "typeRoots": ["types", "node_modules/vuetify/types", "node_modules/@types"]
   },
-  "exclude": ["node_modules", ".nuxt", "dist"]
+  "exclude": ["types", "node_modules", ".nuxt", "dist"]
 }

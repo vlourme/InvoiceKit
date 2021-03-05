@@ -94,7 +94,7 @@
 
 <script lang="ts">
 import { Invoice, InvoiceIndex, Type } from '@/types/invoice'
-import { cloneDeep } from 'lodash/lang'
+import { cloneDeep } from 'lodash'
 import Vue from 'vue'
 import { mapState } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
