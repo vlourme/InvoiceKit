@@ -96,7 +96,9 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="closeField">Annuler</v-btn>
-          <v-btn color="success" text @click="addField">Ajouter</v-btn>
+          <v-btn color="success" text @click="addField">
+            {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -151,6 +153,7 @@ export default Vue.extend({
 
     closeField() {
       this.field = defaultField()
+      this.update = -1
       this.dialog = false
     },
 
