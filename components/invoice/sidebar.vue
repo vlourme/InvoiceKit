@@ -114,7 +114,6 @@
 import Vue, { PropOptions } from 'vue'
 import { mapState } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
-import { Address } from '~/types/address'
 
 export default Vue.extend({
   name: 'InvoiceSidebar',
