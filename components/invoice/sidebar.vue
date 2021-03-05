@@ -44,9 +44,8 @@
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>
-            {{ invoice.data.address.street }}, {{ invoice.data.address.city }}
-            {{ invoice.data.address.zip }},
-            {{ invoice.data.address.country }}
+            {{ address.street }}, {{ address.city }} {{ address.zip }},
+            {{ address.country }}
           </v-list-item-title>
           <v-list-item-subtitle>Adresse</v-list-item-subtitle>
         </v-list-item-content>
@@ -113,16 +112,13 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { Customer } from '@/types/customer'
-import InvoiceImpl from '@/implementations/InvoiceImpl'
+import { mapState } from 'vuex'
+import InvoiceImpl from '~/implementations/InvoiceImpl'
+import { Address } from '~/types/address'
 
 export default Vue.extend({
   name: 'InvoiceSidebar',
   props: {
-    customer: {
-      type: Object,
-      required: true,
-    } as PropOptions<Customer>,
     invoice: {
       type: InvoiceImpl,
       required: true,
@@ -140,6 +136,13 @@ export default Vue.extend({
     total: 0,
     tax: 0,
   }),
+  computed: {
+    ...mapState('payload', {
+      customer: 'customer',
+      invoiceState: 'invoice',
+      address: 'address',
+    }),
+  },
   watch: {
     'invoice.data': {
       deep: true,
@@ -148,6 +151,10 @@ export default Vue.extend({
         this.tax = this.invoice.getTotalTaxes()
       },
     },
+  },
+  mounted() {
+    this.total = this.invoice.getTotalPrice()
+    this.tax = this.invoice.getTotalTaxes()
   },
 })
 </script>

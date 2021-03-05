@@ -241,10 +241,7 @@ import {
   Type,
 } from '@/types/invoice'
 import draggable from 'vuedraggable'
-import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
-import { Address } from '~/types/address'
-import { mapDocument } from '~/helpers/DocumentMapper'
 import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
@@ -253,8 +250,14 @@ export default Vue.extend({
     draggable,
   },
   layout: 'dashboard',
+  async asyncData({ store, route }) {
+    // Type fix
+    const query = route.query as { [key: string]: string }
+
+    await store.dispatch('payload/fetchCustomer', query.customer)
+    await store.dispatch('payload/fetchAddress', query.address)
+  },
   data: () => ({
-    customer: {} as Customer,
     field: defaultField(),
     invoice: new InvoiceImpl(),
     types: [
@@ -269,35 +272,15 @@ export default Vue.extend({
     update: -1,
     valid: false,
   }),
-  async fetch() {
-    // Type fix
-    const query = this.$route.query as { [key: string]: string }
-
-    this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('customers')
-      .doc(query.customer)
-      .onSnapshot((snapshot) => {
-        this.customer = mapDocument<Customer>(snapshot)
-      })
-
-    const doc = await this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('customers')
-      .doc(query.customer)
-      .collection('addresses')
-      .doc(query.address)
-      .get()
-
-    this.invoice.data.address = mapDocument<Address>(doc)
-  },
   head: {
     title: 'Créer une facture',
   },
   computed: {
     ...mapState('auth', ['user']),
+    ...mapState('payload', ['customer', 'address']),
+  },
+  mounted() {
+    this.invoice.data.address = this.address.$key
   },
   methods: {
     addField(): void {

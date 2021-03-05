@@ -170,7 +170,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" text @click="itemDialog = false">Annuler</v-btn>
+          <v-btn color="error" text @click="closeField">Annuler</v-btn>
           <v-btn color="success" text @click="addField">Ajouter</v-btn>
         </v-card-actions>
       </v-card>
@@ -225,29 +225,20 @@
     </v-dialog>
 
     <invoice-sidebar
-      :customer="customer"
+      :invoice="invoice"
       :promotion-dialog.sync="promotionDialog"
       :deposit-dialog.sync="depositDialog"
-      :invoice="invoice"
     />
   </Header>
 </template>
 
 <script lang="ts">
+import { defaultField, FieldHeaders, InvoiceIndex, Type } from '@/types/invoice'
+import { cloneDeep } from 'lodash/lang'
 import Vue from 'vue'
-import { mapState } from 'vuex'
-import {
-  defaultField,
-  Field,
-  FieldHeaders,
-  Invoice,
-  InvoiceIndex,
-  Type,
-} from '@/types/invoice'
 import draggable from 'vuedraggable'
-import { Customer } from '~/types/customer'
+import { mapState } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
-import { mapDocument } from '~/helpers/DocumentMapper'
 import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
@@ -256,8 +247,13 @@ export default Vue.extend({
     draggable,
   },
   layout: 'dashboard',
+  async asyncData({ store, route }) {
+    const { customer, invoice } = route.params
+
+    await store.dispatch('payload/fetchCustomer', customer)
+    await store.dispatch('payload/fetchInvoice', invoice)
+  },
   data: () => ({
-    customer: {} as Customer,
     field: defaultField(),
     invoice: new InvoiceImpl(),
     types: [
@@ -272,34 +268,18 @@ export default Vue.extend({
     update: -1,
     valid: false,
   }),
-  async fetch() {
-    const { customer, invoice } = this.$route.params
-
-    this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('customers')
-      .doc(customer)
-      .onSnapshot((snapshot) => {
-        this.customer = mapDocument<Customer>(snapshot)
-      })
-
-    const doc = await this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('customers')
-      .doc(customer)
-      .collection('invoices')
-      .doc(invoice)
-      .get()
-
-    this.invoice.data = mapDocument<Invoice>(doc)
-  },
   head: {
     title: 'Créer une facture',
   },
   computed: {
     ...mapState('auth', ['user']),
+    ...mapState('payload', {
+      customer: 'customer',
+      invoiceState: 'invoice',
+    }),
+  },
+  mounted() {
+    this.invoice.data = cloneDeep(this.invoiceState)
   },
   methods: {
     addField(): void {

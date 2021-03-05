@@ -1,7 +1,6 @@
 import { ActionTree, MutationTree } from 'vuex/types/index'
 import RootState from '.'
 import { mapDocument, mapSnapshot } from '~/helpers/DocumentMapper'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { Address } from '~/types/address'
 import { Customer } from '~/types/customer'
 import { Invoice } from '~/types/invoice'
@@ -10,7 +9,7 @@ export const state = () => ({
   customer: null as Customer | null,
   address: null as Address | null,
   addresses: [] as Address[],
-  invoice: new InvoiceImpl(),
+  invoice: null as Invoice | null,
 })
 
 export type PayloadModuleState = ReturnType<typeof state>
@@ -29,7 +28,7 @@ export const mutations: MutationTree<PayloadModuleState> = {
   },
 
   SET_INVOICE: (state, invoice: Invoice) => {
-    state.invoice.data = invoice
+    state.invoice = invoice
   },
 }
 
@@ -85,19 +84,21 @@ export const actions: ActionTree<PayloadModuleState, RootState> = {
    * @param context
    * @returns
    */
-  fetchAddress({ commit, state, rootState }) {
+  async fetchAddress({ commit, state, rootState }, addressID: string) {
     if (!rootState.auth.user?.team || !state.customer?.$key) {
       return
     }
 
-    this.$fire.firestore
+    const doc = await this.$fire.firestore
       .collection('teams')
       .doc(rootState.auth.user.team)
       .collection('customers')
       .doc(state.customer.$key)
-      .onSnapshot((snapshot) => {
-        commit('SET_ADDRESS', mapDocument<Address>(snapshot))
-      })
+      .collection('addresses')
+      .doc(addressID)
+      .get()
+
+    commit('SET_ADDRESS', mapDocument<Address>(doc))
   },
 
   /**
@@ -107,24 +108,27 @@ export const actions: ActionTree<PayloadModuleState, RootState> = {
    * @param invoiceID
    * @returns
    */
-  fetchInvoice({ commit, state, rootState }, invoiceID: string) {
-    if (
-      !rootState.auth.user?.team ||
-      !state.customer?.$key ||
-      !state.address?.$key
-    ) {
+  async fetchInvoice(
+    { commit, dispatch, state, rootState },
+    invoiceID: string
+  ) {
+    if (!rootState.auth.user?.team || !state.customer?.$key) {
       return
     }
 
-    this.$fire.firestore
+    const doc = await this.$fire.firestore
       .collection('teams')
       .doc(rootState.auth.user.team)
       .collection('customers')
       .doc(state.customer.$key)
       .collection('invoices')
       .doc(invoiceID)
-      .onSnapshot((snapshot) => {
-        commit('SET_INVOICE', mapDocument<Invoice>(snapshot))
-      })
+      .get()
+
+    const invoice = mapDocument<Invoice>(doc)
+
+    await dispatch('fetchAddress', invoice.address)
+
+    commit('SET_INVOICE', invoice)
   },
 }
