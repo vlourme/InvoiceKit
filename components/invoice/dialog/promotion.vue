@@ -5,11 +5,10 @@
 
       <v-card-text>
         <v-text-field
-          :value="invoice.data.promotion"
+          v-model.number="invoice.data.promotion"
           label="Réduction (en pourcentage)"
           append-icon="mdi-percentage"
           type="number"
-          @input="$emit('update:invoice', $event.target.value)"
         ></v-text-field>
       </v-card-text>
 
@@ -28,13 +27,13 @@ import Vue, { PropOptions } from 'vue'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 
 export default Vue.extend({
-  name: 'InvoicePromotionDialog',
+  name: 'InvoicePromotion',
   props: {
     dialog: {
       type: Boolean,
       required: true,
     } as PropOptions<boolean>,
-    invoice: {
+    invoiceState: {
       type: InvoiceImpl,
       required: true,
     } as PropOptions<InvoiceImpl>,
@@ -46,6 +45,14 @@ export default Vue.extend({
       },
       set(val: boolean) {
         this.$emit('update:dialog', val)
+      },
+    },
+    invoice: {
+      get() {
+        return this.invoiceState
+      },
+      set(val: InvoiceImpl) {
+        this.$emit('update:invoice', val)
       },
     },
   },

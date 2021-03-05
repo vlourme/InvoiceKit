@@ -1,15 +1,14 @@
 <template>
-  <v-dialog v-model="dialog" width="500">
+  <v-dialog v-model="display" width="500">
     <v-card>
       <v-card-title>Ajouter un acompte</v-card-title>
 
       <v-card-text>
         <v-text-field
-          :value="invoice.data.deposit"
+          v-model.number="invoice.data.deposit"
           label="Acompte (en Euro)"
           append-icon="mdi-currency-eur"
           type="number"
-          @input="$emit('update:invoice', $event.target.value)"
         ></v-text-field>
       </v-card-text>
 
@@ -17,7 +16,7 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="success" text @click="dialog = false"> Fermer </v-btn>
+        <v-btn color="success" text @click="display = false"> Fermer </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -28,13 +27,13 @@ import Vue, { PropOptions } from 'vue'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 
 export default Vue.extend({
-  name: 'InvoiceDepositDialog',
+  name: 'InvoiceDeposit',
   props: {
     dialog: {
       type: Boolean,
       required: true,
     } as PropOptions<boolean>,
-    invoice: {
+    invoiceState: {
       type: InvoiceImpl,
       required: true,
     } as PropOptions<InvoiceImpl>,
@@ -46,6 +45,14 @@ export default Vue.extend({
       },
       set(val: boolean) {
         this.$emit('update:dialog', val)
+      },
+    },
+    invoice: {
+      get() {
+        return this.invoiceState
+      },
+      set(val: InvoiceImpl) {
+        this.$emit('update:invoice', val)
       },
     },
   },

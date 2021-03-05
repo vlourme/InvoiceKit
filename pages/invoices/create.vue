@@ -72,8 +72,14 @@
 
     <invoice-table :invoice-state.sync="invoice" />
 
-    <invoice-deposit :invoice.sync="invoice" :dialog.sync="depositDialog" />
-    <invoice-promotion :invoice.sync="invoice" :dialog.sync="promotionDialog" />
+    <invoice-dialog-deposit
+      :invoice-state.sync="invoice"
+      :dialog.sync="depositDialog"
+    />
+    <invoice-dialog-promotion
+      :invoice-state.sync="invoice"
+      :dialog.sync="promotionDialog"
+    />
 
     <invoice-sidebar
       :customer="customer"
