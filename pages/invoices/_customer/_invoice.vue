@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import { InvoiceIndex, Type } from '@/types/invoice'
+import { Invoice, InvoiceIndex, Type } from '@/types/invoice'
 import { cloneDeep } from 'lodash/lang'
 import Vue from 'vue'
 import { mapState } from 'vuex'
@@ -150,7 +150,10 @@ export default Vue.extend({
         .doc(this.customer.$key)
         .collection('invoices')
         .doc(id)
-        .update(this.invoice.data)
+        .update({
+          ...this.invoice.data,
+          updatedAt: new Date(),
+        } as Invoice)
 
       // Register in a indexed list
       const index = await this.$fire.firestore
