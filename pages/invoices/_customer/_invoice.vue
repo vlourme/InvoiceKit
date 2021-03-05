@@ -133,7 +133,7 @@
       </v-data-table>
     </Card>
 
-    <v-dialog v-model="itemDialog" width="500">
+    <v-dialog v-model="itemDialog" width="500" @click:outside="closeField">
       <v-card>
         <v-card-title>Ajouter un objet</v-card-title>
 
@@ -310,7 +310,7 @@ export default Vue.extend({
       }
 
       this.update = -1
-      this.field = defaultField() as Field
+      this.field = defaultField()
       this.itemDialog = false
     },
 
@@ -318,6 +318,11 @@ export default Vue.extend({
       this.field = this.invoice.data.fields[idx]
       this.update = idx
       this.itemDialog = true
+    },
+
+    closeField() {
+      this.field = defaultField()
+      this.itemDialog = false
     },
 
     async updateInvoice() {
