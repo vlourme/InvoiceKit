@@ -14,8 +14,8 @@ export function mapSnapshot<T extends Model>(
   return snapshot.docs.map(
     (document) =>
       ({
-        $key: document.id,
         ...document.data(),
+        $key: document.id,
       } as T)
   )
 }
@@ -30,7 +30,7 @@ export function mapDocument<T extends Model>(
   document: firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>
 ): T {
   return {
-    $key: document.id,
     ...document.data(),
+    $key: document.id,
   } as T
 }
