@@ -40,18 +40,18 @@ export default Vue.extend({
   },
   computed: {
     display: {
-      get() {
+      get(): boolean {
         return this.dialog
       },
-      set(val: boolean) {
+      set(val: boolean): void {
         this.$emit('update:dialog', val)
       },
     },
     invoice: {
-      get() {
+      get(): InvoiceImpl {
         return this.invoiceState
       },
-      set(val: InvoiceImpl) {
+      set(val: InvoiceImpl): void {
         this.$emit('update:invoice', val)
       },
     },
