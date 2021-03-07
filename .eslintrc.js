@@ -20,5 +20,6 @@ module.exports = {
         allowModifiers: true,
       },
     ],
+    'new-cap': [1],
   },
 }

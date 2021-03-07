@@ -107,13 +107,37 @@
         </v-list-item-content>
       </v-list-item>
     </v-list>
+    <v-divider />
+    <v-list nav dense subheader>
+      <v-subheader>Actions</v-subheader>
+
+      <v-list-item :disabled="!invoice.data.$key" link @click="save">
+        <v-list-item-icon>
+          <v-icon>mdi-content-save</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Sauvegarder en PDF</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-list-item :disabled="!invoice.data.$key" link @click="printInvoice">
+        <v-list-item-icon>
+          <v-icon>mdi-printer</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title>Imprimer</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-list>
   </v-navigation-drawer>
 </template>
 
 <script lang="ts">
+import jsPDF from 'jspdf'
 import Vue, { PropOptions } from 'vue'
 import { mapState } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
+import BasicInvoiceTemplate from '~/templates/basic'
 
 export default Vue.extend({
   name: 'InvoiceSidebar',
@@ -134,8 +158,11 @@ export default Vue.extend({
   data: () => ({
     total: 0,
     tax: 0,
+    pdf: null as jsPDF | null,
   }),
   computed: {
+    ...mapState('auth', ['user']),
+    ...mapState('team', ['team']),
     ...mapState('payload', {
       customer: 'customer',
       invoiceState: 'invoice',
@@ -154,6 +181,55 @@ export default Vue.extend({
   mounted() {
     this.total = this.invoice.getTotalPrice()
     this.tax = this.invoice.getTotalTaxes()
+  },
+  methods: {
+    /**
+     * Render PDF
+     */
+    async render(): Promise<jsPDF> {
+      let logo = ''
+
+      try {
+        logo = await this.$fire.storage.ref(this.user.team).getDownloadURL()
+      } catch {}
+
+      const template = new BasicInvoiceTemplate()
+      template.init(this.invoice, this.customer, this.address, this.team, logo)
+
+      return await template.render()
+    },
+
+    /**
+     * Save PDF on computer
+     */
+    async save() {
+      // Render
+      if (!this.pdf) {
+        this.pdf = await this.render()
+      }
+
+      // Get name
+      const name = `${
+        this.invoice.data.type === 'QUOTE' ? 'Devis' : 'Facture'
+      } #${this.invoice.data.id}`
+
+      // Save
+      this.pdf.save(name)
+    },
+
+    /**
+     * Print PDF in a new window
+     */
+    async printInvoice() {
+      // Render
+      if (!this.pdf) {
+        this.pdf = await this.render()
+      }
+
+      // Print
+      this.pdf.autoPrint()
+      this.pdf.output('dataurlnewwindow')
+    },
   },
 })
 </script>
