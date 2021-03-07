@@ -23,7 +23,11 @@
             </td>
             <v-menu max-width="150" offset-y>
               <template #activator="{ on, attrs }">
-                <td v-bind="attrs" v-on="on">{{ item.description }}</td>
+                <td
+                  v-bind="attrs"
+                  v-on="on"
+                  v-html="replaceWithHTMLBreak(item.description)"
+                ></td>
               </template>
               <v-list dense color="grey darken-3">
                 <v-list-item link @click="editField(idx)">
@@ -150,6 +154,10 @@ export default Vue.extend({
       this.update = -1
       this.field = defaultField()
       this.dialog = false
+    },
+
+    replaceWithHTMLBreak(str: string) {
+      return str.replace(/\n/g, '<br />')
     },
 
     closeField() {
