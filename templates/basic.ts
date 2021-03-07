@@ -8,8 +8,9 @@ import Template from './template'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { Address } from '~/types/address'
 import { Customer } from '~/types/customer'
-import Team from '~/types/team'
+import { RenderingSignature, Team } from '~/types/team'
 import DataURI from '~/helpers/DataURI'
+import { Type } from '~/types/invoice'
 
 export default class BasicInvoiceTemplate implements Template {
   invoice: InvoiceImpl | null = null
@@ -129,12 +130,29 @@ export default class BasicInvoiceTemplate implements Template {
     const noTax = total - tax
 
     this.doc
+      .setFont('Helvetica', 'normal')
+      .setTextColor(107, 114, 128)
       .setFontSize(11)
       .text(`Total HT: ${noTax} €`, 195, 235, { align: 'right' })
       .text(`Total TVA: ${tax} €`, 195, 242, { align: 'right' })
       .setFont('Helvetica', 'normal', '700')
       .setFontSize(12)
       .text(`Total TTC: ${total} €`, 195, 249, { align: 'right' })
+  }
+
+  drawSignature(): void {
+    if (!this.team) {
+      return
+    }
+
+    this.doc
+      .setFillColor(156, 163, 175)
+      .setTextColor(156, 163, 175)
+      .setLineWidth(0.4)
+      .setFont('Helvetica')
+      .setFontSize(9)
+      .rect(15, 230, 35, 20)
+      .text('Signature', 17, 235)
   }
 
   /**
@@ -268,6 +286,17 @@ export default class BasicInvoiceTemplate implements Template {
         bottom: 40,
       },
     })
+
+    // Show signature
+    if (
+      this.team?.signature === RenderingSignature.Both ||
+      (this.team?.signature === RenderingSignature.Invoice &&
+        this.invoice.data.type === Type.Invoice) ||
+      (this.team?.signature === RenderingSignature.Quote &&
+        this.invoice.data.type === Type.Estimation)
+    ) {
+      this.drawSignature()
+    }
 
     // Draw pricing on final page
     this.drawTotalPricing()

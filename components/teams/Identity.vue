@@ -64,7 +64,7 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import Team from '@/types/team'
+import { Team } from '@/types/team'
 import { mapState } from 'vuex'
 
 export default Vue.extend({

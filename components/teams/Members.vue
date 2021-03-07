@@ -21,9 +21,13 @@
         <tbody>
           <tr v-for="(user, idx) in members" :key="idx">
             <td>{{ user.name }}</td>
-            <td>{{ user.id === team.owner ? 'Oui' : 'Non' }}</td>
+            <td>{{ user.$key === team.owner ? 'Oui' : 'Non' }}</td>
             <td class="text-right">
-              <v-btn v-if="user.id !== team.owner" icon @click="kickUser(idx)">
+              <v-btn
+                v-if="user.$key !== team.owner"
+                icon
+                @click="kickUser(idx)"
+              >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </td>
@@ -62,7 +66,7 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import Team from '@/types/team'
+import { Team } from '@/types/team'
 import User from '~/types/user'
 
 export default Vue.extend({

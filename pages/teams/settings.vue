@@ -24,6 +24,8 @@
 
       <teams-localization :team.sync="teamModel" class="my-4" />
 
+      <teams-rendering :team.sync="teamModel" class="my-4" />
+
       <teams-fields :team.sync="teamModel" class="my-4" />
     </v-form>
   </Header>
@@ -32,7 +34,7 @@
 <script lang="ts">
 import { mapState } from 'vuex'
 import Vue from 'vue'
-import Team from '~/types/team'
+import { Team } from '~/types/team'
 import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({

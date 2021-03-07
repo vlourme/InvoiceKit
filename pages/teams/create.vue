@@ -32,7 +32,7 @@
 <script lang="ts">
 import { mapState } from 'vuex'
 import Vue from 'vue'
-import Team from '~/types/team'
+import { Team, RenderingSignature } from '~/types/team'
 
 export default Vue.extend({
   name: 'Settings',
@@ -66,6 +66,7 @@ export default Vue.extend({
         name: this.name,
         members: [this.auth.uid],
         owner: this.auth.uid,
+        signature: RenderingSignature.Both,
       } as Team)
 
       // Change team

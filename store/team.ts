@@ -1,6 +1,6 @@
 import { ActionTree, MutationTree } from 'vuex/types/index'
 import RootState from '~/store'
-import Team from '~/types/team'
+import { Team } from '~/types/team'
 
 export const state = () => ({
   teams: null as { [key: string]: Team } | null,

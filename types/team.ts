@@ -1,6 +1,13 @@
 import Model from './model'
 
-export default interface Team extends Model {
+export enum RenderingSignature {
+  None = 'NONE',
+  Quote = 'QUOTE',
+  Invoice = 'INVOICE',
+  Both = 'BOTH',
+}
+
+export interface Team extends Model {
   // Team details
   name: string
   owner: string
@@ -11,6 +18,7 @@ export default interface Team extends Model {
   email: string | null
   phone: string | null
   website: string | null
+  signature: RenderingSignature
 
   // Society Localization
   street: string | null

@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf'
-import Team from '~/types/team'
+import { Team } from '~/types/team'
 import { Address } from '~/types/address'
 import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
