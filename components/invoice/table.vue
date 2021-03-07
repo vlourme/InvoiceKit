@@ -13,6 +13,7 @@
       locale="fr-fr"
       :headers="fieldHeaders"
       :items="invoice.data.fields"
+      :items-per-page="-1"
     >
       <template #body="props">
         <draggable :list="props.items" tag="tbody">
