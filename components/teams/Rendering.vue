@@ -1,6 +1,9 @@
 <template>
   <Card>
     <template #title>Fichiers PDF</template>
+    <template #actions>
+      <v-btn text @click="color = true">Changer la couleur d'accent</v-btn>
+    </template>
 
     <v-select
       v-model="teamModel.signature"
@@ -8,6 +11,25 @@
       prepend-icon="mdi-account-check"
       label="Signature requise en fin de document"
     />
+
+    <v-dialog v-model="color" :width="300">
+      <v-card>
+        <v-color-picker
+          v-model="teamModel.accent"
+          :dot-size="25"
+          :swatches-max-height="200"
+          @input="enableAccent"
+        ></v-color-picker>
+
+        <v-card-actions>
+          <v-btn color="error" text @click="reset">Reset</v-btn>
+
+          <v-spacer />
+
+          <v-btn color="primary" text @click="color = false">Fermer</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </Card>
 </template>
 
@@ -25,6 +47,7 @@ export default Vue.extend({
   },
   data: () => ({
     teamModel: {} as Team,
+    color: false,
     signature: [
       { text: 'Pas de signature', value: RenderingSignature.None },
       { text: 'Devis uniquement', value: RenderingSignature.Quote },
@@ -44,6 +67,16 @@ export default Vue.extend({
   mounted() {
     // Clone
     this.teamModel = Object.assign({}, this.team)
+  },
+  methods: {
+    reset() {
+      this.teamModel.enableAccent = false
+      this.color = false
+    },
+
+    enableAccent() {
+      this.teamModel.enableAccent = true
+    },
   },
 })
 </script>

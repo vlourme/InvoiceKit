@@ -1,16 +1,36 @@
 import jsPDF from 'jspdf'
-import { Team } from '~/types/team'
+import { RenderingSignature, Team } from '~/types/team'
 import { Address } from '~/types/address'
 import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
+import DataURI from '~/helpers/DataURI'
+import { Type } from '~/types/invoice'
 
-export default interface Template {
-  doc: jsPDF
-  invoice: InvoiceImpl | null
-  customer: Customer | null
-  address: Address | null
-  team: Team | null
-  teamLogo: string | null
+export default abstract class Template {
+  /**
+   * Document
+   */
+  doc = new jsPDF()
+
+  /**
+   * Default color (RGB)
+   */
+  defaultColor = '#6366F1'
+
+  /**
+   * Computed accent color
+   */
+  accentColor: string
+
+  /**
+   * Team logo as DataURI
+   */
+  dataURI: string | null = null
+
+  /**
+   * If dataURI is valid
+   */
+  hasImage = false
 
   /**
    * Get all data
@@ -21,16 +41,89 @@ export default interface Template {
    * @param team
    * @param teamLogo
    */
-  init(
-    invoice: InvoiceImpl,
-    customer: Customer,
-    address: Address,
-    team: Team,
-    teamLogo: string | null
-  ): void
+  constructor(
+    public invoice: InvoiceImpl,
+    public customer: Customer,
+    public address: Address,
+    public team: Team,
+    public teamLogo: string | null
+  ) {
+    // Get accent color
+    this.accentColor = this.getAccentColor()
+  }
+
+  /**
+   * Get accent color as HEX value
+   */
+  private getAccentColor(): string {
+    // If not defined
+    if (!this.team.accent || !this.team.enableAccent) {
+      return this.defaultColor
+    }
+
+    // Return hex
+    return this.team.accent.hex
+  }
+
+  /**
+   * Check if signature must be displayed
+   */
+  get hasSignature(): boolean {
+    return (
+      this.team?.signature === RenderingSignature.Both ||
+      (this.team?.signature === RenderingSignature.Invoice &&
+        this.invoice.data.type === Type.Invoice) ||
+      (this.team?.signature === RenderingSignature.Quote &&
+        this.invoice.data.type === Type.Estimation)
+    )
+  }
+
+  /**
+   * Get lines corresponding this scheme:
+   * Description | Quantity | Price | Tax | Total
+   */
+  getLines(): (string | number)[][] {
+    const lines = []
+
+    for (const [idx, field] of this.invoice.data.fields.entries()) {
+      lines.push([
+        field.description,
+        field.quantity,
+        field.price + ' €',
+        field.tax + ' %',
+        this.invoice?.getPriceAtIndex(idx) + ' €',
+      ])
+    }
+
+    return lines
+  }
+
+  /**
+   * Configure the document
+   */
+  abstract configure(): void
+
+  /**
+   * Draw and render document
+   */
+  abstract draw(): void
 
   /**
    * Return ready jsPDF instance
    */
-  render(): Promise<jsPDF>
+  async render(): Promise<jsPDF> {
+    // Get team logo
+    if (this.teamLogo) {
+      this.dataURI = await DataURI(this.teamLogo)
+      this.hasImage = true
+    }
+
+    // Configure
+    this.configure()
+
+    // Draw
+    this.draw()
+
+    return this.doc
+  }
 }

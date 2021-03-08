@@ -1,3 +1,4 @@
+import { ColorPicker } from './accentColor'
 import Model from './model'
 
 export enum RenderingSignature {
@@ -18,13 +19,17 @@ export interface Team extends Model {
   email: string | null
   phone: string | null
   website: string | null
-  signature: RenderingSignature
 
   // Society Localization
   street: string | null
   zip: string | null
   city: string | null
   country: string | null
+
+  // Invoice customization
+  signature: RenderingSignature
+  accent: ColorPicker | null
+  enableAccent: boolean
 
   // Society fields
   fields: Array<string>

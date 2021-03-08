@@ -2,39 +2,10 @@
  * Basic Template for Invoice
  */
 
-import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import Template from './template'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
-import { Address } from '~/types/address'
-import { Customer } from '~/types/customer'
-import { RenderingSignature, Team } from '~/types/team'
-import DataURI from '~/helpers/DataURI'
-import { Type } from '~/types/invoice'
 
-export default class BasicInvoiceTemplate implements Template {
-  invoice: InvoiceImpl | null = null
-  customer: Customer | null = null
-  address: Address | null = null
-  team: Team | null = null
-  teamLogo: string | null = null
-  doc: jsPDF = new jsPDF()
-  dataURI: string | null = null
-
-  init(
-    invoice: InvoiceImpl,
-    customer: Customer,
-    address: Address,
-    team: Team,
-    teamLogo: string | null
-  ): void {
-    this.invoice = invoice
-    this.customer = customer
-    this.address = address
-    this.team = team
-    this.teamLogo = teamLogo
-  }
-
+export default class BasicInvoiceTemplate extends Template {
   /**
    * Default configuration for the file
    * This can be: background color, font family, font size, etc.
@@ -47,16 +18,12 @@ export default class BasicInvoiceTemplate implements Template {
    * Draw the header area
    */
   drawHeader(): void {
-    if (!this.teamLogo || !this.team || !this.invoice) {
-      return
-    }
-
     // Set data
     this.doc
       .setFillColor(249, 250, 251)
       .rect(0, 0, 210, 70, 'F')
       .setFontSize(16)
-      .setTextColor(99, 102, 241)
+      .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
       .text(this.team.title ?? '', 15, 42)
       .setFont('Helvetica', 'normal')
@@ -66,7 +33,7 @@ export default class BasicInvoiceTemplate implements Template {
       .text(this.team.phone ?? '', 15, 54)
       .text(this.team.website ?? '', 15, 60)
       .setFontSize(10)
-      .setTextColor(99, 102, 241)
+      .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
       .text('FACTURE', 195, 15, { align: 'right' })
       .setFont('Helvetica', 'normal')
@@ -74,7 +41,7 @@ export default class BasicInvoiceTemplate implements Template {
       .setTextColor(107, 114, 128)
       .text(`# ${this.invoice.data.id}`, 195, 21, { align: 'right' })
       .setFontSize(10)
-      .setTextColor(99, 102, 241)
+      .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
       .text('DATE', 195, 30, { align: 'right' })
       .setFont('Helvetica', 'normal')
@@ -169,7 +136,7 @@ export default class BasicInvoiceTemplate implements Template {
       .setFillColor(249, 250, 261)
       .rect(0, 258, 210, 40, 'F')
       .setFontSize(10)
-      .setTextColor(99, 102, 241)
+      .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
       .text(this.team.title?.toUpperCase() ?? '', 15, 267)
       .setFont('Helvetica', 'normal')
@@ -179,7 +146,7 @@ export default class BasicInvoiceTemplate implements Template {
       .text(`${this.team.zip} ${this.team.city}`, 15, 279)
       .text(this.team.country ?? '', 15, 285)
       .setFontSize(10)
-      .setTextColor(99, 102, 241)
+      .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
       .text('INFORMATIONS', 195, 267, { align: 'right' })
       .setFont('Helvetica', 'normal')
@@ -195,35 +162,11 @@ export default class BasicInvoiceTemplate implements Template {
   /**
    * Final rendering
    */
-  async render(): Promise<jsPDF> {
-    if (!this.invoice) {
-      return this.doc
-    }
-
-    // Configure
-    this.configure()
-
-    // Get image
-    if (!this.dataURI || !this.teamLogo) {
-      this.dataURI = await DataURI(this.teamLogo!)
-    }
-
-    const body = []
-
-    for (const [idx, field] of this.invoice.data.fields.entries()) {
-      body.push([
-        field.description,
-        field.quantity,
-        field.price + ' €',
-        field.tax + ' %',
-        this.invoice?.getPriceAtIndex(idx) + ' €',
-      ])
-    }
-
+  draw(): void {
     // Generate table
     autoTable(this.doc, {
       head: [['Description', 'Quantité', 'Prix HT', 'TVA', 'Prix TTC']],
-      body,
+      body: this.getLines(),
       // Fill empty footer lines to
       // keep space for real footer
       foot: [[''], [''], ['']],
@@ -288,19 +231,11 @@ export default class BasicInvoiceTemplate implements Template {
     })
 
     // Show signature
-    if (
-      this.team?.signature === RenderingSignature.Both ||
-      (this.team?.signature === RenderingSignature.Invoice &&
-        this.invoice.data.type === Type.Invoice) ||
-      (this.team?.signature === RenderingSignature.Quote &&
-        this.invoice.data.type === Type.Estimation)
-    ) {
+    if (this.hasSignature) {
       this.drawSignature()
     }
 
     // Draw pricing on final page
     this.drawTotalPricing()
-
-    return this.doc
   }
 }

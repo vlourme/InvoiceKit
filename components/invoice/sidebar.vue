@@ -193,8 +193,13 @@ export default Vue.extend({
         logo = await this.$fire.storage.ref(this.user.team).getDownloadURL()
       } catch {}
 
-      const template = new BasicInvoiceTemplate()
-      template.init(this.invoice, this.customer, this.address, this.team, logo)
+      const template = new BasicInvoiceTemplate(
+        this.invoice,
+        this.customer,
+        this.address,
+        this.team,
+        logo
+      )
 
       return await template.render()
     },
