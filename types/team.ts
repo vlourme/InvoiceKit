@@ -29,7 +29,7 @@ export interface Team extends Model {
   // Invoice customization
   signature: RenderingSignature
   accent: ColorPicker | null
-  enableAccent: boolean
+  accentEnabled: boolean
 
   // Society fields
   fields: Array<string>

@@ -70,12 +70,12 @@ export default Vue.extend({
   },
   methods: {
     reset() {
-      this.teamModel.enableAccent = false
+      this.teamModel.accentEnabled = false
       this.color = false
     },
 
     enableAccent() {
-      this.teamModel.enableAccent = true
+      this.teamModel.accentEnabled = true
     },
   },
 })

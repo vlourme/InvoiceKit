@@ -57,7 +57,7 @@ export default abstract class Template {
    */
   private getAccentColor(): string {
     // If not defined
-    if (!this.team.accent || !this.team.enableAccent) {
+    if (!this.team.accent || !this.team.accentEnabled) {
       return this.defaultColor
     }
 
