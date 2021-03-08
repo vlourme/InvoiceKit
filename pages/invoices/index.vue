@@ -21,7 +21,7 @@
         @click:row="navigateToInvoice"
       >
         <template #item.updatedAt="{ item }">
-          {{ new Date(item.updatedAt.seconds * 1000).toLocaleString() }}
+          {{ new Date(item.updatedAt.seconds * 1000).toLocaleDateString() }}
         </template>
       </v-data-table>
     </Card>
