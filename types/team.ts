@@ -2,10 +2,10 @@ import { ColorPicker } from './accentColor'
 import Model from './model'
 
 export enum RenderingSignature {
-  None = 'NONE',
-  Quote = 'QUOTE',
-  Invoice = 'INVOICE',
-  Both = 'BOTH',
+  None,
+  Quote = 1 << 1,
+  Invoice = 1 << 2,
+  Both = Quote | Invoice,
 }
 
 export interface Team extends Model {

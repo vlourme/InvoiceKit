@@ -76,12 +76,13 @@ export default abstract class Template {
    * Check if signature must be displayed
    */
   get hasSignature(): boolean {
+    const signature = this.team.signature
+    const document = this.invoice.data.type
+
     return (
-      this.team?.signature === RenderingSignature.Both ||
-      (this.team?.signature === RenderingSignature.Invoice &&
-        this.invoice.data.type === Type.Invoice) ||
-      (this.team?.signature === RenderingSignature.Quote &&
-        this.invoice.data.type === Type.Estimation)
+      signature === RenderingSignature.Both ||
+      (signature === RenderingSignature.Invoice && document === Type.Invoice) ||
+      (signature === RenderingSignature.Quote && document === Type.Estimation)
     )
   }
 
