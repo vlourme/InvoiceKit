@@ -16,6 +16,7 @@ export interface Team extends Model {
 
   // Society Identity
   title: string | null
+  juridicalTitle: string | null
   email: string | null
   phone: string | null
   website: string | null

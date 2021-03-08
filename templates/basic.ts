@@ -138,7 +138,11 @@ export default class BasicInvoiceTemplate extends Template {
       .setFontSize(10)
       .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
-      .text(this.team.title?.toUpperCase() ?? '', 15, 267)
+      .text(
+        (this.team.juridicalTitle ?? this.team.title ?? '').toUpperCase(),
+        15,
+        267
+      )
       .setFont('Helvetica', 'normal')
       .setFontSize(10)
       .setTextColor(107, 114, 128)

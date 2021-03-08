@@ -10,6 +10,13 @@
     </template>
 
     <v-text-field v-model="teamModel.title" label="Nom de l'entreprise" />
+
+    <v-text-field
+      v-model="teamModel.juridicalTitle"
+      label="Nom juridique de l'entreprise"
+      placeholder="Entreprise SARL"
+    />
+
     <v-text-field
       v-model="teamModel.email"
       label="Email"
