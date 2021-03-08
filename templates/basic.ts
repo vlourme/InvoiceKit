@@ -31,7 +31,7 @@ export default class BasicInvoiceTemplate extends Template {
       .setTextColor(107, 114, 128)
       .text(this.team.email ?? '', 15, 48)
       .text(this.team.phone ?? '', 15, 54)
-      .text(this.team.website ?? '', 15, 60)
+      .text(this.team.website ?? '', 15, 59)
       .setFontSize(10)
       .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
