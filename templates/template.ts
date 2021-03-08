@@ -4,7 +4,7 @@ import { Address } from '~/types/address'
 import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import DataURI from '~/helpers/DataURI'
-import { Type } from '~/types/invoice'
+import { InvoiceType } from '~/types/invoice'
 
 export default abstract class Template {
   /**
@@ -69,7 +69,7 @@ export default abstract class Template {
    * Is document an Invoice
    */
   get isInvoice(): boolean {
-    return this.invoice.data.type === Type.Invoice
+    return this.invoice.data.type === InvoiceType.Invoice
   }
 
   /**
@@ -81,8 +81,10 @@ export default abstract class Template {
 
     return (
       signature === RenderingSignature.Both ||
-      (signature === RenderingSignature.Invoice && document === Type.Invoice) ||
-      (signature === RenderingSignature.Quote && document === Type.Estimation)
+      (signature === RenderingSignature.Invoice &&
+        document === InvoiceType.Invoice) ||
+      (signature === RenderingSignature.Quote &&
+        document === InvoiceType.Estimation)
     )
   }
 

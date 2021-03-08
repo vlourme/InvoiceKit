@@ -93,7 +93,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState } from 'vuex'
-import { InvoiceIndex, Type } from '@/types/invoice'
+import { InvoiceIndex, InvoiceType } from '@/types/invoice'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { NotificationType } from '~/types/notification'
 
@@ -110,8 +110,8 @@ export default Vue.extend({
   data: () => ({
     invoice: new InvoiceImpl(),
     types: [
-      { text: 'Facture', value: Type.Invoice },
-      { text: 'Devis', value: Type.Estimation },
+      { text: 'Facture', value: InvoiceType.Invoice },
+      { text: 'Devis', value: InvoiceType.Estimation },
     ],
     promotionDialog: false,
     depositDialog: false,

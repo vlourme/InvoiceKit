@@ -2,7 +2,7 @@ import { DataTableHeader } from 'vuetify'
 import { Customer } from './customer'
 import Model from './model'
 
-export enum Type {
+export enum InvoiceType {
   Invoice = 'INVOICE',
   Estimation = 'QUOTE',
 }
@@ -17,7 +17,7 @@ export interface Field {
 export interface Invoice extends Model {
   id: string
   date: string
-  type: Type
+  type: InvoiceType
   address: string
   fields: Field[]
   promotion: number
@@ -45,7 +45,7 @@ export const defaultInvoice = (): Invoice => ({
   $key: null,
   id: '',
   date: new Date().toISOString().substr(0, 10),
-  type: Type.Invoice,
+  type: InvoiceType.Invoice,
   address: '',
   fields: [],
   promotion: 0,
