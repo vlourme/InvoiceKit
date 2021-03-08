@@ -35,7 +35,7 @@ export default class BasicInvoiceTemplate extends Template {
       .setFontSize(10)
       .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
-      .text('FACTURE', 195, 15, { align: 'right' })
+      .text(this.isInvoice ? 'FACTURE' : 'DEVIS', 195, 15, { align: 'right' })
       .setFont('Helvetica', 'normal')
       .setFontSize(14)
       .setTextColor(107, 114, 128)

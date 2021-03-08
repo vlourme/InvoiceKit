@@ -66,6 +66,13 @@ export default abstract class Template {
   }
 
   /**
+   * Is document an Invoice
+   */
+  get isInvoice(): boolean {
+    return this.invoice.data.type === Type.Invoice
+  }
+
+  /**
    * Check if signature must be displayed
    */
   get hasSignature(): boolean {
