@@ -156,6 +156,9 @@ export default Vue.extend({
           createdAt: new Date(),
           updatedAt: new Date(),
         } as InvoiceIndex)
+
+      // Redirect
+      this.$router.push(`/invoices/${this.customer.$key}/${doc.id}`)
     },
   },
 })
