@@ -11,16 +11,16 @@
       </template>
 
       <v-form v-model="valid">
-        <v-text-field
-          v-model="invoice.data.id"
-          label="Identifiant"
-          prepend-icon="mdi-pound"
-          placeholder="41-FR/2021"
-          :rules="[(v) => !!v || 'L\'identifiant est obligatoire']"
-        />
-
         <v-row>
           <v-col>
+            <v-text-field
+              v-model="invoice.data.id"
+              label="Identifiant"
+              prepend-icon="mdi-pound"
+              placeholder="41-FR/2021"
+              :rules="[(v) => !!v || 'L\'identifiant est obligatoire']"
+            />
+
             <v-select
               v-model="invoice.data.type"
               :items="types"
@@ -29,6 +29,13 @@
             ></v-select>
           </v-col>
           <v-col>
+            <v-select
+              v-model="invoice.data.status"
+              :items="statuses"
+              prepend-icon="mdi-chart-line-variant"
+              label="Statut du document"
+            />
+
             <v-dialog
               ref="dialog"
               v-model="dateMenu"
@@ -93,7 +100,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState } from 'vuex'
-import { InvoiceIndex, InvoiceType } from '@/types/invoice'
+import { InvoiceIndex, InvoiceStatus, InvoiceType } from '@/types/invoice'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { NotificationType } from '~/types/notification'
 
@@ -112,6 +119,12 @@ export default Vue.extend({
     types: [
       { text: 'Facture', value: InvoiceType.Invoice },
       { text: 'Devis', value: InvoiceType.Estimation },
+    ],
+    statuses: [
+      { text: 'Aucun', value: InvoiceStatus.None },
+      { text: 'Impayé', value: InvoiceStatus.Unpaid },
+      { text: 'En attente', value: InvoiceStatus.Pending },
+      { text: 'Payé', value: InvoiceStatus.Paid },
     ],
     promotionDialog: false,
     depositDialog: false,
@@ -151,7 +164,9 @@ export default Vue.extend({
         .collection('invoices')
         .add({
           id: this.invoice.data.id,
+          type: this.invoice.data.type,
           link: doc.id,
+          status: this.invoice.data.status,
           customer: this.customer,
           createdAt: new Date(),
           updatedAt: new Date(),

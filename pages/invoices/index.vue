@@ -20,6 +20,14 @@
         :items-per-page="15"
         @click:row="navigateToInvoice"
       >
+        <template #item.type="{ item }">
+          {{ item.type === 'QUOTE' ? 'Devis' : 'Facture' }}
+        </template>
+        <template #item.status="{ item }">
+          <v-chip :color="getStatusColor(item)">
+            {{ getStatus(item) }}
+          </v-chip>
+        </template>
         <template #item.updatedAt="{ item }">
           {{ new Date(item.updatedAt.seconds * 1000).toLocaleDateString() }}
         </template>
@@ -31,7 +39,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState } from 'vuex'
-import { InvoiceHeaders, InvoiceIndex } from '@/types/invoice'
+import { InvoiceHeaders, InvoiceIndex, InvoiceStatus } from '@/types/invoice'
 import { mapSnapshot } from '~/helpers/DocumentMapper'
 
 export default Vue.extend({
@@ -60,6 +68,34 @@ export default Vue.extend({
   methods: {
     navigateToInvoice(invoice: InvoiceIndex) {
       this.$router.push(`/invoices/${invoice.customer.$key}/${invoice.link}`)
+    },
+
+    getStatus(invoice: InvoiceIndex) {
+      switch (invoice.status) {
+        case InvoiceStatus.Unpaid:
+          return 'Impayé'
+        case InvoiceStatus.Pending:
+          return 'En attente'
+        case InvoiceStatus.Paid:
+          return 'Payé'
+        case InvoiceStatus.None:
+        default:
+          return 'Aucun'
+      }
+    },
+
+    getStatusColor(invoice: InvoiceIndex) {
+      switch (invoice.status) {
+        case InvoiceStatus.Unpaid:
+          return 'error'
+        case InvoiceStatus.Pending:
+          return 'warning'
+        case InvoiceStatus.Paid:
+          return 'success'
+        case InvoiceStatus.None:
+        default:
+          return 'primary'
+      }
     },
   },
 })

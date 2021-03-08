@@ -7,6 +7,13 @@ export enum InvoiceType {
   Estimation = 'QUOTE',
 }
 
+export enum InvoiceStatus {
+  None = 'NONE',
+  Unpaid = 'UNPAID',
+  Pending = 'PENDING',
+  Paid = 'PAID',
+}
+
 export interface Field {
   description: string
   quantity: number
@@ -18,6 +25,7 @@ export interface Invoice extends Model {
   id: string
   date: string
   type: InvoiceType
+  status: InvoiceStatus
   address: string
   fields: Field[]
   promotion: number
@@ -29,6 +37,8 @@ export interface Invoice extends Model {
 export interface InvoiceIndex extends Model {
   id: string
   link: string
+  type: InvoiceType
+  status: InvoiceStatus
   customer: Customer
   createdAt: Date
   updatedAt: Date
@@ -45,6 +55,7 @@ export const defaultInvoice = (): Invoice => ({
   $key: null,
   id: '',
   date: new Date().toISOString().substr(0, 10),
+  status: InvoiceStatus.None,
   type: InvoiceType.Invoice,
   address: '',
   fields: [],
@@ -60,8 +71,16 @@ export const InvoiceHeaders: Array<DataTableHeader> = [
     value: 'id',
   },
   {
+    text: 'Type',
+    value: 'type',
+  },
+  {
     text: 'Client',
     value: 'customer.fullName',
+  },
+  {
+    text: 'Status',
+    value: 'status',
   },
   {
     text: 'Dernière mise à jour',
