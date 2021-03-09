@@ -22,7 +22,9 @@
       <slot></slot>
     </v-card-text>
 
-    <slot v-else key="body"></slot>
+    <div v-else key="body">
+      <slot></slot>
+    </div>
   </v-card>
 </template>
 
