@@ -50,7 +50,7 @@
         >
           <template #activator="{ on, attrs }">
             <v-text-field
-              v-model="invoice.data.date"
+              :value="date"
               label="Date"
               prepend-icon="mdi-calendar"
               readonly
@@ -78,6 +78,7 @@
 </template>
 
 <script lang="ts">
+import { format, parseISO } from 'date-fns'
 import Vue, { PropOptions } from 'vue'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { InvoiceStatus, InvoiceType } from '~/types/invoice'
@@ -111,6 +112,12 @@ export default Vue.extend({
       set(val: InvoiceImpl) {
         this.$emit('update:invoice', val)
       },
+    },
+    date(): string {
+      return format(
+        parseISO(new Date(this.invoice.data.date).toISOString()),
+        'dd/MM/yyyy'
+      )
     },
   },
 })
