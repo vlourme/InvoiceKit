@@ -3,7 +3,7 @@
     <template #title> Créer un document </template>
 
     <template #actions>
-      <v-btn text @click="createInvoice">
+      <v-btn :elevation="0" @click="createInvoice">
         <v-icon left>mdi-check</v-icon>
         Sauvegarder
       </v-btn>

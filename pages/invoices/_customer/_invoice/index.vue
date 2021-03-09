@@ -6,7 +6,7 @@
     </template>
 
     <template #actions>
-      <v-btn text @click="updateInvoice">
+      <v-btn :elevation="0" @click="updateInvoice">
         <v-icon left>mdi-check</v-icon>
         Sauvegarder
       </v-btn>
