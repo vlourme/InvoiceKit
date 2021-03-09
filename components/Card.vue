@@ -18,11 +18,11 @@
 
     <v-divider v-if="!noDivider"></v-divider>
 
-    <v-card-text v-if="!noBody">
+    <v-card-text v-if="!noBody" key="body">
       <slot></slot>
     </v-card-text>
 
-    <slot v-else></slot>
+    <slot v-else key="body"></slot>
   </v-card>
 </template>
 
