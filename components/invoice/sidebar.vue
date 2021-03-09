@@ -117,6 +117,9 @@
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>Sauvegarder en PDF</v-list-item-title>
+          <v-list-item-subtitle v-if="!invoice.data.$key">
+            Document non sauvegardé
+          </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
 
@@ -126,6 +129,9 @@
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>Imprimer</v-list-item-title>
+          <v-list-item-subtitle v-if="!invoice.data.$key">
+            Document non sauvegardé
+          </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
     </v-list>
