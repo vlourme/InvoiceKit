@@ -59,10 +59,6 @@ export default class BasicInvoiceTemplate extends Template {
    * Draw the customer area
    */
   drawCustomer(): void {
-    if (!this.customer || !this.address) {
-      return
-    }
-
     let fullName = this.customer.fullName
 
     if (this.customer.society) {
@@ -87,10 +83,6 @@ export default class BasicInvoiceTemplate extends Template {
    * Draw the pricing area
    */
   drawTotalPricing(): void {
-    if (!this.invoice) {
-      return
-    }
-
     // Calculate prices
     const total = this.invoice.getTotalPrice()
     const tax = this.invoice.getTotalTaxes()
@@ -108,10 +100,6 @@ export default class BasicInvoiceTemplate extends Template {
   }
 
   drawSignature(): void {
-    if (!this.team) {
-      return
-    }
-
     this.doc
       .setFillColor(156, 163, 175)
       .setTextColor(156, 163, 175)
@@ -134,10 +122,6 @@ export default class BasicInvoiceTemplate extends Template {
    * Draw the footer area
    */
   drawFooter(): void {
-    if (!this.team) {
-      return
-    }
-
     const informations = this.team.fields.join(' • ')
 
     this.doc
