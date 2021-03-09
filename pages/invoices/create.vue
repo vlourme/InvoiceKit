@@ -1,6 +1,15 @@
 <template>
   <Header>
-    <v-form v-model="valid" @submit.prevent="createInvoice">
+    <template #title> Créer un document </template>
+
+    <template #actions>
+      <v-btn text @click="createInvoice">
+        <v-icon left>mdi-check</v-icon>
+        Sauvegarder
+      </v-btn>
+    </template>
+
+    <v-form v-model="valid">
       <invoice-editor :invoice-state.sync="invoice" />
 
       <invoice-table :invoice-state.sync="invoice" />

@@ -1,15 +1,17 @@
 <template>
   <Header>
-    <v-form v-model="valid">
-      <Card margin>
-        <template #title>Paramètres de la team</template>
+    <template #title>Paramètres de la team</template>
 
-        <template #actions>
-          <v-btn text @click="updateTeam">
-            <v-icon left>mdi-check</v-icon>
-            Sauvegarder
-          </v-btn>
-        </template>
+    <template #actions>
+      <v-btn :elevation="0" @click="updateTeam">
+        <v-icon left>mdi-check</v-icon>
+        Sauvegarder
+      </v-btn>
+    </template>
+
+    <v-form v-model="valid">
+      <Card>
+        <template #title> Paramètres de la team </template>
 
         <v-text-field
           v-model="teamModel.name"

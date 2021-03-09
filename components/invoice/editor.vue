@@ -1,20 +1,5 @@
 <template>
-  <Card margin :width="1000">
-    <template #title>
-      <template v-if="invoice.data.$key">
-        {{ invoice.data.type == 'QUOTE' ? 'Devis' : 'Facture ' }}
-        #{{ invoice.data.id }}
-      </template>
-      <v-template v-else>Créer une facture</v-template>
-    </template>
-
-    <template #actions>
-      <v-btn text color="success" type="submit">
-        <v-icon left>mdi-check</v-icon>
-        {{ invoice.data.$key ? 'Mettre à jour' : 'Créer' }}
-      </v-btn>
-    </template>
-
+  <Card no-toolbar no-divider :width="1000">
     <v-row>
       <v-col>
         <v-text-field

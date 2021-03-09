@@ -1,6 +1,18 @@
 <template>
   <Header>
-    <v-form v-model="valid" @submit.prevent="updateInvoice">
+    <template #title>
+      {{ invoice.data.type == 'QUOTE' ? 'Devis' : 'Facture' }}
+      #{{ invoice.data.id }}
+    </template>
+
+    <template #actions>
+      <v-btn text @click="updateInvoice">
+        <v-icon left>mdi-check</v-icon>
+        Sauvegarder
+      </v-btn>
+    </template>
+
+    <v-form v-model="valid">
       <invoice-editor :invoice-state.sync="invoice" />
 
       <invoice-table :invoice-state.sync="invoice" />

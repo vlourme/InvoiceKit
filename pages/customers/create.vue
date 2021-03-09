@@ -1,15 +1,15 @@
 <template>
   <Header>
-    <Card margin>
-      <template #title>Créer une fiche client</template>
+    <template #title>Créer une fiche client</template>
 
-      <template #actions>
-        <v-btn text color="primary" @click="createCustomer">
-          <v-icon left>mdi-check</v-icon>
-          Créer
-        </v-btn>
-      </template>
+    <template #actions>
+      <v-btn :elevation="0" @click="createCustomer">
+        <v-icon left>mdi-check</v-icon>
+        Créer
+      </v-btn>
+    </template>
 
+    <Card no-toolbar no-divider margin>
       <v-form v-model="valid">
         <v-text-field
           v-model="customer.fullName"

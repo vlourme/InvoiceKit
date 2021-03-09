@@ -1,15 +1,15 @@
 <template>
   <Header>
-    <Card margin>
-      <template #title>Paramètres du compte</template>
+    <template #title>Paramètres du compte</template>
 
-      <template #actions>
-        <v-btn text @click="updateProfile">
-          <v-icon left>mdi-check</v-icon>
-          Sauvegarder
-        </v-btn>
-      </template>
+    <template #actions>
+      <v-btn :elevation="0" @click="updateProfile">
+        <v-icon left>mdi-check</v-icon>
+        Sauvegarder
+      </v-btn>
+    </template>
 
+    <Card no-divider no-toolbar>
       <v-form v-model="valid">
         <v-row>
           <v-col cols="12" sm="12" md="4">

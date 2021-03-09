@@ -1,15 +1,15 @@
 <template>
   <Header>
-    <Card margin>
-      <template #title>Créer une team</template>
+    <template #title>Créer une team</template>
 
-      <template #actions>
-        <v-btn text @click="createTeam">
-          <v-icon left>mdi-check</v-icon>
-          Créer
-        </v-btn>
-      </template>
+    <template #actions>
+      <v-btn :elevation="0" @click="createTeam">
+        <v-icon left>mdi-check</v-icon>
+        Créer
+      </v-btn>
+    </template>
 
+    <Card no-divider no-toolbar>
       <v-form v-model="valid">
         <v-text-field
           label="Propriétaire"

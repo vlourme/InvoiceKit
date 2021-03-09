@@ -1,20 +1,20 @@
 <template>
   <Header>
-    <Card margin>
-      <template #title>Modifier une fiche client</template>
+    <template #title>Modifier une fiche client</template>
 
-      <template #actions>
-        <v-btn text color="error" @click="dialog = true">
-          <v-icon left>mdi-delete</v-icon>
-          Supprimer
-        </v-btn>
+    <template #actions>
+      <v-btn :elevation="0" color="red" @click="dialog = true">
+        <v-icon left>mdi-delete</v-icon>
+        Supprimer
+      </v-btn>
 
-        <v-btn text color="primary" @click="updateCustomer">
-          <v-icon left>mdi-check</v-icon>
-          Mettre à jour
-        </v-btn>
-      </template>
+      <v-btn class="mx-2" :elevation="0" @click="updateCustomer">
+        <v-icon left>mdi-check</v-icon>
+        Mettre à jour
+      </v-btn>
+    </template>
 
+    <Card no-toolbar no-divider margin>
       <v-form v-model="valid">
         <v-text-field
           v-model="customer.fullName"

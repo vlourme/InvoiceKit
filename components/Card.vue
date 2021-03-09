@@ -1,10 +1,6 @@
 <template>
-  <v-card
-    class="mx-auto"
-    :max-width="width"
-    :style="margin ? 'margin-top: -64px' : ''"
-  >
-    <v-toolbar flat>
+  <v-card class="mx-auto" :max-width="width">
+    <v-toolbar v-if="!noToolbar" flat>
       <v-toolbar-title class="grey--text">
         <slot name="title"></slot>
       </v-toolbar-title>
@@ -36,7 +32,6 @@ import Vue, { PropOptions } from 'vue'
 export default Vue.extend({
   name: 'Card',
   props: {
-    margin: Boolean,
     withSearch: Boolean,
     width: {
       default: 700,
@@ -44,6 +39,7 @@ export default Vue.extend({
       required: false,
     } as PropOptions<number>,
     noBody: Boolean,
+    noToolbar: Boolean,
     noDivider: Boolean,
   },
 })

@@ -1,6 +1,8 @@
 <template>
   <div>
-    <Header> Tableau de bord</Header>
+    <Header>
+      <template #title>Tableau de bord</template>
+    </Header>
   </div>
 </template>
 

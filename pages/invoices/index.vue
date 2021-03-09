@@ -1,18 +1,19 @@
 <template>
-  <Header>
-    <Card margin :width="1000" with-search no-body>
-      <template #title> Factures </template>
+  <Header with-search>
+    <template #title> Factures </template>
 
-      <template #search>
-        <v-text-field
-          v-model="search"
-          single-line
-          solo-inverted
-          hide-details
-          label="Chercher une facture"
-        />
-      </template>
+    <template #actions>
+      <v-text-field
+        v-model="search"
+        single-line
+        flat
+        solo-inverted
+        hide-details
+        label="Chercher une facture"
+      />
+    </template>
 
+    <Card :width="1000" no-body no-toolbar no-divider>
       <v-data-table
         :search="search"
         :headers="headers"
