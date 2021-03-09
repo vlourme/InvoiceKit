@@ -5,6 +5,7 @@ import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import DataURI from '~/helpers/DataURI'
 import { InvoiceType } from '~/types/invoice'
+import { format } from 'date-fns'
 
 export default abstract class Template {
   /**
@@ -70,6 +71,10 @@ export default abstract class Template {
    */
   get isInvoice(): boolean {
     return this.invoice.data.type === InvoiceType.Invoice
+  }
+
+  get date(): string {
+    return format(new Date(this.invoice.data.date), 'dd/MM/yyyy')
   }
 
   /**

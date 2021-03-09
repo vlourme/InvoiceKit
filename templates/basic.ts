@@ -47,7 +47,7 @@ export default class BasicInvoiceTemplate extends Template {
       .setFont('Helvetica', 'normal')
       .setFontSize(14)
       .setTextColor(107, 114, 128)
-      .text(this.invoice.data.date, 195, 36, { align: 'right' })
+      .text(this.date, 195, 36, { align: 'right' })
 
     // Append the image
     if (this.dataURI) {

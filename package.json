@@ -14,6 +14,7 @@
     "@mdi/js": "^5.9.55",
     "@nuxtjs/firebase": "^7.5.0",
     "core-js": "^3.9.0",
+    "date-fns": "^2.19.0",
     "firebase": "^8.2.9",
     "jspdf-autotable": "^3.5.14",
     "lodash": "^4.17.21",
