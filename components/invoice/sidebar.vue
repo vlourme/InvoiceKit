@@ -183,7 +183,6 @@ export default Vue.extend({
   data: () => ({
     total: 0,
     tax: 0,
-    pdf: null as jsPDF | null,
   }),
   computed: {
     ...mapState('auth', ['user']),
@@ -234,9 +233,7 @@ export default Vue.extend({
      */
     async save() {
       // Render
-      if (!this.pdf) {
-        this.pdf = await this.render()
-      }
+      const document = await this.render()
 
       // Get name
       const name = `${
@@ -244,7 +241,7 @@ export default Vue.extend({
       } #${this.invoice.data.id}`
 
       // Save
-      this.pdf.save(name)
+      document.save(name)
     },
 
     /**
@@ -252,13 +249,11 @@ export default Vue.extend({
      */
     async printInvoice() {
       // Render
-      if (!this.pdf) {
-        this.pdf = await this.render()
-      }
+      const document = await this.render()
 
       // Print
-      this.pdf.autoPrint()
-      this.pdf.output('dataurlnewwindow')
+      document.autoPrint()
+      document.output('dataurlnewwindow')
     },
   },
 })
