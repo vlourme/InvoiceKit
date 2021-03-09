@@ -11,7 +11,7 @@
     <template #actions>
       <v-btn text color="success" type="submit">
         <v-icon left>mdi-check</v-icon>
-        Créer
+        {{ invoice.data.$key ? 'Mettre à jour' : 'Créer' }}
       </v-btn>
     </template>
 
