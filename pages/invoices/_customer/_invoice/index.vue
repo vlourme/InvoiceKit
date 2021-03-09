@@ -116,9 +116,3 @@ export default Vue.extend({
   },
 })
 </script>
-
-<style scoped>
-.cursor-move {
-  cursor: move;
-}
-</style>
