@@ -24,12 +24,7 @@
 </template>
 
 <script lang="ts">
-import {
-  Invoice,
-  InvoiceIndex,
-  InvoiceStatus,
-  InvoiceType,
-} from '@/types/invoice'
+import { Invoice, InvoiceIndex } from '@/types/invoice'
 import { cloneDeep } from 'lodash'
 import Vue from 'vue'
 import { mapState } from 'vuex'

@@ -27,7 +27,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState } from 'vuex'
-import { InvoiceIndex, InvoiceStatus, InvoiceType } from '@/types/invoice'
+import { InvoiceIndex } from '@/types/invoice'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { NotificationType } from '~/types/notification'
 
