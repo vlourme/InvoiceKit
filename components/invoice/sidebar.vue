@@ -43,7 +43,7 @@
           <v-icon>mdi-map</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
-          <v-list-item-title>
+          <v-list-item-title class="wrap">
             {{ address.street }}, {{ address.city }} {{ address.zip }},
             {{ address.country }}
           </v-list-item-title>
@@ -258,3 +258,9 @@ export default Vue.extend({
   },
 })
 </script>
+
+<style scoped>
+.wrap {
+  white-space: normal;
+}
+</style>
