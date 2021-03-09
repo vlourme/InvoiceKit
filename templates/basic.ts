@@ -115,7 +115,9 @@ export default class BasicInvoiceTemplate extends Template {
       .setFont('Helvetica', 'normal')
       .setFontSize(9)
       .setTextColor(107, 114, 128)
-      .text(this.invoice.data.note, 55, 233, { maxWidth: 65 })
+      .text(this.invoice.data.note, this.hasSignature ? 55 : 15, 233, {
+        maxWidth: 65,
+      })
   }
 
   /**
