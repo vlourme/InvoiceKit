@@ -13,7 +13,7 @@
         <slot name="search"></slot>
       </template>
 
-      <v-spacer />
+      <v-spacer></v-spacer>
 
       <slot name="actions"></slot>
     </v-app-bar>

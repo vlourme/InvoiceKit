@@ -1,6 +1,6 @@
 import { ActionTree, MutationTree } from 'vuex/types/index'
 import RootState from '.'
-import { mapDocument, mapSnapshot } from '~/helpers/DocumentMapper'
+import { mapDocument, mapSnapshot } from '~/helpers/documentMapper'
 import { Address } from '~/types/address'
 import { Customer } from '~/types/customer'
 import { Invoice } from '~/types/invoice'

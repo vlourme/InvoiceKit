@@ -8,7 +8,7 @@
           prepend-icon="mdi-pound"
           placeholder="41-FR/2021"
           :rules="[(v) => !!v || 'L\'identifiant est obligatoire']"
-        />
+        ></v-text-field>
 
         <v-select
           v-model="invoice.data.type"
@@ -23,7 +23,7 @@
           :items="statuses"
           prepend-icon="mdi-chart-line-variant"
           label="Statut du document"
-        />
+        ></v-select>
 
         <v-dialog
           ref="dialog"

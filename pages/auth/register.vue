@@ -29,7 +29,7 @@
     ></v-text-field>
 
     <div class="d-flex">
-      <v-spacer />
+      <v-spacer></v-spacer>
 
       <v-btn type="submit" color="indigo" class="white--text"
         >Inscription

@@ -9,31 +9,34 @@
       </v-btn>
     </template>
 
-    <v-text-field v-model="teamModel.title" label="Nom de l'entreprise" />
+    <v-text-field
+      v-model="teamModel.title"
+      label="Nom de l'entreprise"
+    ></v-text-field>
 
     <v-text-field
       v-model="teamModel.juridicalTitle"
       label="Nom juridique de l'entreprise"
       placeholder="Entreprise SARL"
-    />
+    ></v-text-field>
 
     <v-text-field
       v-model="teamModel.email"
       label="Email"
       placeholder="society@example.com"
       :rules="rules.email"
-    />
+    ></v-text-field>
     <v-text-field
       v-model="teamModel.phone"
       label="Téléphone"
       placeholder="+33 01 02 03 04 05"
-    />
+    ></v-text-field>
     <v-text-field
       v-model="teamModel.website"
       label="Site internet"
       placeholder="example.com"
       :rules="rules.url"
-    />
+    ></v-text-field>
 
     <v-dialog v-model="dialog" width="500">
       <v-card>
@@ -45,7 +48,7 @@
           </v-alert>
 
           <v-card v-if="image" color="white" class="py-4">
-            <v-img :src="image" contain max-height="150" />
+            <v-img :src="image" contain max-height="150"></v-img>
           </v-card>
 
           <v-file-input

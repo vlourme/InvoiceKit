@@ -16,14 +16,14 @@
           readonly
           disabled
           :value="user.name"
-        />
+        ></v-text-field>
 
         <v-text-field
           v-model="name"
           label="Nom de la team"
           :rules="rules.name"
           placeholder="John Doe"
-        />
+        ></v-text-field>
       </v-form>
     </Card>
   </Header>

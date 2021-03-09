@@ -17,18 +17,21 @@
           v-model="teamModel.name"
           label="Nom de la team"
           placeholder="John Doe"
-        />
+        ></v-text-field>
       </Card>
 
-      <teams-members :team.sync="teamModel" class="my-4" />
+      <teams-members :team.sync="teamModel" class="my-4"></teams-members>
 
-      <teams-identity :team.sync="teamModel" class="my-4" />
+      <teams-identity :team.sync="teamModel" class="my-4"></teams-identity>
 
-      <teams-localization :team.sync="teamModel" class="my-4" />
+      <teams-localization
+        :team.sync="teamModel"
+        class="my-4"
+      ></teams-localization>
 
-      <teams-rendering :team.sync="teamModel" class="my-4" />
+      <teams-rendering :team.sync="teamModel" class="my-4"></teams-rendering>
 
-      <teams-fields :team.sync="teamModel" class="my-4" />
+      <teams-fields :team.sync="teamModel" class="my-4"></teams-fields>
     </v-form>
   </Header>
 </template>

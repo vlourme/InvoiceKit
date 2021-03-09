@@ -20,25 +20,25 @@
           v-model="customer.fullName"
           label="Nom complet"
           placeholder="John Doe"
-        />
+        ></v-text-field>
 
-        <v-text-field v-model="customer.society" label="Société" />
+        <v-text-field v-model="customer.society" label="Société"></v-text-field>
 
         <v-text-field
           v-model="customer.email"
           :rules="rules.email"
           label="Email"
-        />
+        ></v-text-field>
 
-        <v-text-field v-model="customer.phone" label="Téléphone" />
+        <v-text-field v-model="customer.phone" label="Téléphone"></v-text-field>
 
-        <v-textarea v-model="customer.notes" label="Notes" />
+        <v-textarea v-model="customer.notes" label="Notes"></v-textarea>
       </v-form>
     </Card>
 
-    <customers-addresses class="my-4" />
+    <customers-addresses class="my-4"></customers-addresses>
 
-    <customers-invoices class="my-4" />
+    <customers-invoices class="my-4"></customers-invoices>
 
     <v-dialog v-model="dialog" width="500">
       <v-card>

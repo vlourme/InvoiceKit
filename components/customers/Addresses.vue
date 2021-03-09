@@ -30,7 +30,7 @@
             v-model="address.street"
             label="Numéro et rue"
             placeholder="12 rue des lilas"
-          />
+          ></v-text-field>
 
           <v-row>
             <v-col>
@@ -38,21 +38,21 @@
                 v-model="address.city"
                 label="Ville"
                 placeholder="Lille"
-              />
+              ></v-text-field>
             </v-col>
             <v-col>
               <v-text-field
                 v-model="address.zip"
                 label="Code postal"
                 placeholder="59000"
-              />
+              ></v-text-field>
             </v-col>
             <v-col>
               <v-text-field
                 v-model="address.country"
                 label="Pays"
                 placeholder="France"
-              />
+              ></v-text-field>
             </v-col>
           </v-row>
         </v-card-text>

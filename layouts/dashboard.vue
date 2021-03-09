@@ -79,7 +79,7 @@
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider />
+              <v-divider></v-divider>
               <v-list-item link to="/teams/create">
                 <v-list-item-title>Créer une team</v-list-item-title>
               </v-list-item>
@@ -87,7 +87,7 @@
                 <v-list-item-title>Paramètres de la team</v-list-item-title>
               </v-list-item>
               <template v-if="user.team">
-                <v-divider />
+                <v-divider></v-divider>
                 <v-list-item link @click="switchTeam(null)">
                   <v-list-item-title>
                     Utiliser le compte personnel
@@ -101,11 +101,11 @@
     </v-navigation-drawer>
 
     <v-main class="main-bg">
-      <nuxt />
+      <nuxt></nuxt>
     </v-main>
 
     <!-- Plugins -->
-    <notification />
+    <notification></notification>
   </v-app>
 </template>
 

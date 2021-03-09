@@ -17,7 +17,7 @@
               class="d-flex fill-height flex-column justify-center align-center"
             >
               <v-avatar size="96">
-                <v-img :src="user.image" />
+                <v-img :src="user.image"></v-img>
               </v-avatar>
 
               <input
@@ -44,14 +44,14 @@
               label="Nom"
               :rules="rules.name"
               placeholder="John Doe"
-            />
+            ></v-text-field>
 
             <v-text-field
               v-model="email"
               label="Email"
               :rules="rules.email"
               placeholder="john.doe@example.com"
-            />
+            ></v-text-field>
           </v-col>
         </v-row>
       </v-form>

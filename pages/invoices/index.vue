@@ -10,7 +10,7 @@
         solo-inverted
         hide-details
         label="Chercher une facture"
-      />
+      ></v-text-field>
     </template>
 
     <Card :width="1000" no-body no-toolbar no-divider>
@@ -41,7 +41,7 @@
 import Vue from 'vue'
 import { mapState } from 'vuex'
 import { InvoiceHeaders, InvoiceIndex, InvoiceStatus } from '@/types/invoice'
-import { mapSnapshot } from '~/helpers/DocumentMapper'
+import { mapSnapshot } from '~/helpers/documentMapper'
 
 export default Vue.extend({
   name: 'Invoices',

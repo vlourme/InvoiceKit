@@ -10,7 +10,7 @@
         solo-inverted
         hide-details
         label="Chercher un client"
-      />
+      ></v-text-field>
     </template>
 
     <template #actions>
@@ -38,7 +38,7 @@
 import Vue from 'vue'
 import { mapState } from 'vuex'
 import { Customer, CustomerHeaders } from '@/types/customer'
-import { mapSnapshot } from '~/helpers/DocumentMapper'
+import { mapSnapshot } from '~/helpers/documentMapper'
 
 export default Vue.extend({
   name: 'Customers',

@@ -6,7 +6,7 @@
       v-model="teamModel.street"
       label="Adresse"
       placeholder="12 rue des lilas"
-    />
+    ></v-text-field>
 
     <v-row>
       <v-col>
@@ -14,21 +14,21 @@
           v-model="teamModel.city"
           label="Ville"
           placeholder="Lille"
-        />
+        ></v-text-field>
       </v-col>
       <v-col>
         <v-text-field
           v-model="teamModel.zip"
           label="Code postal"
           placeholder="59000"
-        />
+        ></v-text-field>
       </v-col>
       <v-col>
         <v-text-field
           v-model="teamModel.country"
           label="Pays"
           placeholder="France"
-        />
+        ></v-text-field>
       </v-col>
     </v-row>
   </Card>

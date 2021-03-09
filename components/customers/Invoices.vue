@@ -49,7 +49,7 @@
 import Vue from 'vue'
 import { DataTableHeader } from 'vuetify'
 import { mapState } from 'vuex'
-import { mapSnapshot } from '~/helpers/DocumentMapper'
+import { mapSnapshot } from '~/helpers/documentMapper'
 import { Address, AddressHeaders } from '~/types/address'
 import { Invoice } from '~/types/invoice'
 

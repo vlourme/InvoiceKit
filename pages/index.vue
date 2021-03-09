@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div>
-      <Logo />
+      <Logo></Logo>
       <h1 class="title">InvoiceKit</h1>
       <div class="links">
         <a

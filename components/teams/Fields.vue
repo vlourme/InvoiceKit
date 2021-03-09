@@ -40,7 +40,7 @@
             label="Texte"
             placeholder="Identifiant TVA: FR 00 123456789"
             hint="Ces champs seront ajoutés en bas de page sur les documents"
-          />
+          ></v-text-field>
         </v-card-text>
 
         <v-divider></v-divider>

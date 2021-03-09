@@ -76,14 +76,17 @@
 
           <v-row>
             <v-col>
-              <v-text-field v-model.number="field.quantity" label="Quantité" />
+              <v-text-field
+                v-model.number="field.quantity"
+                label="Quantité"
+              ></v-text-field>
             </v-col>
             <v-col>
               <v-text-field
                 v-model.number="field.price"
                 label="Prix HT"
                 suffix="€"
-              />
+              ></v-text-field>
             </v-col>
             <v-col>
               <v-text-field
@@ -91,7 +94,7 @@
                 label="Taxes"
                 suffix="%"
                 type="number"
-              />
+              ></v-text-field>
             </v-col>
           </v-row>
         </v-card-text>

@@ -10,24 +10,24 @@
     </template>
 
     <v-form v-model="valid">
-      <invoice-editor :invoice-state.sync="invoice" />
+      <invoice-editor :invoice-state.sync="invoice"></invoice-editor>
 
-      <invoice-table :invoice-state.sync="invoice" />
+      <invoice-table :invoice-state.sync="invoice"></invoice-table>
 
       <invoice-dialog-deposit
         :invoice-state.sync="invoice"
         :dialog.sync="depositDialog"
-      />
+      ></invoice-dialog-deposit>
 
       <invoice-dialog-promotion
         :invoice-state.sync="invoice"
         :dialog.sync="promotionDialog"
-      />
+      ></invoice-dialog-promotion>
 
       <invoice-dialog-note
         :invoice-state.sync="invoice"
         :dialog.sync="noteDialog"
-      />
+      ></invoice-dialog-note>
 
       <invoice-sidebar
         :customer="customer"
@@ -35,7 +35,7 @@
         :promotion-dialog.sync="promotionDialog"
         :deposit-dialog.sync="depositDialog"
         :note-dialog.sync="noteDialog"
-      />
+      ></invoice-sidebar>
     </v-form>
   </Header>
 </template>

@@ -2,7 +2,7 @@ import { ActionTree, MutationTree } from 'vuex/types/index'
 import firebase from 'firebase'
 import Auth from '~/types/auth'
 import User from '~/types/user'
-import { mapDocument } from '~/helpers/DocumentMapper'
+import { mapDocument } from '~/helpers/documentMapper'
 
 export const state = () => ({
   auth: null as Auth | null,

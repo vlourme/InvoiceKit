@@ -49,7 +49,7 @@
             v-model="email"
             label="Email du membre"
             placeholder="john.doe@example.com"
-          />
+          ></v-text-field>
         </v-card-text>
 
         <v-divider></v-divider>

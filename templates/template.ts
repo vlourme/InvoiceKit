@@ -3,7 +3,7 @@ import { RenderingSignature, Team } from '~/types/team'
 import { Address } from '~/types/address'
 import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
-import DataURI from '~/helpers/DataURI'
+import DataURI from '~/helpers/dataURI'
 import { InvoiceType } from '~/types/invoice'
 import { format } from 'date-fns'
 

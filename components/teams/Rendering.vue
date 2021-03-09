@@ -10,7 +10,7 @@
       :items="signature"
       prepend-icon="mdi-account-check"
       label="Signature requise en fin de document"
-    />
+    ></v-select>
 
     <v-dialog v-model="color" :width="300">
       <v-card>
@@ -24,7 +24,7 @@
         <v-card-actions>
           <v-btn color="error" text @click="reset">Reset</v-btn>
 
-          <v-spacer />
+          <v-spacer></v-spacer>
 
           <v-btn color="primary" text @click="color = false">Fermer</v-btn>
         </v-card-actions>
