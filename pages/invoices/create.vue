@@ -18,16 +18,23 @@
         :invoice-state.sync="invoice"
         :dialog.sync="depositDialog"
       />
+
       <invoice-dialog-promotion
         :invoice-state.sync="invoice"
         :dialog.sync="promotionDialog"
       />
 
+      <invoice-dialog-note
+        :invoice-state.sync="invoice"
+        :dialog.sync="noteDialog"
+      />
+
       <invoice-sidebar
         :customer="customer"
+        :invoice="invoice"
         :promotion-dialog.sync="promotionDialog"
         :deposit-dialog.sync="depositDialog"
-        :invoice="invoice"
+        :note-dialog.sync="noteDialog"
       />
     </v-form>
   </Header>
@@ -54,6 +61,7 @@ export default Vue.extend({
     invoice: new InvoiceImpl(),
     promotionDialog: false,
     depositDialog: false,
+    noteDialog: false,
     valid: false,
   }),
   head: {

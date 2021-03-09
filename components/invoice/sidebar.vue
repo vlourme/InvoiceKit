@@ -135,6 +135,21 @@
         </v-list-item-content>
       </v-list-item>
     </v-list>
+
+    <v-divider />
+
+    <v-list nav dense subheader>
+      <v-subheader>Autres actions</v-subheader>
+
+      <v-list-item link @click="$emit('update:note-dialog', true)">
+        <v-list-item-icon>
+          <v-icon>mdi-text-short</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title> Ajouter une note </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-list>
   </v-navigation-drawer>
 </template>
 
@@ -157,6 +172,10 @@ export default Vue.extend({
       required: true,
     } as PropOptions<boolean>,
     depositDialog: {
+      type: Boolean,
+      required: true,
+    } as PropOptions<boolean>,
+    noteDialog: {
       type: Boolean,
       required: true,
     } as PropOptions<boolean>,

@@ -122,6 +122,14 @@ export default class BasicInvoiceTemplate extends Template {
       .text('Signature', 17, 235)
   }
 
+  drawNotes(): void {
+    this.doc
+      .setFont('Helvetica', 'normal')
+      .setFontSize(9)
+      .setTextColor(107, 114, 128)
+      .text(this.invoice.data.note, 55, 233, { maxWidth: 65 })
+  }
+
   /**
    * Draw the footer area
    */
@@ -237,6 +245,11 @@ export default class BasicInvoiceTemplate extends Template {
     // Show signature
     if (this.hasSignature) {
       this.drawSignature()
+    }
+
+    // Draw notes
+    if (this.invoice.data.note) {
+      this.drawNotes()
     }
 
     // Draw pricing on final page

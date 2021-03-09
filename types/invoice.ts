@@ -30,6 +30,7 @@ export interface Invoice extends Model {
   fields: Field[]
   promotion: number
   deposit: number
+  note: string
   createdAt: Date
   updatedAt: Date
 }
@@ -61,6 +62,7 @@ export const defaultInvoice = (): Invoice => ({
   fields: [],
   promotion: 0,
   deposit: 0,
+  note: '',
   createdAt: new Date(),
   updatedAt: new Date(),
 })
