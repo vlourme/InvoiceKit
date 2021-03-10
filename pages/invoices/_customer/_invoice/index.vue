@@ -6,7 +6,12 @@
     </template>
 
     <template #actions>
-      <v-btn :elevation="0" @click="updateInvoice">
+      <v-btn color="error" :elevation="0" @click="deleteInvoice">
+        <v-icon left>mdi-delete</v-icon>
+        Supprimer
+      </v-btn>
+
+      <v-btn class="mx-2" :elevation="0" @click="updateInvoice">
         <v-icon left>mdi-check</v-icon>
         Sauvegarder
       </v-btn>
@@ -47,7 +52,9 @@ import { Invoice, InvoiceIndex } from '@/types/invoice'
 import { cloneDeep } from 'lodash'
 import Vue from 'vue'
 import { mapState } from 'vuex'
+import firebase from 'firebase'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
+import { DialogType } from '~/types/dialog'
 import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
@@ -80,44 +87,58 @@ export default Vue.extend({
     this.invoice.data = cloneDeep(this.invoiceState)
   },
   methods: {
+    async getIndexedDoc(
+      invoiceId: string
+    ): Promise<
+      | firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>
+      | undefined
+    > {
+      // Register in a indexed list
+      const index = await this.$fire.firestore
+        .collection('teams')
+        .doc(this.user.team)
+        .collection('invoices')
+        .where('link', '==', invoiceId)
+        .limit(1)
+        .get()
+
+      if (index.docs[0]) {
+        return index.docs[0]
+      }
+    },
+
     async updateInvoice() {
       if (!this.customer.$key || !this.valid) {
         this.$notify('Impossible de sauvegarder', NotificationType.WARNING)
         return
       }
 
-      const id = this.$route.params.invoice
+      const { invoice } = this.$route.params
 
-      // Create invoice
+      // Update invoice
       await this.$fire.firestore
         .collection('teams')
         .doc(this.user.team)
         .collection('customers')
         .doc(this.customer.$key)
         .collection('invoices')
-        .doc(id)
+        .doc(invoice)
         .update({
           ...this.invoice.data,
           updatedAt: new Date(),
         } as Invoice)
 
-      // Register in a indexed list
-      const index = await this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('invoices')
-        .where('link', '==', id)
-        .limit(1)
-        .get()
+      // Get indexed id
+      const doc = await this.getIndexedDoc(invoice)
 
-      if (index.docs[0].id) {
+      if (doc) {
         await this.$fire.firestore
           .collection('teams')
           .doc(this.user.team)
           .collection('invoices')
-          .doc(index.docs[0].id)
+          .doc(doc.id)
           .update({
-            ...index.docs[0].data(),
+            ...doc.data(),
             type: this.invoice.data.type,
             status: this.invoice.data.status,
             customer: this.customer,
@@ -127,6 +148,38 @@ export default Vue.extend({
       }
 
       this.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
+    },
+
+    deleteInvoice(): void {
+      this.$dialog({
+        title: 'Supprimer la facture',
+        message: 'Une fois supprimée, celle-ci sera irrecupérable.',
+        type: DialogType.Error,
+        showCancel: true,
+        actionMessage: 'Supprimer',
+        callback: async () => await this.deleteCallback(),
+      })
+    },
+
+    async deleteCallback() {
+      const { invoice } = this.$route.params
+
+      // Delete invoice
+      await this.$fire.firestore
+        .collection('teams')
+        .doc(this.user.team)
+        .collection('customers')
+        .doc(this.customer.$key)
+        .collection('invoices')
+        .doc(invoice)
+        .delete()
+
+      // Delete index
+      const index = await this.getIndexedDoc(invoice)
+      await index?.ref.delete()
+
+      // Redirect
+      this.$router.push('/invoices/')
     },
   },
 })
