@@ -3,7 +3,7 @@
     <template #title>Modifier une fiche client</template>
 
     <template #actions>
-      <v-btn :elevation="0" color="red" @click="dialog = true">
+      <v-btn :elevation="0" color="red" @click="deleteCustomer">
         <v-icon left>mdi-delete</v-icon>
         Supprimer
       </v-btn>
@@ -39,25 +39,6 @@
     <customers-addresses class="my-4"></customers-addresses>
 
     <customers-invoices class="my-4"></customers-invoices>
-
-    <v-dialog v-model="dialog" width="500">
-      <v-card>
-        <v-card-title> Supprimer cette fiche client ? </v-card-title>
-
-        <v-card-text>
-          Une fois supprimée, cette fiche et les contenus associés (factures,
-          contrats) seront irrécupérables.
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="warning" text @click="dialog = false">Annuler</v-btn>
-          <v-btn color="error" text @click="deleteCustomer">Supprimer</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </Header>
 </template>
 
@@ -66,6 +47,8 @@ import { mapState } from 'vuex'
 import Vue from 'vue'
 import { NotificationType } from '~/types/notification'
 import { Customer } from '~/types/customer'
+import { DialogType } from '~/types/dialog'
+import { purge, purgeCollection } from '~/helpers/purgeCollection'
 
 export default Vue.extend({
   name: 'ViewCustomer',
@@ -121,15 +104,45 @@ export default Vue.extend({
      * This is due to the snapshot trying to refresh.
      */
     deleteCustomer(): void {
-      this.$fire.firestore
+      this.$dialog({
+        title: 'Supprimer cette fiche client',
+        message:
+          'Tout le contenu associé sera supprimé (factures, contrats, etc.) et irrécuperable.',
+        type: DialogType.Error,
+        callback: async () => await this.deleteCallback(),
+        showCancel: true,
+        actionMessage: 'Supprimer',
+      })
+    },
+
+    async deleteCallback(): Promise<void> {
+      // Delete customer
+      await this.$fire.firestore
         .collection('teams')
         .doc(this.user.team)
         .collection('customers')
         .doc(this.customerState.$key)
         .delete()
-        .then(() => {
-          this.$router.push('/customers')
-        })
+
+      // Get every addresses and invocies from sub-collection
+      await purge(
+        this.$fire,
+        `teams/${this.user.team}/customers/${this.customer.$key}`,
+        ['addresses', 'invoices']
+      )
+
+      // Get every invoices linked
+      const invoices = await this.$fire.firestore
+        .collection('teams')
+        .doc(this.user.team)
+        .collection('invoices')
+        .where('customer.$key', '==', this.customerState.$key)
+        .get()
+
+      // Delete invoices
+      purgeCollection(invoices)
+
+      await this.$router.push('/customers')
     },
   },
 })
