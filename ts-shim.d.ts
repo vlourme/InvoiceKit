@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import { NotificationType } from './types/notification'
+import { Dialog } from '~/types/dialog'
 
 declare module '*.vue' {
   export default Vue
@@ -15,5 +16,13 @@ declare module 'vue/types/vue' {
      * @param type
      */
     $notify(message: string, type: NotificationType): void
+
+    /**
+     * Create a confirm dialog dynamically
+     *
+     * @file helpers/dialog.ts
+     * @param dialog
+     */
+    $dialog(dialog: Dialog): void
   }
 }

@@ -106,6 +106,7 @@
 
     <!-- Plugins -->
     <notification></notification>
+    <Dialog></Dialog>
   </v-app>
 </template>
 
