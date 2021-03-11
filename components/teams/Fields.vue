@@ -18,10 +18,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, idx) in teamModel.fields" :key="idx">
+          <tr v-for="(item, idx) in team.fields" :key="item">
             <td>{{ item }}</td>
-            <td class="text-right">
-              <v-btn icon @click="teamModel.fields.splice(idx, 1)">
+            <td class="text-right d-flex align-center">
+              <v-btn icon color="warning" @click="editField(idx)">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn icon color="error" @click="deleteField(idx)">
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </td>
@@ -32,7 +35,13 @@
 
     <v-dialog v-model="dialog" width="500">
       <v-card>
-        <v-card-title> Ajouter un champ </v-card-title>
+        <v-card-title>
+          {{
+            update > -1
+              ? 'Mettre à jour une information'
+              : 'Ajouter une information'
+          }}
+        </v-card-title>
 
         <v-card-text>
           <v-text-field
@@ -47,8 +56,10 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" text @click="dialog = false">Annuler</v-btn>
-          <v-btn color="primary" text @click="addField">Ajouter</v-btn>
+          <v-btn color="error" text @click="closeDialog">Annuler</v-btn>
+          <v-btn color="primary" text @click="addField">
+            {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -58,45 +69,59 @@
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
 import { Team } from '@/types/team'
+import _ from 'lodash'
 
 export default Vue.extend({
   name: 'Fields',
   props: {
-    team: {
+    teamState: {
       type: Object,
       required: true,
     } as PropOptions<Team>,
   },
   data: () => ({
-    teamModel: {} as Team,
     dialog: false,
     value: '',
+    update: -1,
   }),
-  watch: {
-    teamModel: {
-      deep: true,
-      handler(val: Team) {
-        this.$emit('update:team', val)
+  computed: {
+    team: {
+      get(): Team {
+        return this.teamState
+      },
+
+      set(value: Team): void {
+        this.$emit('update:team', value)
       },
     },
   },
-  mounted() {
-    // Clone
-    this.teamModel = Object.assign({}, this.team)
-
-    // Check for array definition
-    if (!this.teamModel.fields) {
-      this.teamModel.fields = []
-    }
-  },
   methods: {
     addField() {
-      this.teamModel.fields.push(this.value)
+      if (this.update === -1) {
+        this.team.fields.push(this.value)
+      } else {
+        this.team.fields[this.update] = this.value
+      }
 
-      this.dialog = false
-      this.value = ''
+      this.closeDialog()
+    },
 
-      this.$forceUpdate()
+    editField(idx: number) {
+      this.update = idx
+      this.value = _.clone(this.team.fields[this.update])
+      this.dialog = true
+    },
+
+    deleteField(idx: number) {
+      this.team.fields.splice(idx, 1)
+    },
+
+    closeDialog() {
+      this.$nextTick(() => {
+        this.dialog = false
+        this.update = -1
+        this.value = ''
+      })
     },
   },
 })

@@ -14,24 +14,21 @@
         <template #title> Paramètres de la team </template>
 
         <v-text-field
-          v-model="teamModel.name"
+          v-model="team.name"
           label="Nom de la team"
           placeholder="John Doe"
         ></v-text-field>
       </Card>
 
-      <teams-members :team.sync="teamModel" class="my-4"></teams-members>
+      <teams-members :team.sync="team" class="my-4"></teams-members>
 
-      <teams-identity :team.sync="teamModel" class="my-4"></teams-identity>
+      <teams-identity :team.sync="team" class="my-4"></teams-identity>
 
-      <teams-localization
-        :team.sync="teamModel"
-        class="my-4"
-      ></teams-localization>
+      <teams-localization :team.sync="team" class="my-4"></teams-localization>
 
-      <teams-rendering :team.sync="teamModel" class="my-4"></teams-rendering>
+      <teams-rendering :team.sync="team" class="my-4"></teams-rendering>
 
-      <teams-fields :team.sync="teamModel" class="my-4"></teams-fields>
+      <teams-fields :team-state.sync="team" class="my-4"></teams-fields>
     </v-form>
   </Header>
 </template>
@@ -39,6 +36,7 @@
 <script lang="ts">
 import { mapState } from 'vuex'
 import Vue from 'vue'
+import _ from 'lodash'
 import { Team } from '~/types/team'
 import { NotificationType } from '~/types/notification'
 
@@ -52,17 +50,24 @@ export default Vue.extend({
   },
   data: () => ({
     valid: false,
-    teamModel: {} as Team,
+    team: {} as Team,
   }),
-  fetch() {
-    this.teamModel = Object.assign({}, this.team)
-  },
   head: {
     title: 'Paramètres de la team',
   },
   computed: {
     ...mapState('auth', ['auth', 'user']),
-    ...mapState('team', ['team']),
+    ...mapState('team', {
+      teamState: 'team',
+    }),
+  },
+  mounted() {
+    this.team = _.cloneDeep(this.teamState)
+
+    // Check for fields
+    if (!this.team.fields) {
+      this.team.fields = []
+    }
   },
   methods: {
     updateTeam(): void {
@@ -75,7 +80,7 @@ export default Vue.extend({
       this.$fire.firestore
         .collection('teams')
         .doc(this.user.team)
-        .update(this.teamModel)
+        .update(this.team)
         .then(() => {
           this.$notify(
             'Les paramètres ont étés sauvegardés.',
