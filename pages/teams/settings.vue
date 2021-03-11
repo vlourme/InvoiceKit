@@ -20,13 +20,16 @@
         ></v-text-field>
       </Card>
 
-      <teams-members :team.sync="team" class="my-4"></teams-members>
+      <teams-members :team-state.sync="team" class="my-4"></teams-members>
 
-      <teams-identity :team.sync="team" class="my-4"></teams-identity>
+      <teams-identity :team-state.sync="team" class="my-4"></teams-identity>
 
-      <teams-localization :team.sync="team" class="my-4"></teams-localization>
+      <teams-localization
+        :team-state.sync="team"
+        class="my-4"
+      ></teams-localization>
 
-      <teams-rendering :team.sync="team" class="my-4"></teams-rendering>
+      <teams-rendering :team-state.sync="team" class="my-4"></teams-rendering>
 
       <teams-fields :team-state.sync="team" class="my-4"></teams-fields>
     </v-form>

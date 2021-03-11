@@ -6,7 +6,7 @@
     </template>
 
     <v-select
-      v-model="teamModel.signature"
+      v-model="team.signature"
       :items="signature"
       prepend-icon="mdi-account-check"
       label="Signature requise en fin de document"
@@ -15,7 +15,7 @@
     <v-dialog v-model="color" :width="300">
       <v-card>
         <v-color-picker
-          v-model="teamModel.accent"
+          v-model="team.accent"
           :dot-size="25"
           :swatches-max-height="200"
           @input="enableAccent"
@@ -40,13 +40,12 @@ import { RenderingSignature, Team } from '@/types/team'
 export default Vue.extend({
   name: 'Rendering',
   props: {
-    team: {
+    teamState: {
       type: Object,
       required: true,
     } as PropOptions<Team>,
   },
   data: () => ({
-    teamModel: {} as Team,
     color: false,
     signature: [
       { text: 'Pas de signature', value: RenderingSignature.None },
@@ -55,27 +54,25 @@ export default Vue.extend({
       { text: 'Devis et factures', value: RenderingSignature.Both },
     ],
   }),
-  watch: {
-    teamModel: {
-      deep: true,
-      handler(val: Team) {
-        // Emit to parent
-        this.$emit('update:team', val)
+  computed: {
+    team: {
+      get(): Team {
+        return this.teamState
+      },
+
+      set(value: Team): void {
+        this.$emit('update:team', value)
       },
     },
   },
-  mounted() {
-    // Clone
-    this.teamModel = Object.assign({}, this.team)
-  },
   methods: {
     reset() {
-      this.teamModel.accentEnabled = false
+      this.team.accentEnabled = false
       this.color = false
     },
 
     enableAccent() {
-      this.teamModel.accentEnabled = true
+      this.team.accentEnabled = true
     },
   },
 })

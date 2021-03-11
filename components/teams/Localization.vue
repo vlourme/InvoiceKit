@@ -3,7 +3,7 @@
     <template #title>Information complémentaires de l'entreprise</template>
 
     <v-text-field
-      v-model="teamModel.street"
+      v-model="team.street"
       label="Adresse"
       placeholder="12 rue des lilas"
     ></v-text-field>
@@ -11,21 +11,21 @@
     <v-row>
       <v-col>
         <v-text-field
-          v-model="teamModel.city"
+          v-model="team.city"
           label="Ville"
           placeholder="Lille"
         ></v-text-field>
       </v-col>
       <v-col>
         <v-text-field
-          v-model="teamModel.zip"
+          v-model="team.zip"
           label="Code postal"
           placeholder="59000"
         ></v-text-field>
       </v-col>
       <v-col>
         <v-text-field
-          v-model="teamModel.country"
+          v-model="team.country"
           label="Pays"
           placeholder="France"
         ></v-text-field>
@@ -41,26 +41,21 @@ import { Team } from '@/types/team'
 export default Vue.extend({
   name: 'Localization',
   props: {
-    team: {
+    teamState: {
       type: Object,
       required: true,
     } as PropOptions<Team>,
   },
-  data: () => ({
-    teamModel: {} as Team,
-  }),
-  watch: {
-    teamModel: {
-      deep: true,
-      handler(val: Team) {
-        // Emit to parent
-        this.$emit('update:team', val)
+  computed: {
+    team: {
+      get(): Team {
+        return this.teamState
+      },
+
+      set(value: Team): void {
+        this.$emit('update:team', value)
       },
     },
-  },
-  mounted() {
-    // Clone
-    this.teamModel = Object.assign({}, this.team)
   },
 })
 </script>

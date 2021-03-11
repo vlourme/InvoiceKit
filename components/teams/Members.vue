@@ -72,33 +72,37 @@ import User from '~/types/user'
 export default Vue.extend({
   name: 'Members',
   props: {
-    team: {
+    teamState: {
       type: Object,
       required: true,
     } as PropOptions<Team>,
   },
   data: () => ({
     members: [] as User[],
-    teamModel: {} as Team,
     dialog: false,
     email: '',
     error: '',
   }),
   computed: {
-    watchMembers() {
-      return this.teamModel.members
+    team: {
+      get(): Team {
+        return this.teamState
+      },
+
+      set(value: Team): void {
+        this.$emit('update:team', value)
+      },
     },
   },
   watch: {
-    watchMembers() {
-      this.$emit('update:team', this.teamModel)
-
-      this.loadMembers()
+    'team.members': {
+      handler() {
+        this.loadMembers()
+      },
     },
   },
   mounted() {
-    // Clone
-    this.teamModel = Object.assign({}, this.team)
+    this.loadMembers()
   },
   methods: {
     loadMembers(): void {
@@ -133,13 +137,13 @@ export default Vue.extend({
       }
 
       // Check if already in team
-      if (this.teamModel.members.includes(doc.docs[0].id)) {
+      if (this.team.members.includes(doc.docs[0].id)) {
         this.error = 'Ce membre est déjà dans la team.'
         return
       }
 
       // Add user
-      this.teamModel.members.push(doc.docs[0].id)
+      this.team.members.push(doc.docs[0].id)
 
       // Reset variables
       this.error = ''
@@ -148,7 +152,7 @@ export default Vue.extend({
     },
 
     kickUser(user: number): void {
-      this.teamModel.members.splice(user, 1)
+      this.team.members.splice(user, 1)
     },
   },
 })

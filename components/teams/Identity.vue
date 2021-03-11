@@ -10,29 +10,29 @@
     </template>
 
     <v-text-field
-      v-model="teamModel.title"
+      v-model="team.title"
       label="Nom de l'entreprise"
     ></v-text-field>
 
     <v-text-field
-      v-model="teamModel.juridicalTitle"
+      v-model="team.juridicalTitle"
       label="Nom juridique de l'entreprise"
       placeholder="Entreprise SARL"
     ></v-text-field>
 
     <v-text-field
-      v-model="teamModel.email"
+      v-model="team.email"
       label="Email"
       placeholder="society@example.com"
       :rules="rules.email"
     ></v-text-field>
     <v-text-field
-      v-model="teamModel.phone"
+      v-model="team.phone"
       label="Téléphone"
       placeholder="+33 01 02 03 04 05"
     ></v-text-field>
     <v-text-field
-      v-model="teamModel.website"
+      v-model="team.website"
       label="Site internet"
       placeholder="example.com"
       :rules="rules.url"
@@ -80,13 +80,12 @@ import { mapState } from 'vuex'
 export default Vue.extend({
   name: 'Identity',
   props: {
-    team: {
+    teamState: {
       type: Object,
       required: true,
     } as PropOptions<Team>,
   },
   data: () => ({
-    teamModel: {} as Team,
     rules: {
       email: [(v: string) => !v || /.+@.+/.test(v) || "L'email est invalide."],
       url: [(v: string) => !v || /.+\.\w\w.*/.test(v) || "L'URL est invalide."],
@@ -98,20 +97,17 @@ export default Vue.extend({
   }),
   computed: {
     ...mapState('auth', ['user']),
-  },
-  watch: {
-    teamModel: {
-      deep: true,
-      handler(val: Team) {
-        // Emit to parent
-        this.$emit('update:team', val)
+    team: {
+      get(): Team {
+        return this.teamState
+      },
+
+      set(value: Team): void {
+        this.$emit('update:team', value)
       },
     },
   },
   mounted() {
-    // Clone
-    this.teamModel = Object.assign({}, this.team)
-
     // Get image
     this.$fire.storage
       .ref(this.user.team)
