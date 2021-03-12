@@ -197,13 +197,13 @@ export default Vue.extend({
     'invoice.data': {
       deep: true,
       handler() {
-        this.total = this.invoice.getTotalPrice()
+        this.total = this.invoice.getFinalPrice()
         this.tax = this.invoice.getTotalTaxes()
       },
     },
   },
   mounted() {
-    this.total = this.invoice.getTotalPrice()
+    this.total = this.invoice.getFinalPrice()
     this.tax = this.invoice.getTotalTaxes()
   },
   methods: {

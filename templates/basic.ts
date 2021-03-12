@@ -84,19 +84,76 @@ export default class BasicInvoiceTemplate extends Template {
    */
   drawTotalPricing(): void {
     // Calculate prices
-    const total = this.invoice.getTotalPrice()
+    const noTax = this.invoice.getTotalPrice()
     const tax = this.invoice.getTotalTaxes()
-    const noTax = total - tax
+    const total = this.invoice.getFinalPrice()
 
-    this.doc
+    // Get text
+    const text = [
+      ['Total HT', `${noTax} €`],
+      ['Total TVA', `${tax} €`],
+    ]
+
+    let startY = 233
+
+    // Check for promotion
+    if (this.invoice.data.promotion) {
+      text.splice(text.length, 0, [
+        'Réduction',
+        `- ${this.invoice.data.promotion} %`,
+      ])
+
+      startY -= 6
+    }
+
+    // Check for deposit
+    if (this.invoice.data.deposit) {
+      text.splice(text.length, 0, [
+        'Acompte',
+        `- ${this.invoice.data.deposit} €`,
+      ])
+
+      startY -= 6
+    }
+
+    autoTable(this.doc, {
+      body: text,
+      foot: [['Total TTC', `${total} €`]],
+      theme: 'plain',
+      startY,
+      styles: {
+        halign: 'right',
+        cellPadding: {
+          horizontal: 0,
+          vertical: 1,
+        },
+        cellWidth: 30,
+      },
+      bodyStyles: {
+        fontSize: 10,
+      },
+      footStyles: {
+        fontSize: 11,
+        font: 'Helvetica',
+        fontStyle: 'Bold',
+      },
+      margin: {
+        top: 0,
+        left: 135,
+        right: 15,
+        bottom: 0,
+      },
+    })
+
+    /*this.doc
       .setFont('Helvetica', 'normal')
       .setTextColor(107, 114, 128)
       .setFontSize(11)
-      .text(`Total HT: ${noTax} €`, 195, 235, { align: 'right' })
-      .text(`Total TVA: ${tax} €`, 195, 242, { align: 'right' })
-      .setFont('Helvetica', 'normal', '700')
-      .setFontSize(12)
-      .text(`Total TTC: ${total} €`, 195, 249, { align: 'right' })
+      .text(text, 195, startY, {
+        align: 'right',
+        baseline: 'bottom',
+        lineHeightFactor: 1.6,
+      })*/
   }
 
   drawSignature(): void {
@@ -161,13 +218,20 @@ export default class BasicInvoiceTemplate extends Template {
    * Final rendering
    */
   draw(): void {
+    // Get footer size
+    const footer = [[''], [''], ['']]
+
+    if (this.invoice.data.promotion || this.invoice.data.deposit) {
+      footer.push([''])
+    }
+
     // Generate table
     autoTable(this.doc, {
       head: [this.headerItems],
       body: this.getLines(),
       // Fill empty footer lines to
       // keep space for real footer
-      foot: [[''], [''], ['']],
+      foot: footer,
       didDrawPage: () => {
         // Draw components on every pages
         this.drawHeader()

@@ -1,4 +1,4 @@
-import { defaultInvoice, Invoice } from '~/types/invoice'
+import { defaultInvoice, FieldHeaders, Invoice } from '~/types/invoice'
 
 export default class InvoiceImpl {
   /**
@@ -39,7 +39,7 @@ export default class InvoiceImpl {
   }
 
   /**
-   * Get total price
+   * Get total price without any taxes
    *
    * @return number
    */
@@ -48,15 +48,9 @@ export default class InvoiceImpl {
     let price = 0
 
     // Sum
-    for (const [idx] of this.data.fields.entries()) {
-      price += this.getPriceAtIndex(idx)
+    for (const field of this.data.fields) {
+      price += field.price
     }
-
-    // Set promotion
-    price = price * (1 - this.data.promotion / 100)
-
-    // Remove deposit
-    price -= this.data.deposit
 
     // Return price
     return price
@@ -78,6 +72,21 @@ export default class InvoiceImpl {
 
     // Return price
     return tax
+  }
+
+  /**
+   * Get final total price with taxes
+   */
+  public getFinalPrice(): number {
+    let price = this.getTotalPrice() + this.getTotalTaxes()
+
+    // Set promotion
+    price = price * (1 - this.data.promotion / 100)
+
+    // Remove deposit
+    price -= this.data.deposit
+
+    return price
   }
 
   /**
