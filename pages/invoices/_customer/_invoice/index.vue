@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { Invoice, InvoiceIndex } from '@/types/invoice'
+import { Invoice, InvoiceIndex, InvoiceType } from '@/types/invoice'
 import { cloneDeep } from 'lodash'
 import Vue from 'vue'
 import { mapState } from 'vuex'
@@ -73,8 +73,12 @@ export default Vue.extend({
     noteDialog: false,
     valid: false,
   }),
-  head: {
-    title: 'Créer une facture',
+  head() {
+    return {
+      title: `${
+        this.invoice.data.type === InvoiceType.Estimation ? 'Devis' : 'Facture'
+      } #${this.invoice.data.id}`,
+    }
   },
   computed: {
     ...mapState('auth', ['user']),
