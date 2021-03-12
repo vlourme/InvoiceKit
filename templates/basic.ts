@@ -201,17 +201,19 @@ export default class BasicInvoiceTemplate extends Template {
       columnStyles: {
         quantity: {
           halign: 'right',
+          cellWidth: 30,
         },
         price: {
           halign: 'right',
-          cellWidth: 30,
+          cellWidth: 35,
         },
         tax: {
           halign: 'right',
+          cellWidth: 25,
         },
         total: {
           halign: 'right',
-          cellWidth: 30,
+          cellWidth: 35,
         },
       },
       showFoot: 'lastPage',
