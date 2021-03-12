@@ -163,7 +163,7 @@ export default class BasicInvoiceTemplate extends Template {
   draw(): void {
     // Generate table
     autoTable(this.doc, {
-      head: [['Description', 'Quantité', 'Prix HT', 'TVA', 'Prix TTC']],
+      head: [this.headerItems],
       body: this.getLines(),
       // Fill empty footer lines to
       // keep space for real footer
@@ -191,13 +191,7 @@ export default class BasicInvoiceTemplate extends Template {
         },
       },
       rowPageBreak: 'avoid',
-      columns: [
-        { dataKey: 'description', header: 'Description' },
-        { dataKey: 'quantity', header: 'Quantité' },
-        { dataKey: 'price', header: 'Prix HT' },
-        { dataKey: 'tax', header: 'TVA' },
-        { dataKey: 'total', header: 'Prix TTC' },
-      ],
+      columns: this.dataKeys,
       columnStyles: {
         quantity: {
           halign: 'right',

@@ -48,7 +48,7 @@
                 </v-list-item>
               </v-list>
             </v-menu>
-            <td>{{ item.quantity }}</td>
+            <td v-if="team.quantityEnabled">{{ item.quantity }}</td>
             <td>
               <div class="d-flex flex-column justify-center">
                 {{ item.price }} €
@@ -75,7 +75,7 @@
           ></v-textarea>
 
           <v-row>
-            <v-col>
+            <v-col v-if="team.quantityEnabled">
               <v-text-field
                 v-model.number="field.quantity"
                 label="Quantité"
@@ -116,8 +116,14 @@
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
 import draggable from 'vuedraggable'
+import { DataTableHeader } from 'vuetify'
+import { mapState } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
-import { defaultField, FieldHeaders } from '~/types/invoice'
+import {
+  defaultField,
+  FieldHeaders,
+  FieldHeadersWithQuantity,
+} from '~/types/invoice'
 
 export default Vue.extend({
   name: 'InvoiceTable',
@@ -132,19 +138,27 @@ export default Vue.extend({
   },
   data: () => ({
     field: defaultField(),
-    fieldHeaders: FieldHeaders,
+    fieldHeaders: [] as DataTableHeader[],
     dialog: false,
     update: -1,
   }),
   computed: {
+    ...mapState('team', ['team']),
     invoice: {
-      get() {
+      get(): InvoiceImpl {
         return this.invoiceState
       },
-      set(val: InvoiceImpl) {
+      set(val: InvoiceImpl): void {
         this.$emit('update:invoice', val)
       },
     },
+  },
+  mounted() {
+    if (this.team.quantityEnabled) {
+      this.fieldHeaders = FieldHeadersWithQuantity
+    } else {
+      this.fieldHeaders = FieldHeaders
+    }
   },
   methods: {
     addField(): void {

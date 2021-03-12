@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { DataTableHeader } from 'vuetify'
 import { Customer } from './customer'
 import Model from './model'
@@ -103,11 +104,6 @@ export const FieldHeaders: Array<DataTableHeader> = [
     sortable: false,
   },
   {
-    text: 'Quantité',
-    value: 'quantity',
-    width: 100,
-  },
-  {
     text: 'Prix',
     value: 'price',
     width: 125,
@@ -118,3 +114,11 @@ export const FieldHeaders: Array<DataTableHeader> = [
     width: 150,
   },
 ]
+
+export const FieldHeadersWithQuantity = _.clone(FieldHeaders)
+
+FieldHeadersWithQuantity.splice(2, 0, {
+  text: 'Quantité',
+  value: 'quantity',
+  width: 100,
+})

@@ -1,11 +1,12 @@
 import jsPDF from 'jspdf'
+import { format } from 'date-fns'
 import { RenderingSignature, Team } from '~/types/team'
 import { Address } from '~/types/address'
 import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import DataURI from '~/helpers/dataURI'
 import { InvoiceType } from '~/types/invoice'
-import { format } from 'date-fns'
+import { ColumnInput } from 'jspdf-autotable'
 
 export default abstract class Template {
   /**
@@ -97,20 +98,50 @@ export default abstract class Template {
    * Get lines corresponding this scheme:
    * Description | Quantity | Price | Tax | Total
    */
-  getLines(): (string | number)[][] {
+  getLines(): string[][] {
     const lines = []
 
     for (const [idx, field] of this.invoice.data.fields.entries()) {
-      lines.push([
+      const line = [
         field.description,
-        field.quantity,
         field.price + ' €',
         field.tax + ' %',
         this.invoice?.getPriceAtIndex(idx) + ' €',
-      ])
+      ]
+
+      if (this.team.quantityEnabled) {
+        line.splice(1, 0, field.quantity.toString())
+      }
+
+      lines.push(line)
     }
 
     return lines
+  }
+
+  get headerItems(): string[] {
+    const header = ['Description', 'Prix HT', 'TVA', 'Prix TTC']
+
+    if (this.team.quantityEnabled) {
+      header.splice(1, 0, 'Quantité')
+    }
+
+    return header
+  }
+
+  get dataKeys(): ColumnInput[] {
+    const keys: ColumnInput[] = [
+      { dataKey: 'description', header: 'Description' },
+      { dataKey: 'price', header: 'Prix HT' },
+      { dataKey: 'tax', header: 'TVA' },
+      { dataKey: 'total', header: 'Prix TTC' },
+    ]
+
+    if (this.team.quantityEnabled) {
+      keys.splice(1, 0, { dataKey: 'quantity', header: 'Quantité' })
+    }
+
+    return keys
   }
 
   /**

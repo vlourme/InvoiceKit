@@ -31,6 +31,7 @@ export interface Team extends Model {
   signature: RenderingSignature
   accent: ColorPicker | null
   accentEnabled: boolean
+  quantityEnabled: boolean
 
   // Society fields
   fields: Array<string>

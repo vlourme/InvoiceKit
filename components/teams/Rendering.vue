@@ -12,6 +12,14 @@
       label="Signature requise en fin de document"
     ></v-select>
 
+    <v-select
+      v-model="team.quantityEnabled"
+      :items="quantity"
+      prepend-icon="mdi-tag"
+      label="Activer le champ 'quantité'"
+      hint="Le champ sera caché pendant l'édition de facture et sur les rendus PDF"
+    ></v-select>
+
     <v-dialog v-model="color" :width="300">
       <v-card>
         <v-color-picker
@@ -52,6 +60,10 @@ export default Vue.extend({
       { text: 'Devis uniquement', value: RenderingSignature.Quote },
       { text: 'Factures uniquement', value: RenderingSignature.Invoice },
       { text: 'Devis et factures', value: RenderingSignature.Both },
+    ],
+    quantity: [
+      { text: 'Afficher', value: true },
+      { text: 'Cacher', value: false },
     ],
   }),
   computed: {
