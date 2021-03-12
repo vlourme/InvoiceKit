@@ -144,16 +144,6 @@ export default class BasicInvoiceTemplate extends Template {
         bottom: 0,
       },
     })
-
-    /*this.doc
-      .setFont('Helvetica', 'normal')
-      .setTextColor(107, 114, 128)
-      .setFontSize(11)
-      .text(text, 195, startY, {
-        align: 'right',
-        baseline: 'bottom',
-        lineHeightFactor: 1.6,
-      })*/
   }
 
   drawSignature(): void {
