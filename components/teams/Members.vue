@@ -19,7 +19,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, idx) in members" :key="idx">
+          <tr v-for="(user, idx) in members" :key="user.$key">
             <td>{{ user.name }}</td>
             <td>{{ user.$key === team.owner ? 'Oui' : 'Non' }}</td>
             <td class="text-right">
@@ -83,6 +83,9 @@ export default Vue.extend({
     email: '',
     error: '',
   }),
+  fetch() {
+    this.loadMembers()
+  },
   computed: {
     team: {
       get(): Team {
@@ -100,9 +103,6 @@ export default Vue.extend({
         this.loadMembers()
       },
     },
-  },
-  mounted() {
-    this.loadMembers()
   },
   methods: {
     loadMembers(): void {

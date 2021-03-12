@@ -79,7 +79,7 @@ export default Vue.extend({
         return
       }
 
-      // Create team
+      // Update
       this.$fire.firestore
         .collection('teams')
         .doc(this.user.team)
@@ -89,6 +89,9 @@ export default Vue.extend({
             'Les paramètres ont étés sauvegardés.',
             NotificationType.SUCCESS
           )
+
+          // Reload team
+          this.$store.commit('team/SET_TEAM', this.team)
         })
         .catch(() => {
           this.$notify(
