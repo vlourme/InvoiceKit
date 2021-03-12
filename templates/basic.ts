@@ -156,7 +156,7 @@ export default class BasicInvoiceTemplate extends Template {
       .setLineWidth(0.4)
       .setFont('Helvetica')
       .setFontSize(9)
-      .rect(15, 230, 35, 20)
+      .roundedRect(15, 230, 35, 20, 1, 1, 'S')
       .text('Signature', 17, 235)
   }
 
