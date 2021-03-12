@@ -29,9 +29,12 @@ export default class BasicInvoiceTemplate extends Template {
       .setFont('Helvetica', 'normal')
       .setFontSize(12)
       .setTextColor(107, 114, 128)
-      .text(this.team.email ?? '', 15, 48)
-      .text(this.team.phone ?? '', 15, 54)
-      .text(this.team.website ?? '', 15, 60)
+      .text(
+        [this.team.email ?? '', this.team.phone ?? '', this.team.website ?? ''],
+        15,
+        48,
+        { lineHeightFactor: 1.4 }
+      )
       .setFontSize(10)
       .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
@@ -187,9 +190,18 @@ export default class BasicInvoiceTemplate extends Template {
       .setFont('Helvetica', 'normal')
       .setFontSize(10)
       .setTextColor(107, 114, 128)
-      .text(this.team.street ?? '', 15, 273)
-      .text(`${this.team.zip} ${this.team.city}`, 15, 279)
-      .text(this.team.country ?? '', 15, 285)
+      .text(
+        [
+          this.team.street ?? '',
+          `${this.team.zip} ${this.team.city}`,
+          this.team.country ?? '',
+        ],
+        15,
+        273,
+        {
+          lineHeightFactor: 1.5,
+        }
+      )
       .setFontSize(10)
       .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
