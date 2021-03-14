@@ -2,6 +2,7 @@
  * Basic Template for Invoice
  */
 
+import { isThisHour } from 'date-fns'
 import autoTable from 'jspdf-autotable'
 import Template from './template'
 
@@ -18,21 +19,31 @@ export default class BasicInvoiceTemplate extends Template {
    * Draw the header area
    */
   drawHeader(): void {
+    // Calculate startY and box height
+    let startY = 42
+    let height = 70
+
+    // Reduce height if image is empty
+    if (!this.dataURI) {
+      startY = 15
+      height = 45
+    }
+
     // Set data
     this.doc
       .setFillColor(249, 250, 251)
-      .rect(0, 0, 210, 70, 'F')
+      .rect(0, 0, 210, height, 'F')
       .setFontSize(16)
       .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
-      .text(this.team.title ?? '', 15, 42)
+      .text(this.team.title ?? '', 15, startY)
       .setFont('Helvetica', 'normal')
       .setFontSize(12)
       .setTextColor(107, 114, 128)
       .text(
         [this.team.email ?? '', this.team.phone ?? '', this.team.website ?? ''],
         15,
-        48,
+        startY + 8,
         { lineHeightFactor: 1.4 }
       )
       .setFontSize(10)
@@ -62,6 +73,13 @@ export default class BasicInvoiceTemplate extends Template {
    * Draw the customer area
    */
   drawCustomer(): void {
+    // Calculate startY
+    let startY = 70
+
+    if (!this.dataURI) {
+      startY = 45
+    }
+
     let fullName = this.customer.fullName
 
     if (this.customer.society) {
@@ -70,16 +88,25 @@ export default class BasicInvoiceTemplate extends Template {
 
     this.doc
       .setFillColor(229, 231, 235)
-      .rect(0, 70, 210, 35, 'F')
+      .rect(0, startY, 210, 35, 'F')
       .setFont('Helvetica', 'normal', 700)
       .setFontSize(12)
       .setTextColor(107, 114, 128)
-      .text(fullName, 15, 80)
+      .text(fullName, 15, startY + 10)
       .setFont('Helvetica', 'normal')
       .setFontSize(11)
-      .text(this.address.street, 15, 86)
-      .text(`${this.address.zip} ${this.address.city}`, 15, 92)
-      .text(this.address.country, 15, 98)
+      .text(
+        [
+          this.address.street,
+          `${this.address.zip} ${this.address.city}`,
+          this.address.country,
+        ],
+        15,
+        startY + 16,
+        {
+          lineHeightFactor: 1.6,
+        }
+      )
   }
 
   /**
@@ -283,7 +310,7 @@ export default class BasicInvoiceTemplate extends Template {
       },
       theme: 'striped',
       margin: {
-        top: 105,
+        top: this.dataURI ? 105 : 80,
         left: 0,
         right: 0,
         bottom: 40,
