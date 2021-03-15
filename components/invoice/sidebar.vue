@@ -214,7 +214,9 @@ export default Vue.extend({
       let logo = ''
 
       try {
-        logo = await this.$fire.storage.ref(this.user.team).getDownloadURL()
+        logo = await this.$fire.storage
+          .ref(`/teams/${this.user.team}`)
+          .getDownloadURL()
       } catch {}
 
       const template = new BasicInvoiceTemplate(

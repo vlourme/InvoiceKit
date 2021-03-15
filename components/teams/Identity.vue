@@ -124,7 +124,9 @@ export default Vue.extend({
       }
 
       // Upload file
-      const task = await this.$fire.storage.ref(this.user.team).put(this.file)
+      const task = await this.$fire.storage
+        .ref(`/teams/${this.user.team}`)
+        .put(this.file)
 
       // Change image
       this.image = await task.ref.getDownloadURL()
@@ -134,7 +136,7 @@ export default Vue.extend({
 
     async deleteImage() {
       try {
-        await this.$fire.storage.ref(this.user.team).delete()
+        await this.$fire.storage.ref(`/teams/${this.user.team}`).delete()
 
         this.image = ''
       } catch {}
