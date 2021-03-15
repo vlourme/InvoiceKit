@@ -3,7 +3,7 @@
     <template #title>Identité de l'entreprise</template>
 
     <template #actions>
-      <v-btn text @click="dialog = true">
+      <v-btn v-if="isOwner" text @click="dialog = true">
         <v-icon left>mdi-image</v-icon>
         Ajouter un logo
       </v-btn>
@@ -11,28 +11,33 @@
 
     <v-text-field
       v-model="team.title"
+      :disabled="!isOwner"
       label="Nom de l'entreprise"
     ></v-text-field>
 
     <v-text-field
       v-model="team.juridicalTitle"
+      :disabled="!isOwner"
       label="Nom juridique de l'entreprise"
       placeholder="Entreprise SARL"
     ></v-text-field>
 
     <v-text-field
       v-model="team.email"
+      :disabled="!isOwner"
       label="Email"
       placeholder="society@example.com"
       :rules="rules.email"
     ></v-text-field>
     <v-text-field
       v-model="team.phone"
+      :disabled="!isOwner"
       label="Téléphone"
       placeholder="+33 01 02 03 04 05"
     ></v-text-field>
     <v-text-field
       v-model="team.website"
+      :disabled="!isOwner"
       label="Site internet"
       placeholder="example.com"
       :rules="rules.url"
@@ -75,7 +80,7 @@
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
 import { Team } from '@/types/team'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 export default Vue.extend({
   name: 'Identity',
@@ -97,6 +102,7 @@ export default Vue.extend({
   }),
   computed: {
     ...mapState('auth', ['user']),
+    ...mapGetters('team', ['isOwner']),
     team: {
       get(): Team {
         return this.teamState

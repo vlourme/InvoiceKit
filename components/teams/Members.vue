@@ -3,7 +3,7 @@
     <template #title> Gérer les membres </template>
 
     <template #actions>
-      <v-btn text @click="dialog = true">
+      <v-btn v-if="isOwner" text @click="dialog = true">
         <v-icon left>mdi-plus</v-icon>
         Ajouter un membre
       </v-btn>
@@ -23,11 +23,7 @@
             <td>{{ user.name }}</td>
             <td>{{ user.$key === team.owner ? 'Oui' : 'Non' }}</td>
             <td class="text-right">
-              <v-btn
-                v-if="user.$key !== team.owner"
-                icon
-                @click="kickUser(idx)"
-              >
+              <v-btn v-if="isOwner" icon @click="kickUser(idx)">
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </td>
@@ -67,6 +63,7 @@
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
 import { Team } from '@/types/team'
+import { mapGetters } from 'vuex'
 import User from '~/types/user'
 
 export default Vue.extend({
@@ -87,6 +84,7 @@ export default Vue.extend({
     this.loadMembers()
   },
   computed: {
+    ...mapGetters('team', ['isOwner']),
     team: {
       get(): Team {
         return this.teamState

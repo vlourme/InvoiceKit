@@ -3,7 +3,7 @@
     <template #title>Champs</template>
 
     <template #actions>
-      <v-btn text @click="dialog = true">
+      <v-btn v-if="isOwner" text @click="dialog = true">
         <v-icon left>mdi-plus</v-icon>
         Ajouter un champ
       </v-btn>
@@ -21,10 +21,20 @@
           <tr v-for="(item, idx) in team.fields" :key="item">
             <td>{{ item }}</td>
             <td class="text-right d-flex align-center">
-              <v-btn icon color="warning" @click="editField(idx)">
+              <v-btn
+                v-if="isOwner"
+                icon
+                color="warning"
+                @click="editField(idx)"
+              >
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
-              <v-btn icon color="error" @click="deleteField(idx)">
+              <v-btn
+                v-if="isOwner"
+                icon
+                color="error"
+                @click="deleteField(idx)"
+              >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </td>
@@ -70,6 +80,7 @@
 import Vue, { PropOptions } from 'vue'
 import { Team } from '@/types/team'
 import _ from 'lodash'
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
   name: 'Fields',
@@ -85,6 +96,7 @@ export default Vue.extend({
     update: -1,
   }),
   computed: {
+    ...mapGetters('team', ['isOwner']),
     team: {
       get(): Team {
         return this.teamState

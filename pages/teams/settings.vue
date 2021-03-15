@@ -3,7 +3,7 @@
     <template #title>Paramètres de la team</template>
 
     <template #actions>
-      <v-btn :elevation="0" @click="updateTeam">
+      <v-btn v-if="isOwner" :elevation="0" @click="updateTeam">
         <v-icon left>mdi-check</v-icon>
         Sauvegarder
       </v-btn>
@@ -15,6 +15,7 @@
 
         <v-text-field
           v-model="team.name"
+          :disabled="!isOwner"
           label="Nom de la team"
           placeholder="John Doe"
         ></v-text-field>
@@ -37,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import Vue from 'vue'
 import _ from 'lodash'
 import { Team } from '~/types/team'
@@ -60,6 +61,7 @@ export default Vue.extend({
   },
   computed: {
     ...mapState('auth', ['auth', 'user']),
+    ...mapGetters('team', ['isOwner']),
     ...mapState('team', {
       teamState: 'team',
     }),

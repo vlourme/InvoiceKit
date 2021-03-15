@@ -1,4 +1,4 @@
-import { ActionTree, MutationTree } from 'vuex/types/index'
+import { ActionTree, GetterTree, MutationTree } from 'vuex/types/index'
 import RootState from '~/store'
 import { Team } from '~/types/team'
 
@@ -8,6 +8,12 @@ export const state = () => ({
 })
 
 export type TeamModuleState = ReturnType<typeof state>
+
+export const getters: GetterTree<TeamModuleState, RootState> = {
+  isOwner(state, _getters, rootState): boolean {
+    return state.team?.owner === rootState.auth.auth?.uid
+  },
+}
 
 export const mutations: MutationTree<TeamModuleState> = {
   SET_TEAM: (state, team: Team) => {
