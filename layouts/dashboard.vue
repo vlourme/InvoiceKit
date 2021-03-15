@@ -79,7 +79,7 @@
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider></v-divider>
+              <v-divider v-if="teams.length > 0"></v-divider>
               <v-list-item link to="/teams/create">
                 <v-list-item-title>Créer une team</v-list-item-title>
               </v-list-item>
