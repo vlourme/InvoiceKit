@@ -2,7 +2,7 @@
   <Card no-body>
     <template #title>Adresses</template>
 
-    <template #actions>
+    <template v-if="role > 0" #actions>
       <v-btn color="success" text @click="dialog = true">
         <v-icon left>mdi-plus</v-icon>
         Ajouter
@@ -10,7 +10,7 @@
     </template>
 
     <v-data-table :items="addresses" :headers="addressHeaders">
-      <template #item.actions="{ item }">
+      <template v-if="role > 0" #item.actions="{ item }">
         <v-btn color="warning" icon @click="editAddress(item)">
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
@@ -80,7 +80,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { Address, AddressHeaders } from '@/types/address'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
@@ -92,6 +92,7 @@ export default Vue.extend({
     update: false,
   }),
   computed: {
+    ...mapGetters('team', ['role']),
     ...mapState('auth', ['user']),
     ...mapState('payload', ['customer', 'addresses']),
   },

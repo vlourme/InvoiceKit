@@ -8,11 +8,19 @@ export enum RenderingSignature {
   Both = Quote | Invoice,
 }
 
+export enum MemberPermission {
+  Viewer,
+  Editor,
+  Admin,
+}
+
 export interface Team extends Model {
   // Team details
   name: string
   owner: string
-  members: string[]
+  members: {
+    [key: string]: MemberPermission
+  }
 
   // Society Identity
   title: string | null

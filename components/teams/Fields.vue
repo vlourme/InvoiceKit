@@ -3,7 +3,7 @@
     <template #title>Champs</template>
 
     <template #actions>
-      <v-btn v-if="isOwner" text @click="dialog = true">
+      <v-btn v-if="isAdmin" text @click="dialog = true">
         <v-icon left>mdi-plus</v-icon>
         Ajouter un champ
       </v-btn>
@@ -22,7 +22,7 @@
             <td>{{ item }}</td>
             <td class="text-right d-flex align-center">
               <v-btn
-                v-if="isOwner"
+                v-if="isAdmin"
                 icon
                 color="warning"
                 @click="editField(idx)"
@@ -30,7 +30,7 @@
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
               <v-btn
-                v-if="isOwner"
+                v-if="isAdmin"
                 icon
                 color="error"
                 @click="deleteField(idx)"
@@ -96,7 +96,7 @@ export default Vue.extend({
     update: -1,
   }),
   computed: {
-    ...mapGetters('team', ['isOwner']),
+    ...mapGetters('team', ['isAdmin']),
     team: {
       get(): Team {
         return this.teamState

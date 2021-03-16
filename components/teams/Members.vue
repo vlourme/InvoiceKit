@@ -3,7 +3,7 @@
     <template #title> Gérer les membres </template>
 
     <template #actions>
-      <v-btn v-if="isOwner" text @click="dialog = true">
+      <v-btn v-if="isAdmin" text @click="dialog = true">
         <v-icon left>mdi-plus</v-icon>
         Ajouter un membre
       </v-btn>
@@ -14,16 +14,40 @@
         <thead>
           <tr>
             <th class="text-left">Membre</th>
-            <th class="text-left">Administrateur</th>
+            <th class="text-left">Permissions</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(user, idx) in members" :key="user.$key">
             <td>{{ user.name }}</td>
-            <td>{{ user.$key === team.owner ? 'Oui' : 'Non' }}</td>
+            <td>
+              <v-chip v-if="user.$key === team.owner" color="success">
+                Propriétaire
+              </v-chip>
+
+              <v-chip v-else-if="getRole(user) == 2" color="error">
+                Administrateur
+              </v-chip>
+
+              <v-chip v-else-if="getRole(user) == 1" color="warning">
+                Editeur
+              </v-chip>
+
+              <v-chip v-else-if="getRole(user) == 0" color="primary">
+                Lecteur
+              </v-chip>
+            </td>
             <td class="text-right">
-              <v-btn v-if="isOwner" icon @click="kickUser(idx)">
+              <v-btn
+                v-if="
+                  isAdmin &&
+                  user.$key !== team.owner &&
+                  user.$key !== userState.$key
+                "
+                icon
+                @click="kickUser(user, idx)"
+              >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </td>
@@ -46,6 +70,12 @@
             label="Email du membre"
             placeholder="john.doe@example.com"
           ></v-text-field>
+
+          <v-select
+            v-model="role"
+            :items="roles"
+            label="Permissions du membre"
+          />
         </v-card-text>
 
         <v-divider></v-divider>
@@ -62,9 +92,10 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { Team } from '@/types/team'
-import { mapGetters } from 'vuex'
+import { MemberPermission, Team } from '@/types/team'
+import { mapGetters, mapState } from 'vuex'
 import User from '~/types/user'
+import { mapDocument } from '~/helpers/documentMapper'
 
 export default Vue.extend({
   name: 'Members',
@@ -78,13 +109,41 @@ export default Vue.extend({
     members: [] as User[],
     dialog: false,
     email: '',
+    role: MemberPermission.Editor,
+    roles: [
+      {
+        text: 'Lecteur',
+        value: MemberPermission.Viewer,
+      },
+      {
+        text: 'Editeur',
+        value: MemberPermission.Editor,
+      },
+      {
+        text: 'Administrateur',
+        value: MemberPermission.Admin,
+      },
+    ],
     error: '',
   }),
-  fetch() {
-    this.loadMembers()
+  async fetch() {
+    // Load members
+    for (const uid in this.team.members) {
+      const doc = await this.$fire.firestore.collection('users').doc(uid).get()
+
+      this.members.push(mapDocument<User>(doc))
+    }
+
+    // Sort by permissions
+    this.members.sort(
+      (a, b) => this.team.members[b.$key!] - this.team.members[a.$key!]
+    )
   },
   computed: {
-    ...mapGetters('team', ['isOwner']),
+    ...mapGetters('team', ['isAdmin']),
+    ...mapState('auth', {
+      userState: 'user',
+    }),
     team: {
       get(): Team {
         return this.teamState
@@ -95,30 +154,9 @@ export default Vue.extend({
       },
     },
   },
-  watch: {
-    'team.members': {
-      handler() {
-        this.loadMembers()
-      },
-    },
-  },
   methods: {
-    loadMembers(): void {
-      // Reset
-      this.members = []
-
-      // Load members
-      this.team.members.forEach(async (member: string) => {
-        const doc = await this.$fire.firestore
-          .collection('users')
-          .doc(member)
-          .get()
-
-        this.members.push({
-          ...doc.data(),
-          $key: member,
-        } as User)
-      })
+    getRole(user: User): MemberPermission {
+      return this.team.members[user.$key!]
     },
 
     async addMember(): Promise<void> {
@@ -126,6 +164,7 @@ export default Vue.extend({
       const doc = await this.$fire.firestore
         .collection('users')
         .where('email', '==', this.email)
+        .limit(1)
         .get()
 
       // Check if empty
@@ -135,22 +174,25 @@ export default Vue.extend({
       }
 
       // Check if already in team
-      if (this.team.members.includes(doc.docs[0].id)) {
+      if (this.team.members[doc.docs[0].id]) {
         this.error = 'Ce membre est déjà dans la team.'
         return
       }
 
       // Add user
-      this.team.members.push(doc.docs[0].id)
+      this.team.members[doc.docs[0].id] = this.role
+      this.members.push(mapDocument<User>(doc.docs[0]))
 
       // Reset variables
       this.error = ''
       this.email = ''
+      this.role = MemberPermission.Editor
       this.dialog = false
     },
 
-    kickUser(user: number): void {
-      this.team.members.splice(user, 1)
+    kickUser(user: User, idx: number): void {
+      delete this.team.members[user.$key!]
+      this.members.splice(idx, 1)
     },
   },
 })

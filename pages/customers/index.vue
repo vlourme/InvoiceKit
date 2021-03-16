@@ -13,7 +13,7 @@
       ></v-text-field>
     </template>
 
-    <template #actions>
+    <template v-if="role > 0" #actions>
       <v-btn :elevation="0" to="/customers/create">
         <v-icon left> mdi-plus </v-icon>
 
@@ -36,7 +36,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { Customer, CustomerHeaders } from '@/types/customer'
 import { mapSnapshot } from '~/helpers/documentMapper'
 
@@ -61,6 +61,7 @@ export default Vue.extend({
     title: 'Clients',
   },
   computed: {
+    ...mapGetters('team', ['role']),
     ...mapState('auth', ['user']),
   },
   methods: {

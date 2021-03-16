@@ -62,12 +62,30 @@ export default Vue.extend({
       }
 
       // Create team
-      const doc = await this.$fire.firestore.collection('teams').add({
+      const team: Team = {
         name: this.name,
-        members: [this.auth.uid],
+        members: {
+          [this.auth.uid]: 2,
+        },
         owner: this.auth.uid,
         signature: RenderingSignature.Both,
-      } as Team)
+        accentEnabled: false,
+        quantityEnabled: true,
+        title: null,
+        juridicalTitle: null,
+        email: null,
+        phone: null,
+        website: null,
+        street: null,
+        zip: null,
+        city: null,
+        country: null,
+        accent: null,
+        $key: null,
+        fields: [],
+      }
+
+      const doc = await this.$fire.firestore.collection('teams').add(team)
 
       // Change team
       this.$store.dispatch('switchTeam', doc.id)

@@ -2,7 +2,7 @@
   <Header>
     <template #title>Modifier une fiche client</template>
 
-    <template #actions>
+    <template v-if="role > 0" #actions>
       <v-btn :elevation="0" color="red" @click="deleteCustomer">
         <v-icon left>mdi-delete</v-icon>
         Supprimer
@@ -19,20 +19,34 @@
         <v-text-field
           v-model="customer.fullName"
           label="Nom complet"
+          :disabled="role === 0"
           placeholder="John Doe"
         ></v-text-field>
 
-        <v-text-field v-model="customer.society" label="Société"></v-text-field>
+        <v-text-field
+          v-model="customer.society"
+          :disabled="role === 0"
+          label="Société"
+        ></v-text-field>
 
         <v-text-field
           v-model="customer.email"
           :rules="rules.email"
+          :disabled="role === 0"
           label="Email"
         ></v-text-field>
 
-        <v-text-field v-model="customer.phone" label="Téléphone"></v-text-field>
+        <v-text-field
+          v-model="customer.phone"
+          :disabled="role === 0"
+          label="Téléphone"
+        ></v-text-field>
 
-        <v-textarea v-model="customer.notes" label="Notes"></v-textarea>
+        <v-textarea
+          v-model="customer.notes"
+          :disabled="role === 0"
+          label="Notes"
+        ></v-textarea>
       </v-form>
     </Card>
 
@@ -43,7 +57,7 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import Vue from 'vue'
 import { NotificationType } from '~/types/notification'
 import { Customer } from '~/types/customer'
@@ -72,6 +86,7 @@ export default Vue.extend({
     }
   },
   computed: {
+    ...mapGetters('team', ['role']),
     ...mapState('auth', ['user']),
     ...mapState('payload', {
       customerState: 'customer',

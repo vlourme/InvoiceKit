@@ -2,7 +2,7 @@
   <Card>
     <template #title>Fichiers PDF</template>
     <template #actions>
-      <v-btn v-if="isOwner" text @click="color = true">
+      <v-btn v-if="isAdmin" text @click="color = true">
         Changer la couleur d'accent
       </v-btn>
     </template>
@@ -10,7 +10,7 @@
     <v-select
       v-model="team.signature"
       :items="signature"
-      :disabled="!isOwner"
+      :disabled="!isAdmin"
       prepend-icon="mdi-account-check"
       label="Signature requise en fin de document"
     ></v-select>
@@ -18,7 +18,7 @@
     <v-select
       v-model="team.quantityEnabled"
       :items="quantity"
-      :disabled="!isOwner"
+      :disabled="!isAdmin"
       prepend-icon="mdi-tag"
       label="Activer le champ 'quantité'"
       hint="Le champ sera caché pendant l'édition de facture et sur les rendus PDF"
@@ -72,7 +72,7 @@ export default Vue.extend({
     ],
   }),
   computed: {
-    ...mapGetters('team', ['isOwner']),
+    ...mapGetters('team', ['isAdmin']),
     team: {
       get(): Team {
         return this.teamState

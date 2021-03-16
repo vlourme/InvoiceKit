@@ -1,6 +1,6 @@
 import { ActionTree, GetterTree, MutationTree } from 'vuex/types/index'
 import RootState from '~/store'
-import { Team } from '~/types/team'
+import { MemberPermission, Team } from '~/types/team'
 
 export const state = () => ({
   teams: null as { [key: string]: Team } | null,
@@ -12,6 +12,18 @@ export type TeamModuleState = ReturnType<typeof state>
 export const getters: GetterTree<TeamModuleState, RootState> = {
   isOwner(state, _getters, rootState): boolean {
     return state.team?.owner === rootState.auth.auth?.uid
+  },
+
+  isAdmin(state, _getters, rootState): boolean {
+    return (
+      state.team?.owner === rootState.auth.auth?.uid ||
+      state.team?.members[rootState.auth.auth?.uid!] === 2
+    )
+  },
+
+  role(state, _getters, rootState): MemberPermission | undefined {
+    const uid = rootState.auth.auth?.uid
+    return state.team?.members[uid ?? '']
   },
 }
 
@@ -30,11 +42,14 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
    * Get teams user belong to
    */
   async getTeams({ commit, rootState }): Promise<void> {
+    const uid = rootState.auth.auth?.uid
+
     const ref = this.$fire.firestore
       .collection('teams')
-      .where('members', 'array-contains', rootState.auth.auth?.uid)
+      .where(`members.${uid}`, '>=', 0)
 
     const doc = await ref.get()
+
     const teams = doc.docs.reduce(
       (ac, a) => ({ ...ac, [a.id]: a.data() }),
       {}

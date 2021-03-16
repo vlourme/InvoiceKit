@@ -5,7 +5,7 @@
       #{{ invoice.data.id }}
     </template>
 
-    <template #actions>
+    <template v-if="role > 0" #actions>
       <v-btn color="error" :elevation="0" @click="deleteInvoice">
         <v-icon left>mdi-delete</v-icon>
         Supprimer
@@ -51,7 +51,7 @@
 import { Invoice, InvoiceIndex, InvoiceType } from '@/types/invoice'
 import { cloneDeep } from 'lodash'
 import Vue from 'vue'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import firebase from 'firebase'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { DialogType } from '~/types/dialog'
@@ -81,6 +81,7 @@ export default Vue.extend({
     }
   },
   computed: {
+    ...mapGetters('team', ['role']),
     ...mapState('auth', ['user']),
     ...mapState('payload', {
       customer: 'customer',

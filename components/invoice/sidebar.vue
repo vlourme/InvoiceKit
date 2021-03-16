@@ -76,7 +76,11 @@
           <v-list-item-subtitle>Réduction</v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action>
-          <v-btn icon @click="$emit('update:promotion-dialog', true)">
+          <v-btn
+            v-if="role > 0"
+            icon
+            @click="$emit('update:promotion-dialog', true)"
+          >
             <v-icon color="grey lighten-1">mdi-pencil-circle</v-icon>
           </v-btn>
         </v-list-item-action>
@@ -92,7 +96,11 @@
           <v-list-item-subtitle>Acompte</v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action>
-          <v-btn icon @click="$emit('update:deposit-dialog', true)">
+          <v-btn
+            v-if="role > 0"
+            icon
+            @click="$emit('update:deposit-dialog', true)"
+          >
             <v-icon color="grey lighten-1">mdi-pencil-circle</v-icon>
           </v-btn>
         </v-list-item-action>
@@ -141,7 +149,11 @@
     <v-list nav dense subheader>
       <v-subheader>Autres actions</v-subheader>
 
-      <v-list-item link @click="$emit('update:note-dialog', true)">
+      <v-list-item
+        :disabled="role === 0"
+        link
+        @click="$emit('update:note-dialog', true)"
+      >
         <v-list-item-icon>
           <v-icon>mdi-text-short</v-icon>
         </v-list-item-icon>
@@ -156,7 +168,7 @@
 <script lang="ts">
 import jsPDF from 'jspdf'
 import Vue, { PropOptions } from 'vue'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import BasicInvoiceTemplate from '~/templates/basic'
 
@@ -185,6 +197,7 @@ export default Vue.extend({
     tax: 0,
   }),
   computed: {
+    ...mapGetters('team', ['role']),
     ...mapState('auth', ['user']),
     ...mapState('team', ['team']),
     ...mapState('payload', {

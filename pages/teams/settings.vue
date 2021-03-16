@@ -3,7 +3,7 @@
     <template #title>Paramètres de la team</template>
 
     <template #actions>
-      <v-btn v-if="isOwner" :elevation="0" @click="updateTeam">
+      <v-btn v-if="isAdmin" :elevation="0" @click="updateTeam">
         <v-icon left>mdi-check</v-icon>
         Sauvegarder
       </v-btn>
@@ -15,7 +15,7 @@
 
         <v-text-field
           v-model="team.name"
-          :disabled="!isOwner"
+          :disabled="!isAdmin"
           label="Nom de la team"
           placeholder="John Doe"
         ></v-text-field>
@@ -61,7 +61,7 @@ export default Vue.extend({
   },
   computed: {
     ...mapState('auth', ['auth', 'user']),
-    ...mapGetters('team', ['isOwner']),
+    ...mapGetters('team', ['isAdmin']),
     ...mapState('team', {
       teamState: 'team',
     }),

@@ -3,7 +3,7 @@
     <template #title>Facturation</template>
 
     <template #actions>
-      <v-btn text color="primary" @click="dialog = true">
+      <v-btn v-if="role > 0" text color="primary" @click="dialog = true">
         <v-icon left>mdi-plus</v-icon>
         Nouveau prix
       </v-btn>
@@ -19,7 +19,7 @@
         <draggable :list="props.items" tag="tbody">
           <tr v-for="(item, idx) in props.items" :key="idx">
             <td>
-              <v-icon class="cursor-move">mdi-menu</v-icon>
+              <v-icon v-if="role > 0" class="cursor-move">mdi-menu</v-icon>
             </td>
             <v-menu max-width="150" offset-y>
               <template #activator="{ on, attrs }">
@@ -29,7 +29,7 @@
                   v-html="replaceWithHTMLBreak(item.description)"
                 ></td>
               </template>
-              <v-list dense color="grey darken-3">
+              <v-list v-if="role > 0" dense color="grey darken-3">
                 <v-list-item link @click="editField(idx)">
                   <v-list-item-icon>
                     <v-icon>mdi-pencil</v-icon>
@@ -117,7 +117,7 @@
 import Vue, { PropOptions } from 'vue'
 import draggable from 'vuedraggable'
 import { DataTableHeader } from 'vuetify'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import {
   defaultField,
@@ -143,6 +143,7 @@ export default Vue.extend({
     update: -1,
   }),
   computed: {
+    ...mapGetters('team', ['role']),
     ...mapState('team', ['team']),
     invoice: {
       get(): InvoiceImpl {

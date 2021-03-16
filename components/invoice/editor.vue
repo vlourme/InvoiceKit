@@ -5,6 +5,7 @@
         <v-text-field
           v-model="invoice.data.id"
           label="Identifiant"
+          :disabled="role === 0"
           prepend-icon="mdi-pound"
           placeholder="41-FR/2021"
           :rules="[(v) => !!v || 'L\'identifiant est obligatoire']"
@@ -13,6 +14,7 @@
         <v-select
           v-model="invoice.data.type"
           :items="types"
+          :disabled="role === 0"
           prepend-icon="mdi-file"
           label="Type de document"
         ></v-select>
@@ -21,6 +23,7 @@
         <v-select
           v-model="invoice.data.status"
           :items="statuses"
+          :disabled="role === 0"
           prepend-icon="mdi-chart-line-variant"
           label="Statut du document"
         ></v-select>
@@ -39,6 +42,7 @@
               label="Date"
               prepend-icon="mdi-calendar"
               readonly
+              :disabled="role === 0"
               v-bind="attrs"
               v-on="on"
             ></v-text-field>
@@ -65,6 +69,7 @@
 <script lang="ts">
 import { format, parseISO } from 'date-fns'
 import Vue, { PropOptions } from 'vue'
+import { mapGetters } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { InvoiceStatus, InvoiceType } from '~/types/invoice'
 
@@ -90,6 +95,7 @@ export default Vue.extend({
     dateMenu: false,
   }),
   computed: {
+    ...mapGetters('team', ['role']),
     invoice: {
       get(): InvoiceImpl {
         return this.invoiceState

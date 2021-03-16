@@ -4,7 +4,7 @@
 
     <v-text-field
       v-model="team.street"
-      :disabled="!isOwner"
+      :disabled="!isAdmin"
       label="Adresse"
       placeholder="12 rue des lilas"
     ></v-text-field>
@@ -13,7 +13,7 @@
       <v-col>
         <v-text-field
           v-model="team.city"
-          :disabled="!isOwner"
+          :disabled="!isAdmin"
           label="Ville"
           placeholder="Lille"
         ></v-text-field>
@@ -21,7 +21,7 @@
       <v-col>
         <v-text-field
           v-model="team.zip"
-          :disabled="!isOwner"
+          :disabled="!isAdmin"
           label="Code postal"
           placeholder="59000"
         ></v-text-field>
@@ -29,7 +29,7 @@
       <v-col>
         <v-text-field
           v-model="team.country"
-          :disabled="!isOwner"
+          :disabled="!isAdmin"
           label="Pays"
           placeholder="France"
         ></v-text-field>
@@ -52,7 +52,7 @@ export default Vue.extend({
     } as PropOptions<Team>,
   },
   computed: {
-    ...mapGetters('team', ['isOwner']),
+    ...mapGetters('team', ['isAdmin']),
     team: {
       get(): Team {
         return this.teamState

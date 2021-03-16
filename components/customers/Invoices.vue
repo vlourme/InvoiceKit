@@ -2,7 +2,7 @@
   <Card no-body>
     <template #title>Factures</template>
 
-    <template #actions>
+    <template v-if="role > 0" #actions>
       <v-btn color="success" text @click="dialog = true">
         <v-icon left>mdi-plus</v-icon>
         Ajouter
@@ -48,7 +48,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { DataTableHeader } from 'vuetify'
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { mapSnapshot } from '~/helpers/documentMapper'
 import { Address, AddressHeaders } from '~/types/address'
 import { Invoice } from '~/types/invoice'
@@ -86,6 +86,7 @@ export default Vue.extend({
       })
   },
   computed: {
+    ...mapGetters('team', ['role']),
     ...mapState('auth', ['user']),
     ...mapState('payload', ['customer', 'addresses']),
   },
