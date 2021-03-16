@@ -176,7 +176,7 @@ export default Vue.extend({
         // Get member
         const member = this.members[this.update]
 
-        this.team.members[member.$key] = this.role
+        this.team.members[member.$key!] = this.role
       } else {
         // Search for user
         const doc = await this.$fire.firestore
