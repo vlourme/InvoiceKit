@@ -61,11 +61,11 @@
 <script lang="ts">
 import { mapGetters, mapState } from 'vuex'
 import Vue from 'vue'
+import _ from 'lodash'
 import { NotificationType } from '~/types/notification'
 import { Customer } from '~/types/customer'
 import { DialogType } from '~/types/dialog'
 import { purge, purgeCollection } from '~/helpers/purgeCollection'
-import _ from 'lodash'
 
 export default Vue.extend({
   name: 'ViewCustomer',
