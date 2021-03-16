@@ -3,15 +3,17 @@
     <template #title>Modifier une fiche client</template>
 
     <template v-if="role > 0" #actions>
-      <v-btn :elevation="0" color="red" @click="deleteCustomer">
+      <v-btn class="ml-2" :elevation="0" color="red" @click="deleteCustomer">
         <v-icon left>mdi-delete</v-icon>
         Supprimer
       </v-btn>
 
-      <v-btn class="mx-2" :elevation="0" @click="updateCustomer">
-        <v-icon left>mdi-check</v-icon>
-        Mettre à jour
-      </v-btn>
+      <v-badge overlap color="warning" :value="hasChanges">
+        <v-btn class="ml-2" :elevation="0" @click="updateCustomer">
+          <v-icon left>mdi-check</v-icon>
+          Mettre à jour
+        </v-btn>
+      </v-badge>
     </template>
 
     <Card no-toolbar no-divider margin>
@@ -63,6 +65,7 @@ import { NotificationType } from '~/types/notification'
 import { Customer } from '~/types/customer'
 import { DialogType } from '~/types/dialog'
 import { purge, purgeCollection } from '~/helpers/purgeCollection'
+import _ from 'lodash'
 
 export default Vue.extend({
   name: 'ViewCustomer',
@@ -74,6 +77,7 @@ export default Vue.extend({
   },
   data: () => ({
     valid: false,
+    hasChanges: false,
     rules: {
       email: [(v: string) => !v || /.+@.+/.test(v) || "L'email est invalide."],
     },
@@ -94,6 +98,14 @@ export default Vue.extend({
   },
   mounted() {
     this.customer = Object.assign({}, this.customerState)
+
+    this.$watch(
+      'customer',
+      () => {
+        this.hasChanges = !_.isEqual(this.customer, this.customerState)
+      },
+      { deep: true }
+    )
   },
   methods: {
     async updateCustomer(): Promise<void> {
@@ -112,6 +124,7 @@ export default Vue.extend({
         .update(this.customer)
 
       this.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
+      this.hasChanges = false
     },
 
     /**

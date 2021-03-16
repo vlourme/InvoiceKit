@@ -3,10 +3,12 @@
     <template #title>Paramètres de la team</template>
 
     <template #actions>
-      <v-btn v-if="isAdmin" :elevation="0" @click="updateTeam">
-        <v-icon left>mdi-check</v-icon>
-        Sauvegarder
-      </v-btn>
+      <v-badge overlap color="warning" :value="hasChanges">
+        <v-btn v-if="isAdmin" :elevation="0" @click="updateTeam">
+          <v-icon left>mdi-check</v-icon>
+          Sauvegarder
+        </v-btn>
+      </v-badge>
     </template>
 
     <v-form v-model="valid">
@@ -53,6 +55,7 @@ export default Vue.extend({
     }
   },
   data: () => ({
+    hasChanges: false,
     valid: false,
     team: {} as Team,
   }),
@@ -73,6 +76,15 @@ export default Vue.extend({
     if (!this.team.fields) {
       this.team.fields = []
     }
+
+    // Start watcher
+    this.$watch(
+      'team',
+      () => {
+        this.hasChanges = !_.isEqual(this.team, this.teamState)
+      },
+      { deep: true }
+    )
   },
   methods: {
     updateTeam(): void {
@@ -94,6 +106,9 @@ export default Vue.extend({
 
           // Reload team
           this.$store.commit('team/SET_TEAM', this.team)
+
+          // Reset changes
+          this.hasChanges = false
         })
         .catch(() => {
           this.$notify(

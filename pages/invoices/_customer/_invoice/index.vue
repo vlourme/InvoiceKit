@@ -11,10 +11,12 @@
         Supprimer
       </v-btn>
 
-      <v-btn class="mx-2" :elevation="0" @click="updateInvoice">
-        <v-icon left>mdi-check</v-icon>
-        Sauvegarder
-      </v-btn>
+      <v-badge overlap color="warning" :value="hasChanges">
+        <v-btn class="ml-2" :elevation="0" @click="updateInvoice">
+          <v-icon left>mdi-check</v-icon>
+          Sauvegarder
+        </v-btn>
+      </v-badge>
     </template>
 
     <v-form v-model="valid">
@@ -49,7 +51,7 @@
 
 <script lang="ts">
 import { Invoice, InvoiceIndex, InvoiceType } from '@/types/invoice'
-import { cloneDeep } from 'lodash'
+import _ from 'lodash'
 import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
 import firebase from 'firebase'
@@ -67,6 +69,7 @@ export default Vue.extend({
     await store.dispatch('payload/fetchInvoice', invoice)
   },
   data: () => ({
+    hasChanges: false,
     invoice: new InvoiceImpl(),
     promotionDialog: false,
     depositDialog: false,
@@ -89,7 +92,15 @@ export default Vue.extend({
     }),
   },
   mounted() {
-    this.invoice.data = cloneDeep(this.invoiceState)
+    this.invoice.data = _.cloneDeep(this.invoiceState)
+
+    this.$watch(
+      'invoice',
+      () => {
+        this.hasChanges = !_.isEqual(this.invoice.data, this.invoiceState)
+      },
+      { deep: true }
+    )
   },
   methods: {
     async getIndexedDoc(
@@ -153,6 +164,7 @@ export default Vue.extend({
       }
 
       this.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
+      this.hasChanges = false
     },
 
     deleteInvoice(): void {
