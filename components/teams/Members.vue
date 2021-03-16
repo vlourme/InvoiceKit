@@ -96,6 +96,7 @@ import { MemberPermission, Team } from '@/types/team'
 import { mapGetters, mapState } from 'vuex'
 import User from '~/types/user'
 import { mapDocument } from '~/helpers/documentMapper'
+import { DialogType } from '~/types/dialog'
 
 export default Vue.extend({
   name: 'Members',
@@ -191,8 +192,18 @@ export default Vue.extend({
     },
 
     kickUser(user: User, idx: number): void {
-      delete this.team.members[user.$key!]
-      this.members.splice(idx, 1)
+      this.$dialog({
+        type: DialogType.Error,
+        title: 'Supprimer ce membre ?',
+        message:
+          'Vous pourrez le re-inviter plus tard, aucune donnée ne sera perdue.',
+        showCancel: true,
+        actionMessage: 'Supprimer',
+        callback: () => {
+          delete this.team.members[user.$key!]
+          this.members.splice(idx, 1)
+        },
+      })
     },
   },
 })
