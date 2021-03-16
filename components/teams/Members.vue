@@ -39,26 +39,32 @@
               </v-chip>
             </td>
             <td class="text-right">
-              <v-btn
+              <template
                 v-if="
                   isAdmin &&
                   user.$key !== team.owner &&
                   user.$key !== userState.$key
                 "
-                icon
-                @click="kickUser(user, idx)"
               >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
+                <v-btn icon @click="editUser(user, idx)">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+
+                <v-btn icon @click="kickUser(user, idx)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </template>
             </td>
           </tr>
         </tbody>
       </template>
     </v-simple-table>
 
-    <v-dialog v-model="dialog" width="500">
+    <v-dialog v-model="dialog" width="500" @click:outside="closeDialog">
       <v-card>
-        <v-card-title> Ajouter un membre </v-card-title>
+        <v-card-title>
+          {{ update > -1 ? 'Editer un membre' : 'Ajouter un membre' }}
+        </v-card-title>
 
         <v-card-text>
           <v-alert v-if="error" type="error">
@@ -68,6 +74,7 @@
           <v-text-field
             v-model="email"
             label="Email du membre"
+            :disabled="update > -1"
             placeholder="john.doe@example.com"
           ></v-text-field>
 
@@ -82,8 +89,10 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" text @click="dialog = false">Annuler</v-btn>
-          <v-btn color="primary" text @click="addMember">Ajouter</v-btn>
+          <v-btn color="error" text @click="closeDialog">Annuler</v-btn>
+          <v-btn color="primary" text @click="addMember">
+            {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -110,6 +119,7 @@ export default Vue.extend({
     members: [] as User[],
     dialog: false,
     email: '',
+    update: -1,
     role: MemberPermission.Editor,
     roles: [
       {
@@ -161,33 +171,53 @@ export default Vue.extend({
     },
 
     async addMember(): Promise<void> {
-      // Search for user
-      const doc = await this.$fire.firestore
-        .collection('users')
-        .where('email', '==', this.email)
-        .limit(1)
-        .get()
+      // Check for update
+      if (this.update > -1) {
+        // Get member
+        const member = this.members[this.update]
 
-      // Check if empty
-      if (doc.empty) {
-        this.error = "Aucun membre n'a été trouvé pour cet email."
-        return
+        this.team.members[member.$key] = this.role
+      } else {
+        // Search for user
+        const doc = await this.$fire.firestore
+          .collection('users')
+          .where('email', '==', this.email)
+          .limit(1)
+          .get()
+
+        // Check if empty
+        if (doc.empty) {
+          this.error = "Aucun membre n'a été trouvé pour cet email."
+          return
+        }
+
+        // Check if already in team
+        if (this.team.members[doc.docs[0].id]) {
+          this.error = 'Ce membre est déjà dans la team.'
+          return
+        }
+
+        // Add user
+        this.team.members[doc.docs[0].id] = this.role
+        this.members.push(mapDocument<User>(doc.docs[0]))
       }
 
-      // Check if already in team
-      if (this.team.members[doc.docs[0].id]) {
-        this.error = 'Ce membre est déjà dans la team.'
-        return
-      }
+      // Close dialog
+      this.closeDialog()
+    },
 
-      // Add user
-      this.team.members[doc.docs[0].id] = this.role
-      this.members.push(mapDocument<User>(doc.docs[0]))
+    editUser(user: User, idx: number): void {
+      this.update = idx
+      this.email = user.email
+      this.role = this.team.members[user.$key!]
+      this.dialog = true
+    },
 
-      // Reset variables
+    closeDialog(): void {
       this.error = ''
       this.email = ''
       this.role = MemberPermission.Editor
+      this.update = -1
       this.dialog = false
     },
 
