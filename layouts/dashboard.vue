@@ -36,8 +36,9 @@
           v-for="link in links"
           :key="link.route"
           :to="link.route"
+          :disabled="link.teamRequired && !user.team"
+          :color="!link.teamRequired ? 'primary' : ''"
           link
-          color="primary"
         >
           <v-list-item-icon>
             <v-icon>{{ link.icon }}</v-icon>
@@ -56,7 +57,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title>
-                    {{ !user.team ? 'Personnel' : teams[user.team].name }}
+                    {{ teamName }}
                   </v-list-item-title>
                   <v-list-item-subtitle>Espace de travail</v-list-item-subtitle>
                 </v-list-item-content>
@@ -86,14 +87,6 @@
               <v-list-item v-if="user.team" link to="/teams/settings">
                 <v-list-item-title>Paramètres de la team</v-list-item-title>
               </v-list-item>
-              <template v-if="user.team">
-                <v-divider></v-divider>
-                <v-list-item link @click="switchTeam(null)">
-                  <v-list-item-title>
-                    Utiliser le compte personnel
-                  </v-list-item-title>
-                </v-list-item>
-              </template>
             </v-list>
           </v-menu>
         </v-list>
@@ -123,22 +116,28 @@ export default Vue.extend({
         route: '/dashboard',
         name: 'Accueil',
         icon: 'mdi-home',
+        teamRequired: false,
       },
       {
         route: '/customers',
         name: 'Clients',
         icon: 'mdi-account-multiple',
+        teamRequired: true,
       },
       {
         route: '/invoices',
         name: 'Factures',
         icon: 'mdi-table',
+        teamRequired: true,
       },
     ],
   }),
   computed: {
     ...mapState('auth', ['auth', 'user']),
     ...mapState('team', ['teams']),
+    teamName() {
+      return !this.user.team ? 'Personnel' : this.teams[this.user.team].name
+    },
     drawer: {
       get() {
         return this.$store.state.sidebar.drawer
