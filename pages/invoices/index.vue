@@ -9,7 +9,8 @@
         flat
         solo-inverted
         hide-details
-        label="Chercher une facture"
+        label="Chercher une facture (par ID)"
+        @input="doSearch"
       ></v-text-field>
     </template>
 
@@ -18,6 +19,9 @@
         :search="search"
         :headers="headers"
         :items="invoices"
+        :loading="loading"
+        :options.sync="options"
+        :server-items-length="team.counter.invoices"
         :items-per-page="15"
         @click:row="navigateToInvoice"
       >
@@ -47,26 +51,68 @@ export default Vue.extend({
   name: 'Invoices',
   layout: 'dashboard',
   data: () => ({
+    loading: false,
     search: '',
+    options: {},
     headers: InvoiceHeaders,
     invoices: [] as InvoiceIndex[],
   }),
-  fetch() {
-    this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('invoices')
-      .onSnapshot((snapshot) => {
-        this.invoices = mapSnapshot<InvoiceIndex>(snapshot)
-      })
-  },
   head: {
     title: 'Factures',
   },
   computed: {
     ...mapState('auth', ['user']),
+    ...mapState('team', ['team']),
+  },
+  watch: {
+    options: {
+      deep: true,
+      async handler() {
+        await this.getData()
+      },
+    },
   },
   methods: {
+    async doSearch() {
+      if (this.search.length >= 2 || this.search.length === 0) {
+        this.invoices = []
+        await this.getData()
+      }
+    },
+
+    async getData() {
+      // Toggle loading
+      this.loading = true
+
+      // Query
+      let query = this.$fire.firestore
+        .collection('teams')
+        .doc(this.user.team)
+        .collection('invoices')
+        .orderBy('id')
+        .startAfter(
+          this.invoices.length > 0
+            ? this.invoices[this.invoices.length - 1].id
+            : null
+        )
+        .limit(15)
+
+      // On search
+      if (this.search.length >= 3) {
+        this.invoices = []
+        query = query.startAt(this.search).endAt(this.search + '\uF8FF')
+      }
+
+      // Get ref
+      const ref = await query.get()
+
+      // Push customers
+      this.invoices.push(...mapSnapshot<InvoiceIndex>(ref))
+
+      // Untoggle loading
+      this.loading = false
+    },
+
     navigateToInvoice(invoice: InvoiceIndex) {
       this.$router.push(`/invoices/${invoice.customer.$key}/${invoice.link}`)
     },

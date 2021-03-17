@@ -9,7 +9,8 @@
         flat
         solo-inverted
         hide-details
-        label="Chercher un client"
+        label="Chercher un client (par nom complet)"
+        @input="doSearch"
       ></v-text-field>
     </template>
 
@@ -26,7 +27,10 @@
         :search="search"
         :headers="headers"
         :items="customers"
+        :loading="loading"
+        :server-items-length="team.counter.customers"
         :items-per-page="15"
+        :options.sync="options"
         @click:row="navigateToCustomer"
       >
       </v-data-table>
@@ -44,27 +48,69 @@ export default Vue.extend({
   name: 'Customers',
   layout: 'dashboard',
   data: () => ({
+    loading: false,
     search: '',
+    options: {},
     headers: CustomerHeaders,
     customers: [] as Customer[],
   }),
-  fetch() {
-    this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('customers')
-      .onSnapshot((snapshot) => {
-        this.customers = mapSnapshot<Customer>(snapshot)
-      })
-  },
   head: {
     title: 'Clients',
   },
   computed: {
     ...mapGetters('team', ['role']),
     ...mapState('auth', ['user']),
+    ...mapState('team', ['team']),
+  },
+  watch: {
+    options: {
+      deep: true,
+      async handler() {
+        await this.getData()
+      },
+    },
   },
   methods: {
+    async doSearch() {
+      if (this.search.length >= 3 || this.search.length === 0) {
+        this.customers = []
+        await this.getData()
+      }
+    },
+
+    async getData() {
+      // Toggle loading
+      this.loading = true
+
+      // Query
+      let query = this.$fire.firestore
+        .collection('teams')
+        .doc(this.user.team)
+        .collection('customers')
+        .orderBy('fullName')
+        .startAfter(
+          this.customers.length > 0
+            ? this.customers[this.customers.length - 1].fullName
+            : null
+        )
+        .limit(15)
+
+      // On search
+      if (this.search.length >= 3) {
+        this.customers = []
+        query = query.startAt(this.search).endAt(this.search + '\uF8FF')
+      }
+
+      // Get ref
+      const ref = await query.get()
+
+      // Push customers
+      this.customers.push(...mapSnapshot<Customer>(ref))
+
+      // Untoggle loading
+      this.loading = false
+    },
+
     navigateToCustomer(customer: Customer) {
       this.$router.push(`/customers/${customer.$key}`)
     },
