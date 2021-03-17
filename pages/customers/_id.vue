@@ -66,6 +66,7 @@ import { NotificationType } from '~/types/notification'
 import { Customer } from '~/types/customer'
 import { DialogType } from '~/types/dialog'
 import { purge, purgeCollection } from '~/helpers/purgeCollection'
+import { decrement } from '~/helpers/incrementCounter'
 
 export default Vue.extend({
   name: 'ViewCustomer',
@@ -152,14 +153,14 @@ export default Vue.extend({
         .doc(this.customerState.$key)
         .delete()
 
-      // Get every addresses and invocies from sub-collection
+      // Get every addresses and invoices from sub-collection
       await purge(
-        this.$fire,
+        this.$nuxt.context,
         `teams/${this.user.team}/customers/${this.customer.$key}`,
         ['addresses', 'invoices']
       )
 
-      // Get every invoices linked
+      // Get every invoices indexes linked
       const invoices = await this.$fire.firestore
         .collection('teams')
         .doc(this.user.team)
@@ -169,6 +170,9 @@ export default Vue.extend({
 
       // Delete invoices
       purgeCollection(invoices)
+
+      // Decrement
+      await decrement(this.$nuxt.context, 'customers')
 
       await this.$router.push('/customers')
     },

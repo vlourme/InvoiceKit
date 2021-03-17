@@ -46,6 +46,7 @@ import { mapState } from 'vuex'
 import { InvoiceIndex } from '@/types/invoice'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { NotificationType } from '~/types/notification'
+import { increment } from '~/helpers/incrementCounter'
 
 export default Vue.extend({
   name: 'CreateInvoice',
@@ -104,6 +105,9 @@ export default Vue.extend({
           createdAt: new Date(),
           updatedAt: new Date(),
         } as InvoiceIndex)
+
+      // Increment counter
+      await increment(this.$nuxt.context, 'invoices')
 
       // Redirect
       this.$router.push(`/invoices/${this.customer.$key}/${doc.id}`)

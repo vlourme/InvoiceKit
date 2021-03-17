@@ -58,6 +58,7 @@ import firebase from 'firebase'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { DialogType } from '~/types/dialog'
 import { NotificationType } from '~/types/notification'
+import { decrement } from '~/helpers/incrementCounter'
 
 export default Vue.extend({
   name: 'UpdateInvoice',
@@ -194,6 +195,9 @@ export default Vue.extend({
       // Delete index
       const index = await this.getIndexedDoc(invoice)
       await index?.ref.delete()
+
+      // Decrement counter
+      await decrement(this.$nuxt.context, 'invoices')
 
       // Redirect
       this.$router.push('/invoices/')

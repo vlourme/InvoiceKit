@@ -1,6 +1,7 @@
-import { NuxtFireInstance } from '@nuxtjs/firebase'
+import { Context } from '@nuxt/types'
 import firebase from 'firebase'
 import _ from 'lodash'
+import { decrement } from './incrementCounter'
 
 /**
  * Delete every item from a (sub-)collections and defined path
@@ -9,7 +10,7 @@ import _ from 'lodash'
  * @param path Path before collections to purge
  */
 export const purge = async (
-  fire: NuxtFireInstance,
+  app: Context,
   path: string,
   collections: string[]
 ): Promise<void> => {
@@ -18,7 +19,11 @@ export const purge = async (
 
   // Iterate collections
   for (const collection of collections) {
-    const docs = await fire.firestore.collection(`${path}/${collection}`).get()
+    const docs = await app.$fire.firestore
+      .collection(`${path}/${collection}`)
+      .get()
+
+    await decrement(app, collection, docs.size)
 
     purgeCollection(docs)
   }

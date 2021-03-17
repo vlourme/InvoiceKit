@@ -41,6 +41,9 @@ export interface Team extends Model {
   accentEnabled: boolean
   quantityEnabled: boolean
 
+  // Distributed counter
+  counter: { [key: string]: number }
+
   // Society fields
   fields: Array<string>
 }
