@@ -19,7 +19,7 @@
       </template>
     </v-data-table>
 
-    <v-dialog v-model="dialog" width="500">
+    <v-dialog v-model="dialog" width="650">
       <v-card>
         <v-card-title> Créer une nouvelle facture </v-card-title>
 
@@ -27,11 +27,26 @@
           Séléctionnez l'adresse à utiliser pour la facture.
         </v-card-text>
 
+        <input
+          ref="fileInput"
+          accept="application/json"
+          type="file"
+          hidden
+          @change="importDone"
+        />
+
         <v-data-table
           :headers="addressHeaders"
           :items="addresses"
+          :items-per-page="-1"
+          hide-default-footer
           @click:row="makeInvoice"
         >
+          <template #item.actions="{ item }">
+            <v-btn icon @click.stop="startImport(item)">
+              <v-icon>mdi-upload</v-icon>
+            </v-btn>
+          </template>
         </v-data-table>
 
         <v-divider></v-divider>
@@ -52,6 +67,7 @@ import { mapGetters, mapState } from 'vuex'
 import { mapSnapshot } from '~/helpers/documentMapper'
 import { Address, AddressHeaders } from '~/types/address'
 import { Invoice } from '~/types/invoice'
+import { importLegacy } from '~/helpers/legacyImport'
 
 export default Vue.extend({
   name: 'Invoices',
@@ -73,6 +89,7 @@ export default Vue.extend({
     invoices: [] as Invoice[],
     addressHeaders: AddressHeaders,
     dialog: false,
+    import: {} as Address,
   }),
   fetch() {
     this.$fire.firestore
@@ -99,6 +116,22 @@ export default Vue.extend({
           address: item.$key,
         },
       })
+    },
+
+    startImport(address: Address): void {
+      this.import = address
+      this.$refs.fileInput.click()
+    },
+
+    async importDone(event: any): Promise<void> {
+      const docId = await importLegacy(
+        this.$nuxt.context,
+        this.customer,
+        this.import.$key!,
+        event.target.files[0]
+      )
+
+      this.$router.push(`/invoices/${this.customer.$key}/${docId}`)
     },
 
     navigateToInvoice(invoice: Invoice) {
