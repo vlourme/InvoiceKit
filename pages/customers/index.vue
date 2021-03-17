@@ -28,7 +28,7 @@
         :headers="headers"
         :items="customers"
         :loading="loading"
-        :server-items-length="team.counter.customers"
+        :server-items-length="customerCount"
         :items-per-page="15"
         :options.sync="options"
         @click:row="navigateToCustomer"
@@ -61,6 +61,9 @@ export default Vue.extend({
     ...mapGetters('team', ['role']),
     ...mapState('auth', ['user']),
     ...mapState('team', ['team']),
+    customerCount() {
+      return this.team?.counter?.customers ?? 0
+    },
   },
   watch: {
     options: {

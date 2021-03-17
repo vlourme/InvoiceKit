@@ -21,7 +21,7 @@
         :items="invoices"
         :loading="loading"
         :options.sync="options"
-        :server-items-length="team.counter.invoices"
+        :server-items-length="invoiceCount"
         :items-per-page="15"
         @click:row="navigateToInvoice"
       >
@@ -63,6 +63,9 @@ export default Vue.extend({
   computed: {
     ...mapState('auth', ['user']),
     ...mapState('team', ['team']),
+    invoiceCount() {
+      return this.team?.counter?.invoices ?? 0
+    },
   },
   watch: {
     options: {
