@@ -54,9 +54,20 @@ const config: NuxtConfig = {
             initialize: {
               onAuthStateChangedAction: 'auth/onAuthStateChanged',
             },
+            emulatorPort:
+              process.env.NODE_ENV === 'development' ? 9099 : undefined,
+            emulatorHost: 'http://localhost',
           },
           firestore: {
             enablePersistence: true,
+            emulatorPort:
+              process.env.NODE_ENV === 'development' ? 8080 : undefined,
+            emulatorHost: 'http://localhost',
+          },
+          functions: {
+            emulatorPort:
+              process.env.NODE_ENV === 'development' ? 5001 : undefined,
+            emulatorHost: 'http://localhost',
           },
           storage: true,
         },

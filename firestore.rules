@@ -1,0 +1,47 @@
+rules_version = '1';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	// Users
+  	match /users/{userId} {
+    	// Users are visible to anyone
+      // Note: this is needed for team member searching
+      allow read, create: if true
+
+      // Allow only user to edit his own profile
+    	allow write, delete, update: if
+      	userId == request.auth.uid
+    }
+
+    // Teams
+    match /teams/{teamId} {
+    	// Allow everyone to create
+      allow create: if true
+
+    	// Allow members to read team
+    	allow read: if
+      	request.auth.uid in resource.data.members
+
+      // Allow owner to edit team settings
+      allow write, update: if getPermission(teamId) == 2
+      allow delete: if isOwner()
+    }
+
+    // Allow members to edit team
+    match /teams/{teamId}/{document=**} {
+      allow read: if getPermission(teamId) >= 0
+
+      allow write: if getPermission(teamId) > 0
+    }
+
+    // Check team member
+    function getPermission(teamId) {
+      return get(/databases/$(database)/documents/teams/$(teamId)).data.members[request.auth.uid]
+    }
+
+    // Check team owner
+    function isOwner() {
+    	return resource.data.owner == request.auth.uid
+    }
+  }
+}
