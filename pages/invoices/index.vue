@@ -63,27 +63,27 @@ export default Vue.extend({
   computed: {
     ...mapState('auth', ['user']),
     ...mapState('team', ['team']),
-    invoiceCount() {
+    invoiceCount(): number {
       return this.team?.counter?.invoices ?? 0
     },
   },
   watch: {
     options: {
       deep: true,
-      async handler() {
+      async handler(): Promise<void> {
         await this.getData()
       },
     },
   },
   methods: {
-    async doSearch() {
+    async doSearch(): Promise<void> {
       if (this.search.length >= 2 || this.search.length === 0) {
         this.invoices = []
         await this.getData()
       }
     },
 
-    async getData() {
+    async getData(): Promise<void> {
       // Toggle loading
       this.loading = true
 
@@ -116,11 +116,13 @@ export default Vue.extend({
       this.loading = false
     },
 
-    navigateToInvoice(invoice: InvoiceIndex) {
-      this.$router.push(`/invoices/${invoice.customer.$key}/${invoice.link}`)
+    async navigateToInvoice(invoice: InvoiceIndex): Promise<void> {
+      await this.$router.push(
+        `/invoices/${invoice.customer.$key}/${invoice.link}`
+      )
     },
 
-    getStatus(invoice: InvoiceIndex) {
+    getStatus(invoice: InvoiceIndex): string {
       switch (invoice.status) {
         case InvoiceStatus.Unpaid:
           return 'Impayé'
@@ -134,7 +136,7 @@ export default Vue.extend({
       }
     },
 
-    getStatusColor(invoice: InvoiceIndex) {
+    getStatusColor(invoice: InvoiceIndex): string {
       switch (invoice.status) {
         case InvoiceStatus.Unpaid:
           return 'error'

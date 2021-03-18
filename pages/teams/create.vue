@@ -83,6 +83,7 @@ export default Vue.extend({
         accent: null,
         $key: null,
         fields: [],
+        counter: {},
       }
 
       const doc = await this.$fire.firestore.collection('teams').add(team)
