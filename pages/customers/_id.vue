@@ -66,7 +66,6 @@ import { NotificationType } from '~/types/notification'
 import { Customer } from '~/types/customer'
 import { DialogType } from '~/types/dialog'
 import { purge, purgeCollection } from '~/helpers/purgeCollection'
-import { decrement } from '~/helpers/incrementCounter'
 
 export default Vue.extend({
   name: 'ViewCustomer',
@@ -170,9 +169,6 @@ export default Vue.extend({
 
       // Delete invoices
       purgeCollection(invoices)
-
-      // Decrement
-      await decrement(this.$nuxt.context, 'customers')
 
       await this.$router.push('/customers')
     },

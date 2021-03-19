@@ -8,9 +8,20 @@
           <v-card>
             <v-card-text>
               <p class="display-1 text--primary">
-                {{ getCounter('invoices') }}
+                {{ getCounter('INVOICE') }}
               </p>
               <p>Factures</p>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col>
+          <v-card>
+            <v-card-text>
+              <p class="display-1 text--primary">
+                {{ getCounter('QUOTE') }}
+              </p>
+              <p>Devis</p>
             </v-card-text>
           </v-card>
         </v-col>
@@ -22,17 +33,6 @@
                 {{ getCounter('customers') }}
               </p>
               <p>Clients</p>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col>
-          <v-card>
-            <v-card-text>
-              <p class="display-1 text--primary">
-                {{ getCounter('addresses') }}
-              </p>
-              <p>Adresses</p>
             </v-card-text>
           </v-card>
         </v-col>

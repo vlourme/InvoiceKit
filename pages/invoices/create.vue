@@ -43,10 +43,8 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState } from 'vuex'
-import { InvoiceIndex } from '@/types/invoice'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { NotificationType } from '~/types/notification'
-import { increment } from '~/helpers/incrementCounter'
 
 export default Vue.extend({
   name: 'CreateInvoice',
@@ -90,24 +88,6 @@ export default Vue.extend({
         .doc(this.customer.$key)
         .collection('invoices')
         .add(this.invoice.data)
-
-      // Register in a indexed list
-      await this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('invoices')
-        .add({
-          id: this.invoice.data.id,
-          type: this.invoice.data.type,
-          link: doc.id,
-          status: this.invoice.data.status,
-          customer: this.customer,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        } as InvoiceIndex)
-
-      // Increment counter
-      await increment(this.$nuxt.context, 'invoices')
 
       // Redirect
       this.$router.push(`/invoices/${this.customer.$key}/${doc.id}`)

@@ -48,7 +48,7 @@
                 </v-list-item>
               </v-list>
             </v-menu>
-            <td v-if="team.quantityEnabled">{{ item.quantity }}</td>
+            <td v-if="team.rendering.quantityEnabled">{{ item.quantity }}</td>
             <td>
               <div class="d-flex flex-column justify-center">
                 {{ item.price }} €
@@ -75,7 +75,7 @@
           ></v-textarea>
 
           <v-row>
-            <v-col v-if="team.quantityEnabled">
+            <v-col v-if="team.rendering.quantityEnabled">
               <v-text-field
                 v-model.number="field.quantity"
                 label="Quantité"

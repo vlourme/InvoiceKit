@@ -32,7 +32,7 @@
 <script lang="ts">
 import { mapState } from 'vuex'
 import Vue from 'vue'
-import { Team, RenderingSignature } from '~/types/team'
+import { Team, defaultTeam, MemberPermission } from '~/types/team'
 
 export default Vue.extend({
   name: 'Settings',
@@ -63,27 +63,12 @@ export default Vue.extend({
 
       // Create team
       const team: Team = {
+        ...defaultTeam(),
         name: this.name,
+        owner: this.user.$key,
         members: {
-          [this.auth.uid]: 2,
+          [this.user.$key]: MemberPermission.Admin,
         },
-        owner: this.auth.uid,
-        signature: RenderingSignature.Both,
-        accentEnabled: false,
-        quantityEnabled: true,
-        title: null,
-        juridicalTitle: null,
-        email: null,
-        phone: null,
-        website: null,
-        street: null,
-        zip: null,
-        city: null,
-        country: null,
-        accent: null,
-        $key: null,
-        fields: [],
-        counter: {},
       }
 
       const doc = await this.$fire.firestore.collection('teams').add(team)

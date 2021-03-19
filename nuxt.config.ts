@@ -63,9 +63,10 @@ const config: NuxtConfig = {
             enablePersistence: true,
             emulatorPort:
               process.env.NODE_ENV === 'development' ? 8080 : undefined,
-            emulatorHost: 'http://localhost',
+            emulatorHost: 'localhost',
           },
           functions: {
+            location: 'europe-west1',
             emulatorPort:
               process.env.NODE_ENV === 'development' ? 5001 : undefined,
             emulatorHost: 'http://localhost',

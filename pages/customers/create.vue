@@ -38,7 +38,6 @@ import { mapState } from 'vuex'
 import Vue from 'vue'
 import { Customer } from '~/types/customer'
 import { NotificationType } from '~/types/notification'
-import { increment } from '~/helpers/incrementCounter'
 
 export default Vue.extend({
   name: 'CreateCustomer',
@@ -70,9 +69,6 @@ export default Vue.extend({
         .doc(this.user.team)
         .collection('customers')
         .add(this.customer)
-
-      // Increment
-      await increment(this.$nuxt.context, 'customers')
 
       // Redirect to settings
       this.$router.push(`/customers/${doc.id}`)

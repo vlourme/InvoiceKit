@@ -105,7 +105,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default Vue.extend({
   name: 'Dashboard',
@@ -148,14 +148,12 @@ export default Vue.extend({
     },
   },
   methods: {
+    ...mapActions('team', ['switchTeam']),
+
     async logout() {
       await this.$fire.auth.signOut()
 
       await this.$router.push({ path: '/' })
-    },
-
-    async switchTeam(id: string) {
-      await this.$store.dispatch('team/switchTeam', id)
     },
   },
 })

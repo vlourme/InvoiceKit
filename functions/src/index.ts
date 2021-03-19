@@ -1,3 +1,11 @@
-import { FunctionParser } from 'firebase-backend'
+import * as admin from 'firebase-admin'
 
-module.exports = new FunctionParser(__dirname, exports).exports
+// Initialize app
+admin.initializeApp()
+
+// Export functions
+export * from './distributedCounter/customers/onCreate'
+export * from './distributedCounter/customers/onDelete'
+export * from './distributedCounter/customers/invoices/onCreate'
+export * from './distributedCounter/customers/invoices/onUpdate'
+export * from './distributedCounter/customers/invoices/onDelete'

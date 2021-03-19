@@ -4,11 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "nuxt",
+    "dev:firebase": "run-p start:*",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
     "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
-    "lint": "npm run lint:js"
+    "lint": "npm run lint:js",
+    "start:emulators": "firebase emulators:start --export-on-exit database --import database",
+    "start:functions": "npm run watch --prefix functions"
   },
   "dependencies": {
     "@mdi/js": "^5.9.55",
@@ -40,6 +43,7 @@
     "eslint-plugin-nuxt": "^2.0.0",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.5.0",
+    "npm-run-all": "^4.1.5",
     "postcss": "^7",
     "prettier": "^2.2.1",
     "vuetify": "^2.4.5"

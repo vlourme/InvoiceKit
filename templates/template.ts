@@ -1,12 +1,12 @@
 import jsPDF from 'jspdf'
 import { format } from 'date-fns'
+import { ColumnInput } from 'jspdf-autotable'
 import { RenderingSignature, Team } from '~/types/team'
 import { Address } from '~/types/address'
 import { Customer } from '~/types/customer'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import DataURI from '~/helpers/dataURI'
 import { InvoiceType } from '~/types/invoice'
-import { ColumnInput } from 'jspdf-autotable'
 
 export default abstract class Template {
   /**
@@ -59,12 +59,12 @@ export default abstract class Template {
    */
   private getAccentColor(): string {
     // If not defined
-    if (!this.team.accent || !this.team.accentEnabled) {
+    if (!this.team.rendering.accent || !this.team.rendering.accentEnabled) {
       return this.defaultColor
     }
 
     // Return hex
-    return this.team.accent.hex
+    return this.team.rendering.accent.hex
   }
 
   /**
@@ -82,7 +82,7 @@ export default abstract class Template {
    * Check if signature must be displayed
    */
   get hasSignature(): boolean {
-    const signature = this.team.signature
+    const signature = this.team.rendering.signature
     const document = this.invoice.data.type
 
     return (
@@ -109,7 +109,7 @@ export default abstract class Template {
         this.invoice?.getPriceAtIndex(idx) + ' €',
       ]
 
-      if (this.team.quantityEnabled) {
+      if (this.team.rendering.quantityEnabled) {
         line.splice(1, 0, field.quantity.toString())
       }
 
@@ -122,7 +122,7 @@ export default abstract class Template {
   get headerItems(): string[] {
     const header = ['Description', 'Prix HT', 'TVA', 'Prix TTC']
 
-    if (this.team.quantityEnabled) {
+    if (this.team.rendering.quantityEnabled) {
       header.splice(1, 0, 'Quantité')
     }
 
@@ -137,7 +137,7 @@ export default abstract class Template {
       { dataKey: 'total', header: 'Prix TTC' },
     ]
 
-    if (this.team.quantityEnabled) {
+    if (this.team.rendering.quantityEnabled) {
       keys.splice(1, 0, { dataKey: 'quantity', header: 'Quantité' })
     }
 

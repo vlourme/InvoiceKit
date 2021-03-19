@@ -64,7 +64,9 @@ export default Vue.extend({
     ...mapState('auth', ['user']),
     ...mapState('team', ['team']),
     invoiceCount(): number {
-      return this.team?.counter?.invoices ?? 0
+      return (
+        (this.team?.counter?.INVOICE ?? 0) + (this.team?.counter?.QUOTE ?? 0)
+      )
     },
   },
   watch: {

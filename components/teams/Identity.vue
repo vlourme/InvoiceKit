@@ -10,33 +10,33 @@
     </template>
 
     <v-text-field
-      v-model="team.title"
+      v-model="team.identity.title"
       :disabled="!isAdmin"
       label="Nom de l'entreprise"
     ></v-text-field>
 
     <v-text-field
-      v-model="team.juridicalTitle"
+      v-model="team.identity.juridicalTitle"
       :disabled="!isAdmin"
       label="Nom juridique de l'entreprise"
       placeholder="Entreprise SARL"
     ></v-text-field>
 
     <v-text-field
-      v-model="team.email"
+      v-model="team.identity.email"
       :disabled="!isAdmin"
       label="Email"
       placeholder="society@example.com"
       :rules="rules.email"
     ></v-text-field>
     <v-text-field
-      v-model="team.phone"
+      v-model="team.identity.phone"
       :disabled="!isAdmin"
       label="Téléphone"
       placeholder="+33 01 02 03 04 05"
     ></v-text-field>
     <v-text-field
-      v-model="team.website"
+      v-model="team.identity.website"
       :disabled="!isAdmin"
       label="Site internet"
       placeholder="example.com"
