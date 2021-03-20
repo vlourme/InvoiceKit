@@ -1,4 +1,5 @@
 import { ActionTree, GetterTree, MutationTree } from 'vuex/types/index'
+import { mapDocument } from '~/helpers/documentMapper'
 import RootState from '~/store'
 import { MemberPermission, Team } from '~/types/team'
 
@@ -44,37 +45,42 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
   async getTeams({ commit, dispatch, rootState }): Promise<void> {
     const uid = rootState.auth.auth?.uid
 
-    const ref = this.$fire.firestore
+    const doc = await this.$fire.firestore
       .collection('teams')
       .where(`members.${uid}`, '>=', 0)
-
-    const doc = await ref.get()
+      .get()
 
     const teams = doc.docs.reduce(
       (ac, a) => ({ ...ac, [a.id]: a.data() }),
       {}
     ) as { [key: string]: Team }
 
-    if (rootState.auth.user && rootState.auth.user.team) {
-      if (teams[rootState.auth.user.team]) {
-        commit('SET_TEAM', teams[rootState.auth.user.team])
-      } else {
-        dispatch('switchTeam', null)
-      }
-    }
+    dispatch('switchTeam', rootState.auth?.user?.team)
 
     commit('SET_TEAMS', teams)
   },
 
-  async switchTeam({ rootState }, id: string | null): Promise<void> {
-    await this.$fire.firestore
-      .collection('users')
-      .doc(rootState.auth.auth?.uid)
-      .update({
-        ...rootState.auth.user,
-        team: id,
-      })
+  async switchTeam({ rootState, commit }, id: string | null): Promise<void> {
+    // Avoid rewritting
+    if (rootState.auth.user?.team !== id) {
+      // Update last team
+      await this.$fire.firestore
+        .collection('users')
+        .doc(rootState.auth.auth?.uid)
+        .update({
+          ...rootState.auth.user,
+          team: id,
+        })
+    }
 
-    this.$router.go(0)
+    // Load team
+    if (id) {
+      this.$fire.firestore
+        .collection('teams')
+        .doc(id)
+        .onSnapshot((snapshot) => {
+          commit('SET_TEAM', mapDocument<Team>(snapshot))
+        })
+    }
   },
 }
