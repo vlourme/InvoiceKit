@@ -64,12 +64,13 @@ export default {
   methods: {
     async register() {
       if (!this.valid) {
-        return (this.error = 'Les champs sont invalides')
+        this.error = 'Les champs sont invalides'
+        return
       }
 
       try {
         // Register
-        await this.$fire.auth.createUserWithEmailAndPassword(
+        const auth = await this.$fire.auth.createUserWithEmailAndPassword(
           this.email,
           this.password
         )
@@ -77,7 +78,7 @@ export default {
         // Write a reference
         await this.$fire.firestore
           .collection('users')
-          .doc(this.$fire.auth.currentUser.uid)
+          .doc(auth.user.uid)
           .set({
             email: this.email,
             name: this.name,
@@ -86,7 +87,7 @@ export default {
           })
 
         // Redirect
-        await this.$router.push({ path: '/dashboard' })
+        this.$router.push({ path: '/dashboard' })
       } catch (error) {
         this.error = error
       }
