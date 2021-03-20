@@ -22,4 +22,5 @@ module.exports = {
     ],
     'new-cap': [1],
   },
+  ignorePatterns: ['functions/lib'],
 }
