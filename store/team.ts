@@ -2,6 +2,7 @@ import { ActionTree, GetterTree, MutationTree } from 'vuex/types/index'
 import { mapDocument } from '~/helpers/documentMapper'
 import RootState from '~/store'
 import { MemberPermission, Team } from '~/types/team'
+import User from '~/types/user'
 
 export const state = () => ({
   teams: null as { [key: string]: Team } | null,
@@ -65,17 +66,23 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
     commit('SET_TEAMS', teams)
   },
 
-  async switchTeam({ rootState, commit }, id: string | null): Promise<void> {
+  async switchTeam(
+    { rootState, commit, dispatch },
+    id: string | null = null
+  ): Promise<void> {
     // Avoid rewritting
     if (rootState.auth.user?.team !== id) {
+      console.info('[Store] Switching from:', rootState.auth.user?.team)
+      console.info('[Store] Change user team to:', id)
+
       // Update last team
       await this.$fire.firestore
         .collection('users')
         .doc(rootState.auth.auth?.uid)
         .update({
           ...rootState.auth.user,
-          team: id,
-        })
+          team: id || null,
+        } as User)
     }
 
     // Load team
@@ -83,9 +90,15 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
       this.$fire.firestore
         .collection('teams')
         .doc(id)
-        .onSnapshot((snapshot) => {
-          commit('SET_TEAM', mapDocument<Team>(snapshot))
-        })
+        .onSnapshot(
+          (snapshot) => {
+            commit('SET_TEAM', mapDocument<Team>(snapshot))
+          },
+          async () => {
+            // Error with the team, change it
+            await dispatch('switchTeam', null)
+          }
+        )
     }
   },
 }

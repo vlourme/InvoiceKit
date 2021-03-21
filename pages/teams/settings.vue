@@ -15,6 +15,19 @@
       <Card>
         <template #title> Paramètres de la team </template>
 
+        <template #actions>
+          <v-btn
+            v-if="!isOwner"
+            text
+            :elevation="0"
+            color="error"
+            @click="leaveTeam"
+          >
+            <v-icon left>mdi-close</v-icon>
+            Quitter la team
+          </v-btn>
+        </template>
+
         <v-text-field
           v-model="team.name"
           :disabled="!isAdmin"
@@ -40,11 +53,12 @@
 </template>
 
 <script lang="ts">
-import { mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 import Vue from 'vue'
 import _ from 'lodash'
 import { Team } from '~/types/team'
 import { NotificationType } from '~/types/notification'
+import { DialogType } from '~/types/dialog'
 
 export default Vue.extend({
   name: 'Settings',
@@ -64,7 +78,7 @@ export default Vue.extend({
   },
   computed: {
     ...mapState('auth', ['auth', 'user']),
-    ...mapGetters('team', ['isAdmin']),
+    ...mapGetters('team', ['isAdmin', 'isOwner']),
     ...mapState('team', {
       teamState: 'team',
     }),
@@ -87,6 +101,48 @@ export default Vue.extend({
     )
   },
   methods: {
+    ...mapActions('team', ['switchTeam', 'getTeams']),
+
+    leaveTeam(): void {
+      this.$dialog({
+        type: DialogType.Warning,
+        title: 'Êtes-vous sur de quitter la team ?',
+        message:
+          'Si vous voulez revenir dans cette team, le propriétaire devra vous inviter à nouveau.',
+        showCancel: true,
+        actionMessage: 'Quitter',
+        callback: async () => await this.leaveTeamCallback(),
+      })
+    },
+
+    async leaveTeamCallback(): Promise<void> {
+      const fn = this.$fire.functions.httpsCallable('leaveTeam', {
+        timeout: 2000,
+      })
+
+      try {
+        const response = await fn({ teamId: this.user.team })
+
+        if (response.data.success) {
+          this.$notify('Vous avez quitté la team.', NotificationType.SUCCESS)
+
+          // Switch to profile
+          await this.switchTeam()
+
+          // Reload teams
+          await this.getTeams(false)
+
+          // Redirect to dashboard
+          this.$router.push('/dashboard')
+        } else {
+          this.$notify('Impossible de quitter la team', NotificationType.ERROR)
+        }
+      } catch (e) {
+        console.error(e)
+        this.$notify('Impossible de quitter la team', NotificationType.ERROR)
+      }
+    },
+
     updateTeam(): void {
       // Check validity
       if (!this.valid) {
