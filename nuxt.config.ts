@@ -60,7 +60,6 @@ const config: NuxtConfig = {
             disableEmulatorWarnings: true,
           },
           firestore: {
-            enablePersistence: true,
             emulatorPort:
               process.env.NODE_ENV === 'development' ? 8080 : undefined,
             emulatorHost: 'localhost',
