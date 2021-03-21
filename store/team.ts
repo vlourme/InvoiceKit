@@ -42,7 +42,10 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
   /**
    * Get teams user belong to
    */
-  async getTeams({ commit, dispatch, rootState }): Promise<void> {
+  async getTeams(
+    { commit, dispatch, rootState },
+    reload: boolean = true
+  ): Promise<void> {
     const uid = rootState.auth.auth?.uid
 
     const doc = await this.$fire.firestore
@@ -55,7 +58,9 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
       {}
     ) as { [key: string]: Team }
 
-    dispatch('switchTeam', rootState.auth?.user?.team)
+    if (reload) {
+      dispatch('switchTeam', rootState.auth?.user?.team)
+    }
 
     commit('SET_TEAMS', teams)
   },
