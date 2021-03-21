@@ -19,11 +19,10 @@ service cloud.firestore {
       allow create: if true
 
     	// Allow members to read team
-    	allow read: if
-      	request.auth.uid in resource.data.members
+    	allow read: if resource.data.members[request.auth.uid] != null
 
       // Allow owner to edit team settings
-      allow write, update: if getPermission(teamId) == 2
+      allow update: if getPermission(teamId) == 2 || isOwner()
       allow delete: if isOwner()
     }
 
