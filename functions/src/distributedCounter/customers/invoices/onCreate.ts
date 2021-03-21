@@ -29,7 +29,10 @@ export const onTeamInvoiceCreate = functions.firestore
       .add({
         createdAt: date,
         updatedAt: date,
-        customer: ref.data(),
+        customer: {
+          ...ref.data(),
+          $key: ref.id,
+        },
         id: invoice.id,
         link: handler.id,
         status: invoice.status,
