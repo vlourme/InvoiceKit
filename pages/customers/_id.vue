@@ -65,7 +65,6 @@ import _ from 'lodash'
 import { NotificationType } from '~/types/notification'
 import { Customer } from '~/types/customer'
 import { DialogType } from '~/types/dialog'
-import { purge, purgeCollection } from '~/helpers/purgeCollection'
 
 export default Vue.extend({
   name: 'ViewCustomer',
@@ -151,24 +150,6 @@ export default Vue.extend({
         .collection('customers')
         .doc(this.customerState.$key)
         .delete()
-
-      // Get every addresses and invoices from sub-collection
-      await purge(
-        this.$nuxt.context,
-        `teams/${this.user.team}/customers/${this.customer.$key}`,
-        ['addresses', 'invoices']
-      )
-
-      // Get every invoices indexes linked
-      const invoices = await this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('invoices')
-        .where('customer.$key', '==', this.customerState.$key)
-        .get()
-
-      // Delete invoices
-      purgeCollection(invoices)
 
       await this.$router.push('/customers')
     },
