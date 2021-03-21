@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import Vue from 'vue'
 import { Team, defaultTeam, MemberPermission } from '~/types/team'
 
@@ -55,6 +55,8 @@ export default Vue.extend({
     ...mapState('auth', ['auth', 'user']),
   },
   methods: {
+    ...mapActions('team', ['getTeams', 'switchTeam']),
+
     async createTeam(): Promise<void> {
       // Check validity
       if (!this.valid) {
@@ -73,8 +75,11 @@ export default Vue.extend({
 
       const doc = await this.$fire.firestore.collection('teams').add(team)
 
+      // Reload teams
+      await this.getTeams(false)
+
       // Change team
-      this.$store.dispatch('switchTeam', doc.id)
+      await this.switchTeam(doc.id)
 
       // Redirect to settings
       this.$router.push('/teams/settings')
