@@ -120,7 +120,7 @@ export default Vue.extend({
 
     startImport(address: Address): void {
       this.import = address
-      this.$refs.fileInput.click()
+      ;(this.$refs.fileInput as any).click()
     },
 
     async importDone(event: any): Promise<void> {

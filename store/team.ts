@@ -1,6 +1,8 @@
 import { ActionTree, GetterTree, MutationTree } from 'vuex/types/index'
+import { mapDocument } from '~/helpers/documentMapper'
 import RootState from '~/store'
 import { MemberPermission, Team } from '~/types/team'
+import User from '~/types/user'
 
 export const state = () => ({
   teams: null as { [key: string]: Team } | null,
@@ -41,40 +43,62 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
   /**
    * Get teams user belong to
    */
-  async getTeams({ commit, dispatch, rootState }): Promise<void> {
+  async getTeams(
+    { commit, dispatch, rootState },
+    reload: boolean = true
+  ): Promise<void> {
     const uid = rootState.auth.auth?.uid
 
-    const ref = this.$fire.firestore
+    const doc = await this.$fire.firestore
       .collection('teams')
       .where(`members.${uid}`, '>=', 0)
-
-    const doc = await ref.get()
+      .get()
 
     const teams = doc.docs.reduce(
       (ac, a) => ({ ...ac, [a.id]: a.data() }),
       {}
     ) as { [key: string]: Team }
 
-    if (rootState.auth.user && rootState.auth.user.team) {
-      if (teams[rootState.auth.user.team]) {
-        commit('SET_TEAM', teams[rootState.auth.user.team])
-      } else {
-        dispatch('switchTeam', null)
-      }
+    if (reload) {
+      dispatch('switchTeam', rootState.auth?.user?.team)
     }
 
     commit('SET_TEAMS', teams)
   },
 
-  async switchTeam({ rootState }, id: string | null): Promise<void> {
-    await this.$fire.firestore
-      .collection('users')
-      .doc(rootState.auth.auth?.uid)
-      .update({
-        ...rootState.auth.user,
-        team: id,
-      })
+  async switchTeam(
+    { rootState, commit, dispatch },
+    id: string | null = null
+  ): Promise<void> {
+    // Avoid rewritting
+    if (rootState.auth.user?.team !== id) {
+      console.info('[Store] Switching from:', rootState.auth.user?.team)
+      console.info('[Store] Change user team to:', id)
 
-    this.$router.go(0)
+      // Update last team
+      await this.$fire.firestore
+        .collection('users')
+        .doc(rootState.auth.auth?.uid)
+        .update({
+          ...rootState.auth.user,
+          team: id || null,
+        } as User)
+    }
+
+    // Load team
+    if (id) {
+      this.$fire.firestore
+        .collection('teams')
+        .doc(id)
+        .onSnapshot(
+          (snapshot) => {
+            commit('SET_TEAM', mapDocument<Team>(snapshot))
+          },
+          async () => {
+            // Error with the team, change it
+            await dispatch('switchTeam', null)
+          }
+        )
+    }
   },
 }

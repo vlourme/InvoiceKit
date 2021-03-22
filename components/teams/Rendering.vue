@@ -8,7 +8,7 @@
     </template>
 
     <v-select
-      v-model="team.signature"
+      v-model="team.rendering.signature"
       :items="signature"
       :disabled="!isAdmin"
       prepend-icon="mdi-account-check"
@@ -16,7 +16,7 @@
     ></v-select>
 
     <v-select
-      v-model="team.quantityEnabled"
+      v-model="team.rendering.quantityEnabled"
       :items="quantity"
       :disabled="!isAdmin"
       prepend-icon="mdi-tag"
@@ -27,7 +27,7 @@
     <v-dialog v-model="color" :width="300">
       <v-card>
         <v-color-picker
-          v-model="team.accent"
+          v-model="team.rendering.accent"
           :dot-size="25"
           :swatches-max-height="200"
           @input="enableAccent"
@@ -85,12 +85,12 @@ export default Vue.extend({
   },
   methods: {
     reset() {
-      this.team.accentEnabled = false
+      this.team.rendering.accentEnabled = false
       this.color = false
     },
 
     enableAccent() {
-      this.team.accentEnabled = true
+      this.team.rendering.accentEnabled = true
     },
   },
 })

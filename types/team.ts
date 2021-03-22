@@ -14,6 +14,27 @@ export enum MemberPermission {
   Admin,
 }
 
+export interface Identity {
+  title: string | null
+  juridicalTitle: string | null
+  email: string | null
+  phone: string | null
+  website: string | null
+}
+
+export interface Localization {
+  street: string | null
+  zip: string | null
+  city: string | null
+  country: string | null
+}
+
+export interface Rendering {
+  signature: RenderingSignature
+  accent: ColorPicker | null
+  accentEnabled: boolean
+  quantityEnabled: boolean
+}
 export interface Team extends Model {
   // Team details
   name: string
@@ -23,23 +44,13 @@ export interface Team extends Model {
   }
 
   // Society Identity
-  title: string | null
-  juridicalTitle: string | null
-  email: string | null
-  phone: string | null
-  website: string | null
+  identity: Identity
 
   // Society Localization
-  street: string | null
-  zip: string | null
-  city: string | null
-  country: string | null
+  localization: Localization
 
-  // Invoice customization
-  signature: RenderingSignature
-  accent: ColorPicker | null
-  accentEnabled: boolean
-  quantityEnabled: boolean
+  // Invoice and PDF rendering
+  rendering: Rendering
 
   // Distributed counter
   counter: { [key: string]: number }
@@ -47,3 +58,37 @@ export interface Team extends Model {
   // Society fields
   fields: Array<string>
 }
+
+export const defaultIdentity = (): Identity => ({
+  email: '',
+  juridicalTitle: '',
+  phone: '',
+  title: '',
+  website: '',
+})
+
+export const defaultLocalization = (): Localization => ({
+  city: '',
+  country: '',
+  street: '',
+  zip: '',
+})
+
+export const defaultRendering = (): Rendering => ({
+  accent: null,
+  accentEnabled: false,
+  quantityEnabled: true,
+  signature: RenderingSignature.Both,
+})
+
+export const defaultTeam = (): Team => ({
+  $key: null,
+  name: '',
+  owner: '',
+  members: {},
+  identity: defaultIdentity(),
+  localization: defaultLocalization(),
+  rendering: defaultRendering(),
+  counter: {},
+  fields: [],
+})

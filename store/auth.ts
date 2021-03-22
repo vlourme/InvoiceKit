@@ -12,6 +12,11 @@ export const state = () => ({
 export type AuthModuleState = ReturnType<typeof state>
 
 export const mutations: MutationTree<AuthModuleState> = {
+  RESET_STORE: (state) => {
+    state.auth = null
+    state.user = null
+  },
+
   SET_AUTH_USER: (state, authUser: firebase.User) => {
     state.auth = {
       uid: authUser.uid,

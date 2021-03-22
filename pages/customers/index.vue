@@ -61,27 +61,27 @@ export default Vue.extend({
     ...mapGetters('team', ['role']),
     ...mapState('auth', ['user']),
     ...mapState('team', ['team']),
-    customerCount() {
+    customerCount(): number {
       return this.team?.counter?.customers ?? 0
     },
   },
   watch: {
     options: {
       deep: true,
-      async handler() {
+      async handler(): Promise<void> {
         await this.getData()
       },
     },
   },
   methods: {
-    async doSearch() {
+    async doSearch(): Promise<void> {
       if (this.search.length >= 3 || this.search.length === 0) {
         this.customers = []
         await this.getData()
       }
     },
 
-    async getData() {
+    async getData(): Promise<void> {
       // Toggle loading
       this.loading = true
 
@@ -114,8 +114,8 @@ export default Vue.extend({
       this.loading = false
     },
 
-    navigateToCustomer(customer: Customer) {
-      this.$router.push(`/customers/${customer.$key}`)
+    async navigateToCustomer(customer: Customer): Promise<void> {
+      await this.$router.push(`/customers/${customer.$key}`)
     },
   },
 })

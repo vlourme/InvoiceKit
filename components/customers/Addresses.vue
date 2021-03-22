@@ -82,7 +82,6 @@ import Vue from 'vue'
 import { Address, AddressHeaders } from '@/types/address'
 import { mapGetters, mapState } from 'vuex'
 import { NotificationType } from '~/types/notification'
-import { decrement, increment } from '~/helpers/incrementCounter'
 
 export default Vue.extend({
   name: 'Addresses',
@@ -116,8 +115,6 @@ export default Vue.extend({
           .doc(this.customer.$key)
           .collection('addresses')
           .add(this.address)
-
-        await increment(this.$nuxt.context, 'addresses')
       }
 
       this.address = {} as Address
@@ -143,8 +140,6 @@ export default Vue.extend({
         .collection('addresses')
         .doc(id)
         .delete()
-
-      await decrement(this.$nuxt.context, 'addresses')
 
       this.$notify("L'adresse à été supprimée", NotificationType.SUCCESS)
     },

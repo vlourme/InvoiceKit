@@ -4,14 +4,8 @@
 
 import { Context } from '@nuxt/types'
 import { format, parse } from 'date-fns'
-import { increment } from './incrementCounter'
 import { Customer } from '~/types/customer'
-import {
-  Invoice,
-  InvoiceIndex,
-  InvoiceStatus,
-  InvoiceType,
-} from '~/types/invoice'
+import { Invoice, InvoiceStatus, InvoiceType } from '~/types/invoice'
 import { LegacyInvoice } from '~/types/legacyInvoice'
 
 export const importLegacy = async (
@@ -67,25 +61,6 @@ export const importLegacy = async (
     .doc(customer.$key!)
     .collection('invoices')
     .add(invoice)
-
-  // Create index
-  await app.$fire.firestore
-    .collection('teams')
-    .doc(state.auth.user.team)
-    .collection('invoices')
-    .add({
-      $key: null,
-      createdAt: date,
-      updatedAt: date,
-      customer,
-      id: json.number,
-      link: doc.id,
-      status: InvoiceStatus.Pending,
-      type: invoice.type,
-    } as InvoiceIndex)
-
-  // Increment
-  await increment(app, 'invoices')
 
   return doc.id
 }

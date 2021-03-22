@@ -1,4 +1,4 @@
-import { defaultInvoice, FieldHeaders, Invoice } from '~/types/invoice'
+import { defaultInvoice, Invoice } from '~/types/invoice'
 
 export default class InvoiceImpl {
   /**

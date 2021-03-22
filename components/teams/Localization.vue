@@ -3,7 +3,7 @@
     <template #title>Information complémentaires de l'entreprise</template>
 
     <v-text-field
-      v-model="team.street"
+      v-model="team.localization.street"
       :disabled="!isAdmin"
       label="Adresse"
       placeholder="12 rue des lilas"
@@ -12,7 +12,7 @@
     <v-row>
       <v-col>
         <v-text-field
-          v-model="team.city"
+          v-model="team.localization.city"
           :disabled="!isAdmin"
           label="Ville"
           placeholder="Lille"
@@ -20,7 +20,7 @@
       </v-col>
       <v-col>
         <v-text-field
-          v-model="team.zip"
+          v-model="team.localization.zip"
           :disabled="!isAdmin"
           label="Code postal"
           placeholder="59000"
@@ -28,7 +28,7 @@
       </v-col>
       <v-col>
         <v-text-field
-          v-model="team.country"
+          v-model="team.localization.country"
           :disabled="!isAdmin"
           label="Pays"
           placeholder="France"

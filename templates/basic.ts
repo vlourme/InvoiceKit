@@ -2,7 +2,6 @@
  * Basic Template for Invoice
  */
 
-import { isThisHour } from 'date-fns'
 import autoTable from 'jspdf-autotable'
 import Template from './template'
 
@@ -36,12 +35,16 @@ export default class BasicInvoiceTemplate extends Template {
       .setFontSize(16)
       .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
-      .text(this.team.title ?? '', 15, startY)
+      .text(this.team.identity.title ?? '', 15, startY)
       .setFont('Helvetica', 'normal')
       .setFontSize(12)
       .setTextColor(107, 114, 128)
       .text(
-        [this.team.email ?? '', this.team.phone ?? '', this.team.website ?? ''],
+        [
+          this.team.identity.email ?? '',
+          this.team.identity.phone ?? '',
+          this.team.identity.website ?? '',
+        ],
         15,
         startY + 8,
         { lineHeightFactor: 1.4 }
@@ -210,7 +213,11 @@ export default class BasicInvoiceTemplate extends Template {
       .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
       .text(
-        (this.team.juridicalTitle ?? this.team.title ?? '').toUpperCase(),
+        (
+          this.team.identity.juridicalTitle ??
+          this.team.identity.title ??
+          ''
+        ).toUpperCase(),
         15,
         267
       )
@@ -219,9 +226,9 @@ export default class BasicInvoiceTemplate extends Template {
       .setTextColor(107, 114, 128)
       .text(
         [
-          this.team.street ?? '',
-          `${this.team.zip} ${this.team.city}`,
-          this.team.country ?? '',
+          this.team.localization.street ?? '',
+          `${this.team.localization.zip} ${this.team.localization.city}`,
+          this.team.localization.country ?? '',
         ],
         15,
         273,

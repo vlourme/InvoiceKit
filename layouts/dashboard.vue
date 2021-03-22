@@ -80,7 +80,7 @@
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider v-if="teams.length > 0"></v-divider>
+              <v-divider v-if="hasTeams"></v-divider>
               <v-list-item link to="/teams/create">
                 <v-list-item-title>Créer une team</v-list-item-title>
               </v-list-item>
@@ -105,7 +105,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default Vue.extend({
   name: 'Dashboard',
@@ -138,6 +138,9 @@ export default Vue.extend({
     teamName() {
       return !this.user.team ? 'Personnel' : this.teams[this.user.team].name
     },
+    hasTeams(): boolean {
+      return (this.teams.length ?? 0) > 0
+    },
     drawer: {
       get() {
         return this.$store.state.sidebar.drawer
@@ -148,14 +151,12 @@ export default Vue.extend({
     },
   },
   methods: {
+    ...mapActions('team', ['switchTeam']),
+
     async logout() {
       await this.$fire.auth.signOut()
 
       await this.$router.push({ path: '/' })
-    },
-
-    async switchTeam(id: string) {
-      await this.$store.dispatch('team/switchTeam', id)
     },
   },
 })

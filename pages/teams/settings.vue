@@ -15,6 +15,18 @@
       <Card>
         <template #title> Paramètres de la team </template>
 
+        <template #actions>
+          <v-btn v-if="!isOwner" text color="error" @click="leaveTeam">
+            <v-icon left>mdi-close</v-icon>
+            Quitter la team
+          </v-btn>
+
+          <v-btn v-else text color="error" @click="deleteTeam">
+            <v-icon left>mdi-delete</v-icon>
+            Supprimer la team
+          </v-btn>
+        </template>
+
         <v-text-field
           v-model="team.name"
           :disabled="!isAdmin"
@@ -40,11 +52,12 @@
 </template>
 
 <script lang="ts">
-import { mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 import Vue from 'vue'
 import _ from 'lodash'
 import { Team } from '~/types/team'
 import { NotificationType } from '~/types/notification'
+import { DialogType } from '~/types/dialog'
 
 export default Vue.extend({
   name: 'Settings',
@@ -64,7 +77,7 @@ export default Vue.extend({
   },
   computed: {
     ...mapState('auth', ['auth', 'user']),
-    ...mapGetters('team', ['isAdmin']),
+    ...mapGetters('team', ['isAdmin', 'isOwner']),
     ...mapState('team', {
       teamState: 'team',
     }),
@@ -87,6 +100,85 @@ export default Vue.extend({
     )
   },
   methods: {
+    ...mapActions('team', ['switchTeam', 'getTeams']),
+
+    deleteTeam(): void {
+      this.$dialog({
+        type: DialogType.Error,
+        title: 'Êtes-vous sur de supprimer la team ?',
+        message:
+          'Toutes les données associées seront supprimées et irrécupérables.',
+        showCancel: true,
+        actionMessage: 'Supprimer',
+        callback: async () => await this.deleteTeamCallback(),
+      })
+    },
+
+    async deleteTeamCallback() {
+      const fn = this.$fire.functions.httpsCallable('deleteTeam', {
+        timeout: 2000,
+      })
+
+      try {
+        const res = await fn({ teamId: this.user.team })
+
+        if (res.data.success) {
+          this.$notify('La team à été supprimée', NotificationType.SUCCESS)
+
+          await this.changeTeam()
+        } else {
+          throw new Error('team was not deleted')
+        }
+      } catch (e) {
+        console.error(e)
+        this.$notify('Impossible de supprimer la team', NotificationType.ERROR)
+      }
+    },
+
+    leaveTeam(): void {
+      this.$dialog({
+        type: DialogType.Warning,
+        title: 'Êtes-vous sur de quitter la team ?',
+        message:
+          'Si vous voulez revenir dans cette team, le propriétaire devra vous inviter à nouveau.',
+        showCancel: true,
+        actionMessage: 'Quitter',
+        callback: async () => await this.leaveTeamCallback(),
+      })
+    },
+
+    async leaveTeamCallback(): Promise<void> {
+      const fn = this.$fire.functions.httpsCallable('leaveTeam', {
+        timeout: 2000,
+      })
+
+      try {
+        const response = await fn({ teamId: this.user.team })
+
+        if (response.data.success) {
+          this.$notify('Vous avez quitté la team.', NotificationType.SUCCESS)
+
+          await this.changeTeam()
+        } else {
+          throw new Error('cannot leave team')
+        }
+      } catch (e) {
+        console.error(e)
+        this.$notify('Impossible de quitter la team', NotificationType.ERROR)
+      }
+    },
+
+    async changeTeam() {
+      // Switch to profile
+      await this.switchTeam()
+
+      // Reload teams
+      await this.getTeams(false)
+
+      // Redirect to dashboard
+      this.$router.push('/dashboard')
+    },
+
     updateTeam(): void {
       // Check validity
       if (!this.valid) {

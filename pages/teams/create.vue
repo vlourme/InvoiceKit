@@ -30,9 +30,9 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import Vue from 'vue'
-import { Team, RenderingSignature } from '~/types/team'
+import { Team, defaultTeam, MemberPermission } from '~/types/team'
 
 export default Vue.extend({
   name: 'Settings',
@@ -55,6 +55,8 @@ export default Vue.extend({
     ...mapState('auth', ['auth', 'user']),
   },
   methods: {
+    ...mapActions('team', ['getTeams', 'switchTeam']),
+
     async createTeam(): Promise<void> {
       // Check validity
       if (!this.valid) {
@@ -63,32 +65,21 @@ export default Vue.extend({
 
       // Create team
       const team: Team = {
+        ...defaultTeam(),
         name: this.name,
+        owner: this.user.$key,
         members: {
-          [this.auth.uid]: 2,
+          [this.user.$key]: MemberPermission.Admin,
         },
-        owner: this.auth.uid,
-        signature: RenderingSignature.Both,
-        accentEnabled: false,
-        quantityEnabled: true,
-        title: null,
-        juridicalTitle: null,
-        email: null,
-        phone: null,
-        website: null,
-        street: null,
-        zip: null,
-        city: null,
-        country: null,
-        accent: null,
-        $key: null,
-        fields: [],
       }
 
       const doc = await this.$fire.firestore.collection('teams').add(team)
 
+      // Reload teams
+      await this.getTeams(false)
+
       // Change team
-      this.$store.dispatch('switchTeam', doc.id)
+      await this.switchTeam(doc.id)
 
       // Redirect to settings
       this.$router.push('/teams/settings')
