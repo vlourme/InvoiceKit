@@ -16,15 +16,14 @@
         <template #title> Paramètres de la team </template>
 
         <template #actions>
-          <v-btn
-            v-if="!isOwner"
-            text
-            :elevation="0"
-            color="error"
-            @click="leaveTeam"
-          >
+          <v-btn v-if="!isOwner" text color="error" @click="leaveTeam">
             <v-icon left>mdi-close</v-icon>
             Quitter la team
+          </v-btn>
+
+          <v-btn v-else text color="error" @click="deleteTeam">
+            <v-icon left>mdi-delete</v-icon>
+            Supprimer la team
           </v-btn>
         </template>
 
@@ -103,6 +102,39 @@ export default Vue.extend({
   methods: {
     ...mapActions('team', ['switchTeam', 'getTeams']),
 
+    deleteTeam(): void {
+      this.$dialog({
+        type: DialogType.Error,
+        title: 'Êtes-vous sur de supprimer la team ?',
+        message:
+          'Toutes les données associées seront supprimées et irrécupérables.',
+        showCancel: true,
+        actionMessage: 'Supprimer',
+        callback: async () => await this.deleteTeamCallback(),
+      })
+    },
+
+    async deleteTeamCallback() {
+      const fn = this.$fire.functions.httpsCallable('deleteTeam', {
+        timeout: 2000,
+      })
+
+      try {
+        const res = await fn({ teamId: this.user.team })
+
+        if (res.data.success) {
+          this.$notify('La team à été supprimée', NotificationType.SUCCESS)
+
+          await this.changeTeam()
+        } else {
+          throw new Error('team was not deleted')
+        }
+      } catch (e) {
+        console.error(e)
+        this.$notify('Impossible de supprimer la team', NotificationType.ERROR)
+      }
+    },
+
     leaveTeam(): void {
       this.$dialog({
         type: DialogType.Warning,
@@ -126,21 +158,25 @@ export default Vue.extend({
         if (response.data.success) {
           this.$notify('Vous avez quitté la team.', NotificationType.SUCCESS)
 
-          // Switch to profile
-          await this.switchTeam()
-
-          // Reload teams
-          await this.getTeams(false)
-
-          // Redirect to dashboard
-          this.$router.push('/dashboard')
+          await this.changeTeam()
         } else {
-          this.$notify('Impossible de quitter la team', NotificationType.ERROR)
+          throw new Error('cannot leave team')
         }
       } catch (e) {
         console.error(e)
         this.$notify('Impossible de quitter la team', NotificationType.ERROR)
       }
+    },
+
+    async changeTeam() {
+      // Switch to profile
+      await this.switchTeam()
+
+      // Reload teams
+      await this.getTeams(false)
+
+      // Redirect to dashboard
+      this.$router.push('/dashboard')
     },
 
     updateTeam(): void {
