@@ -13,14 +13,7 @@ export const leaveTeam = functions.https.onCall(async (payload, context) => {
   }
 
   // Query
-  const doc = await db
-    .collection('teams')
-    .doc(payload.teamId)
-    // .where('owner', '!=', uid) // Prevent owner to leave without deleting
-    // .where(`members.${uid}`, '>=', 0)
-    // .where(FieldPath.documentId(), '==', data.teamId)
-    // .limit(1)
-    .get()
+  const doc = await db.collection('teams').doc(payload.teamId).get()
 
   // Get data
   const data = doc.data()
