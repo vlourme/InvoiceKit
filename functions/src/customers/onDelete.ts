@@ -10,7 +10,7 @@ export const onTeamCustomerDelete = functions.firestore
   .document('/teams/{teamId}/customers/{customerId}')
   .onDelete(async (handler, context) => {
     // Delete sub-collections
-    tools.firestore.delete(handler.ref.path, {
+    await tools.firestore.delete(handler.ref.path, {
       project: 'invoicekit01',
       recursive: true,
       yes: true,
