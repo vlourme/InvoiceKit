@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { DataTableHeader } from 'vuetify'
+import { Timestamp } from '@google-cloud/firestore'
 import { Customer } from './customer'
 import Model from './model'
 
@@ -32,8 +33,8 @@ export interface Invoice extends Model {
   promotion: number
   deposit: number
   note: string
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Timestamp
+  updatedAt: Timestamp
 }
 
 export interface InvoiceIndex extends Model {
@@ -42,8 +43,8 @@ export interface InvoiceIndex extends Model {
   type: InvoiceType
   status: InvoiceStatus
   customer: Customer
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Timestamp
+  updatedAt: Timestamp
 }
 
 export const defaultField = (): Field => ({
@@ -64,8 +65,8 @@ export const defaultInvoice = (): Invoice => ({
   promotion: 0,
   deposit: 0,
   note: '',
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  createdAt: Timestamp.fromDate(new Date()),
+  updatedAt: Timestamp.fromDate(new Date()),
 })
 
 export const InvoiceHeaders: Array<DataTableHeader> = [
