@@ -56,10 +56,8 @@
 <script lang="ts">
 import { mapState } from 'vuex'
 import Vue from 'vue'
-import BaseButton from '~/components/base/BaseButton.vue'
 
 export default Vue.extend({
-  components: { BaseButton },
   name: 'Settings',
   layout: 'dashboard',
   data: () => ({
