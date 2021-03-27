@@ -4,12 +4,7 @@
       Paramètres du compte
 
       <template #actions>
-        <button
-          type="submit"
-          class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
-        >
-          Sauvegarder
-        </button>
+        <base-nav-button type="submit"> Sauvegarder </base-nav-button>
       </template>
     </Header>
     <FormBox>
@@ -23,7 +18,7 @@
       </template>
 
       <div class="mt-2">
-        <label> Photo </label>
+        <base-label> Photo </base-label>
         <div class="mt-1 flex items-center">
           <img
             :src="user.image"
@@ -36,33 +31,23 @@
             accept="image/jpg,image/png,image/jpeg"
             @change="changePicture"
           />
-          <button
-            type="button"
-            class="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            @click="$refs.fileInput.click()"
-          >
+          <base-button base type="button" @click="$refs.fileInput.click()">
             Changer
-          </button>
-          <button
+          </base-button>
+          <base-button
             v-if="canDeletePhoto"
+            danger
             type="button"
-            class="ml-3 bg-white py-2 px-3 border border-transparent rounded-md shadow-sm text-sm leading-4 font-medium text-gray-50 bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
             @click="deletePhoto"
           >
             Supprimer l'image
-          </button>
+          </base-button>
         </div>
       </div>
 
       <div class="mt-4">
-        <label for="name">Nom d'affichage</label>
-        <input
-          id="name"
-          v-model="name"
-          required
-          minlength="1"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-        />
+        <base-label for="name">Nom d'affichage</base-label>
+        <base-input id="name" v-model="name" required minlength="1" />
       </div>
     </FormBox>
   </form>
@@ -71,8 +56,10 @@
 <script lang="ts">
 import { mapState } from 'vuex'
 import Vue from 'vue'
+import BaseButton from '~/components/base/BaseButton.vue'
 
 export default Vue.extend({
+  components: { BaseButton },
   name: 'Settings',
   layout: 'dashboard',
   data: () => ({
