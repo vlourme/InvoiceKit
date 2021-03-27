@@ -70,7 +70,6 @@
 
 <script lang="ts">
 import { mapState } from 'vuex'
-import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
 
 export default Vue.extend({
@@ -101,7 +100,7 @@ export default Vue.extend({
 
       // Upload new image
       this.$fire.storage
-        .ref(uuidv4())
+        .ref(this.auth.uid)
         .put(image)
         .then(async (snapshot) => {
           await this.$fire.firestore

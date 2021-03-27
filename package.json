@@ -23,13 +23,8 @@
     "core-js": "^3.9.0",
     "date-fns": "^2.19.0",
     "firebase": "^8.2.9",
-    "fs": "*",
     "jspdf-autotable": "^3.5.14",
     "lodash": "^4.17.21",
-    "net": "^1.0.2",
-    "nuxt": "^2.15.1",
-    "tls": "^0.0.1",
-    "uuid": "^8.3.2",
     "vue-property-decorator": "^9.1.2",
     "vuedraggable": "^2.24.3",
     "vuex": "^3.6.2",
@@ -41,9 +36,7 @@
     "@nuxtjs/eslint-config-typescript": "^5.0.0",
     "@nuxtjs/eslint-module": "^3.0.2",
     "@nuxtjs/tailwindcss": "^4.0.1",
-    "@nuxtjs/vuetify": "^1.11.3",
     "@types/lodash": "^4.14.168",
-    "@types/uuid": "^8.3.0",
     "autoprefixer": "^9",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.18.0",
@@ -53,7 +46,6 @@
     "eslint-plugin-vue": "^7.5.0",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.2.8",
-    "prettier": "^2.2.1",
-    "vuetify": "^2.4.5"
+    "prettier": "^2.2.1"
   }
 }
