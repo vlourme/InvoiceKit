@@ -4,12 +4,7 @@
       Paramètres de la team
 
       <template #actions>
-        <button
-          type="submit"
-          class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
-        >
-          Enregistrer
-        </button>
+        <base-nav-button type="submit"> Enregistrer </base-nav-button>
       </template>
     </Header>
 
@@ -22,40 +17,36 @@
             travail.
           </template>
           <template #actions>
-            <button
+            <base-button-inline
               v-if="isOwner"
-              type="button"
-              class="text-sm mb-2 font-semibold text-red-400 hover:text-red-500 flex items-center focus:outline-none"
-              @click.prevent="deleteTeam()"
+              danger
+              icon="minus"
+              @click.prevent="deleteTeam"
             >
-              <i class="bx bx-minus mr-2"></i>
               Supprimer la team
-            </button>
+            </base-button-inline>
 
-            <button
+            <base-button-inline
               v-if="!isOwner"
+              warning
+              icon="exit"
               type="button"
-              class="text-sm font-semibold text-yellow-500 hover:text-yellow-600 flex items-center focus:outline-none"
-              @click.prevent="leaveTeam()"
+              @click.prevent="leaveTeam"
             >
-              <i class="bx bx-exit mr-2"></i>
               Quitter la team
-            </button>
+            </base-button-inline>
           </template>
         </FormDescription>
       </template>
 
-      <div class="mt-2">
-        <label for="name">Nom de la team</label>
-        <input
-          id="name"
-          v-model="team.name"
-          required
-          minlength="1"
-          :disabled="!isAdmin"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-        />
-      </div>
+      <base-label for="name">Nom de la team</base-label>
+      <base-input
+        id="name"
+        v-model="team.name"
+        required
+        minlength="1"
+        :disabled="!isAdmin"
+      />
     </FormBox>
 
     <teams-members :team-state.sync="team" class="my-4"></teams-members>

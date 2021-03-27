@@ -4,12 +4,7 @@
       Créer une fiche client
 
       <template #actions>
-        <button
-          type="submit"
-          class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
-        >
-          Enregister
-        </button>
+        <base-nav-button type="submit"> Enregister </base-nav-button>
       </template>
     </Header>
 
@@ -25,50 +20,33 @@
       </template>
 
       <div class="mt-2">
-        <label for="name">Nom complet</label>
-        <input
+        <base-label for="name">Nom complet</base-label>
+        <base-input
           id="name"
           v-model="customer.fullName"
           required
           minlength="1"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
         />
       </div>
 
       <div class="mt-2">
-        <label for="society">Entreprise</label>
-        <input
-          id="society"
-          v-model="customer.society"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-        />
+        <base-label for="society">Entreprise</base-label>
+        <base-input id="society" v-model="customer.society" />
       </div>
 
       <div class="mt-2">
-        <label for="email">Email</label>
-        <input
-          id="email"
-          v-model="customer.email"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-        />
+        <base-label for="email">Email</base-label>
+        <base-input id="email" v-model="customer.email" />
       </div>
 
       <div class="mt-2">
-        <label for="phone">Téléphone</label>
-        <input
-          id="phone"
-          v-model="customer.phone"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-        />
+        <base-label for="phone">Téléphone</base-label>
+        <base-input id="phone" v-model="customer.phone" />
       </div>
 
       <div class="mt-2">
-        <label for="notes">Notes</label>
-        <textarea
-          id="notes"
-          v-model="customer.notes"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-        ></textarea>
+        <base-label for="notes">Notes</base-label>
+        <base-textarea id="notes" v-model="customer.notes"></base-textarea>
       </div>
     </FormBox>
   </form>

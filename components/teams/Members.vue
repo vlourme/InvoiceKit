@@ -6,14 +6,14 @@
         Gerer les membres de cet espace de travail
       </template>
       <template #actions>
-        <button
+        <base-button-inline
           v-if="isAdmin"
-          class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
+          info
+          icon="plus"
           @click.prevent="dialog = true"
         >
-          <i class="bx bx-plus mr-2"></i>
           Ajouter un membre
-        </button>
+        </base-button-inline>
       </template>
     </FormDescription>
 
@@ -66,11 +66,7 @@
           {{ update > -1 ? 'Modifier un membre' : 'Ajouter un membre' }}
         </template>
         <template #icon>
-          <div
-            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10"
-          >
-            <i class="bx bxs-user text-indigo-600 text-xl"></i>
-          </div>
+          <base-modal-icon icon="user" />
         </template>
         <template #content>
           <div
@@ -80,8 +76,8 @@
             {{ error }}
           </div>
           <div class="mt-2">
-            <label class="text-sm text-gray-500" for="email">Email</label>
-            <input
+            <base-label for="email">Email</base-label>
+            <base-input
               id="email"
               v-model="email"
               :disabled="!isAdmin || update > -1"
@@ -89,48 +85,27 @@
               type="text"
               required
               :class="{ 'opacity-60': update > -1 }"
-              class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
             />
           </div>
           <div class="mt-2">
-            <label class="text-sm text-gray-500" for="role">Permissions</label>
-            <div class="relative w-full">
-              <select
-                id="role"
-                v-model="role"
-                :disabled="!isAdmin"
-                required
-                class="w-full inline-block appearance-none mt-1 px-3 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-              >
-                <template v-for="item in roles">
-                  <option :key="item.value" :value="item.value">
-                    {{ item.text }}
-                  </option>
-                </template>
-              </select>
-              <div
-                class="pointer-events-none absolute inset-y-0 right-0 flex items-center mt-0.5 pr-3"
-              >
-                <i class="bx bx-down-arrow-alt text-xl"></i>
-              </div>
-            </div>
+            <base-label for="role">Permissions</base-label>
+            <base-select
+              id="role"
+              v-model="role"
+              :disabled="!isAdmin"
+              required
+              :items="roles"
+            />
           </div>
         </template>
         <template #footer>
-          <button
-            type="submit"
-            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-500 text-base font-medium text-white hover:bg-green-600 focus:outline-none focus:ring-2 sm:ml-3 sm:w-auto sm:text-sm"
-          >
+          <base-button success type="submit">
             {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
-          </button>
+          </base-button>
 
-          <button
-            type="button"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            @click="closeDialog"
-          >
+          <base-button base type="button" @click="closeDialog">
             Annuler
-          </button>
+          </base-button>
         </template>
       </Modal>
     </form>

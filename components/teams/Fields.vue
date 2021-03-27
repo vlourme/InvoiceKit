@@ -8,14 +8,14 @@
         SIRET.
       </template>
       <template #actions>
-        <button
+        <base-button-inline
           v-if="isAdmin"
-          class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
+          info
+          icon="plus"
           @click.prevent="dialog = true"
         >
-          <i class="bx bx-plus mr-2"></i>
           Ajouter un champ
-        </button>
+        </base-button-inline>
       </template>
     </FormDescription>
 
@@ -60,41 +60,27 @@
           {{ update > -1 ? 'Modifier un champ' : 'Ajouter un champ' }}
         </template>
         <template #icon>
-          <div
-            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10"
-          >
-            <i class="bx bxs-info-circle text-indigo-600 text-xl"></i>
-          </div>
+          <base-modal-icon icon="info-circle" />
         </template>
         <template #content>
           <div class="mt-2">
-            <label class="text-sm text-gray-500" for="field">Champ</label>
-            <input
+            <base-label for="field">Champ</base-label>
+            <base-input
               id="field"
               v-model="value"
               :disabled="!isAdmin"
               type="text"
               required
               :class="{ 'opacity-60': !isAdmin }"
-              class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
             />
           </div>
         </template>
         <template #footer>
-          <button
-            type="submit"
-            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-500 text-base font-medium text-white hover:bg-green-600 focus:outline-none focus:ring-2 sm:ml-3 sm:w-auto sm:text-sm"
-          >
+          <base-button success type="submit">
             {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
-          </button>
+          </base-button>
 
-          <button
-            type="button"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            @click="closeDialog"
-          >
-            Annuler
-          </button>
+          <base-button base @click.prevent="closeDialog">Annuler</base-button>
         </template>
       </Modal>
     </form>

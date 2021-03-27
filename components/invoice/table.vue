@@ -5,13 +5,9 @@
     >
       <!-- Actions -->
       <div class="flex justify-end items-center px-4 py-2">
-        <button
-          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-          type="button"
-          @click.prevent="dialog = true"
-        >
+        <base-button base @click.prevent="dialog = true">
           Ajouter un objet
-        </button>
+        </base-button>
       </div>
 
       <!-- Fields -->
@@ -70,25 +66,18 @@
 
       <Modal :activator.sync="dialog" extended>
         <template #icon>
-          <div
-            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10"
-          >
-            <i class="bx bx-package text-indigo-600 text-xl"></i>
-          </div>
+          <base-modal-icon icon="package" />
         </template>
         <template #title>
           {{ update > -1 ? 'Modifier un objet' : 'Ajouter un objet' }}
         </template>
         <template #content>
           <div class="mt-2">
-            <label class="text-sm text-gray-500" for="description"
-              >Description</label
-            >
-            <textarea
+            <base-label for="description">Description</base-label>
+            <base-textarea
               id="description"
               v-model.trim="field.description"
-              class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-            ></textarea>
+            ></base-textarea>
           </div>
           <div
             class="grid mt-2 gap-2"
@@ -98,68 +87,41 @@
             }"
           >
             <div v-if="team.rendering.quantityEnabled">
-              <label class="text-sm text-gray-500" for="quantity"
-                >Quantité</label
-              >
-              <input
-                id="quantity"
-                v-model.number="field.quantity"
-                class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-              />
+              <base-label for="quantity">Quantité</base-label>
+              <base-input id="quantity" v-model.number="field.quantity" />
             </div>
 
             <div>
-              <label class="text-sm text-gray-500" for="price">
-                Prix en Euro (€)
-              </label>
-              <input
-                id="price"
-                v-model.number="field.price"
-                class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-              />
+              <base-label for="price"> Prix en Euro (€) </base-label>
+              <base-input id="price" v-model.number="field.price" />
             </div>
 
             <div>
-              <label class="text-sm text-gray-500" for="taxes">
-                Taxes en pourcentage (%)
-              </label>
-              <input
-                id="taxes"
-                v-model.number="field.tax"
-                class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-              />
+              <base-label for="taxes"> Taxes en pourcentage (%) </base-label>
+              <base-input id="taxes" v-model.number="field.tax" />
             </div>
           </div>
         </template>
         <template #footer>
           <div class="flex justify-between items-center w-full">
             <div>
-              <button
+              <base-button
                 v-if="update > -1"
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-gray-100 hover:bg-red-700 focus:outline-none focus:ring-2 sm:mt-0 sm:w-auto sm:text-sm"
-                type="button"
+                danger
                 @click.prevent="deleteField"
               >
                 Supprimer
-              </button>
+              </base-button>
             </div>
 
             <div>
-              <button
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:w-auto sm:text-sm"
-                type="button"
-                @click.prevent="closeField"
-              >
+              <base-button base type="button" @click.prevent="closeField">
                 Fermer
-              </button>
+              </base-button>
 
-              <button
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-500 text-base font-medium text-gray-100 hover:bg-indigo-600 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-1 sm:w-auto sm:text-sm"
-                type="button"
-                @click.prevent="addField"
-              >
+              <base-button info @click.prevent="addField">
                 {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
-              </button>
+              </base-button>
             </div>
           </div>
         </template>
@@ -171,14 +133,9 @@
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
 import draggable from 'vuedraggable'
-import { DataTableHeader } from 'vuetify'
 import { mapGetters, mapState } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
-import {
-  defaultField,
-  FieldHeaders,
-  FieldHeadersWithQuantity,
-} from '~/types/invoice'
+import { defaultField } from '~/types/invoice'
 
 export default Vue.extend({
   name: 'InvoiceTable',
@@ -193,7 +150,6 @@ export default Vue.extend({
   },
   data: () => ({
     field: defaultField(),
-    fieldHeaders: [] as DataTableHeader[],
     dialog: false,
     update: -1,
   }),
@@ -208,13 +164,6 @@ export default Vue.extend({
         this.$emit('update:invoice', val)
       },
     },
-  },
-  mounted() {
-    if (this.team.quantityEnabled) {
-      this.fieldHeaders = FieldHeadersWithQuantity
-    } else {
-      this.fieldHeaders = FieldHeaders
-    }
   },
   methods: {
     addField(): void {

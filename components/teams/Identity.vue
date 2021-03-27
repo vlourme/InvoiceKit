@@ -8,66 +8,61 @@
           PDF.
         </template>
         <template #actions>
-          <button
+          <base-button-inline
             v-if="isAdmin"
-            class="text-sm mb-2 font-semibold text-indigo-400 hover:text-indigo-500 flex items-center focus:outline-none"
+            info
+            icon="plus"
             @click.prevent="dialog = true"
           >
-            <i class="bx bx-plus mr-2"></i>
             Ajouter un logo
-          </button>
+          </base-button-inline>
         </template>
       </FormDescription>
     </template>
 
     <div class="mt-2">
-      <label for="title">Nom de l'entreprise</label>
-      <input
+      <base-label for="title">Nom de l'entreprise</base-label>
+      <base-input
         id="title"
         v-model="team.identity.title"
         type="text"
         :disabled="!isAdmin"
-        class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
       />
     </div>
     <div class="mt-2">
-      <label for="juridicTitle">Nom juridique de l'entreprise</label>
-      <input
+      <base-label for="juridicTitle">Nom juridique de l'entreprise</base-label>
+      <base-input
         id="juridicTitle"
         v-model="team.identity.juridicalTitle"
         type="text"
         :disabled="!isAdmin"
-        class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
       />
     </div>
     <div class="mt-2">
-      <label for="email">Email</label>
-      <input
+      <base-label for="email">Email</base-label>
+      <base-input
         id="email"
         v-model="team.identity.email"
         type="email"
         :disabled="!isAdmin"
-        class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
       />
     </div>
     <div class="mt-2">
-      <label for="phone">Téléphone</label>
-      <input
+      <base-label for="phone">Téléphone</base-label>
+      <base-input
         id="phone"
         v-model="team.identity.phone"
         type="tel"
         :disabled="!isAdmin"
-        class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
       />
     </div>
     <div class="mt-2">
-      <label for="website">Site internet</label>
-      <input
+      <base-label for="website">Site internet</base-label>
+      <base-input
         id="website"
         v-model="team.identity.website"
         type="url"
         :disabled="!isAdmin"
-        class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
       />
     </div>
 
@@ -75,61 +70,40 @@
       <Modal :activator.sync="dialog">
         <template #title> Ajouter ou modifier le logo </template>
         <template #icon>
-          <div
-            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10"
-          >
-            <i class="bx bxs-image text-indigo-600 text-xl"></i>
-          </div>
+          <base-modal-icon icon="image" />
         </template>
         <template #content>
           <div v-if="image" class="mt-2">
-            <label class="text-sm text-gray-500" for="image"
-              >Image actuelle</label
+            <base-label class="text-sm text-gray-500" for="image"
+              >Image actuelle</base-label
             >
             <img class="max-h-60" :src="image" />
           </div>
           <div class="mt-2">
             <input
-              ref="fileInput"
+              ref="filebase-input"
               type="file"
               accept="image/jpg,image/png,image/jpeg"
               hidden
               @change="onFileChange"
             />
-            <button
-              type="button"
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              @click.prevent="$refs.fileInput.click()"
-            >
+            <base-button base @click.prevent="$refs.fileInput.click()">
               Changer l'image
-            </button>
+            </base-button>
 
-            <button
-              v-if="image"
-              type="button"
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              @click.prevent="deleteImage"
-            >
+            <base-button v-if="image" base @click.prevent="deleteImage">
               Supprimer l'image
-            </button>
+            </base-button>
           </div>
         </template>
         <template #footer>
-          <button
-            v-if="file"
-            type="submit"
-            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-500 text-base font-medium text-white hover:bg-green-600 focus:outline-none focus:ring-2 sm:ml-3 sm:w-auto sm:text-sm"
-          >
+          <base-button v-if="file" success type="submit">
             Ajouter l'image
-          </button>
+          </base-button>
 
-          <button
-            type="button"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            @click="dialog = false"
-          >
+          <base-button base type="button" @click.prevent="dialog = false">
             Fermer
-          </button>
+          </base-button>
         </template>
       </Modal>
     </form>

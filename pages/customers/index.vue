@@ -4,20 +4,15 @@
       Clients
 
       <template #actions>
-        <input
+        <base-nav-input
           v-model="search"
           placeholder="Chercher un client"
-          class="bg-gray-200 bg-opacity-50 hover:bg-opacity-100 focus:bg-opacity-100 focus:outline-none px-4 h-full"
           @input="doSearch"
         />
 
-        <nuxt-link
-          v-if="role > 0"
-          to="/customers/create"
-          class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
-        >
+        <base-nav-link v-if="role > 0" to="/customers/create">
           Créer un client
-        </nuxt-link>
+        </base-nav-link>
       </template>
     </Header>
 

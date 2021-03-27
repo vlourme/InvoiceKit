@@ -6,12 +6,7 @@
         #{{ invoice.data.id }}
 
         <template #actions>
-          <button
-            type="submit"
-            class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
-          >
-            Enregistrer
-          </button>
+          <base-nav-button type="submit"> Enregistrer </base-nav-button>
         </template>
       </Header>
 
@@ -56,7 +51,6 @@ import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
 import firebase from 'firebase'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
-import { DialogType } from '~/types/dialog'
 import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({

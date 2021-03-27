@@ -4,12 +4,7 @@
       Modifier une fiche client
 
       <template v-if="role > 0" #actions>
-        <button
-          type="submit"
-          class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
-        >
-          Mettre à jour
-        </button>
+        <base-nav-button> Mettre à jour </base-nav-button>
       </template>
     </Header>
 
@@ -22,68 +17,62 @@
             contrats.
           </template>
           <template v-if="role > 0" #actions>
-            <button
-              type="button"
-              class="text-sm font-semibold text-red-400 hover:text-red-500 inline-flex items-center focus:outline-none"
-              @click.prevent="deleteCustomer()"
+            <base-button-inline
+              danger
+              icon="minus"
+              @click.prevent="deleteCustomer"
             >
-              <i class="bx bx-minus mr-2"></i>
               Supprimer le client
-            </button>
+            </base-button-inline>
           </template>
         </FormDescription>
       </template>
 
       <div class="mt-2">
-        <label for="name">Nom complet</label>
-        <input
+        <base-label for="name">Nom complet</base-label>
+        <base-input
           id="name"
           v-model="customer.fullName"
           required
           minlength="1"
           :disabled="role === 0"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
         />
       </div>
 
       <div class="mt-2">
-        <label for="society">Entreprise</label>
-        <input
+        <base-label for="society">Entreprise</base-label>
+        <base-input
           id="society"
           v-model="customer.society"
           :disabled="role === 0"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
         />
       </div>
 
       <div class="mt-2">
-        <label for="email">Email</label>
-        <input
+        <base-label for="email">Email</base-label>
+        <base-input
           id="email"
           v-model="customer.email"
           :disabled="role === 0"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
         />
       </div>
 
       <div class="mt-2">
-        <label for="phone">Téléphone</label>
-        <input
+        <base-label for="phone">Téléphone</base-label>
+        <base-input
           id="phone"
           v-model="customer.phone"
           :disabled="role === 0"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
         />
       </div>
 
       <div class="mt-2">
-        <label for="notes">Notes</label>
-        <textarea
+        <base-label for="notes">Notes</base-label>
+        <base-textarea
           id="notes"
           v-model="customer.notes"
           :disabled="role === 0"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-        ></textarea>
+        ></base-textarea>
       </div>
     </FormBox>
 

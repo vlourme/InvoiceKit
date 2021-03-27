@@ -5,14 +5,12 @@
 
       <template #actions>
         <Dropdown>
-          <button
-            class="bg-gray-200 bg-opacity-50 h-14 px-4 inline-flex items-center hover:bg-opacity-100 focus:outline-none"
-          >
+          <base-nav-button>
             <span v-if="team">
               {{ team.name }}
             </span>
             <span v-else> Aucune team </span>
-          </button>
+          </base-nav-button>
 
           <template #content>
             <div class="divide-y">

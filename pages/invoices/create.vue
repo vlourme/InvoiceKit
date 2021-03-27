@@ -5,12 +5,7 @@
         Créer un document
 
         <template #actions>
-          <button
-            type="submit"
-            class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
-          >
-            Enregistrer
-          </button>
+          <base-nav-button type="submit"> Enregistrer </base-nav-button>
         </template>
       </Header>
 

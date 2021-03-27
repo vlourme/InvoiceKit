@@ -13,7 +13,7 @@
     <div class="mt-2">
       <label for="color">Couleur d'accent</label>
       <div class="flex items-center">
-        <div>
+        <div class="mt-1">
           <input
             id="color"
             ref="colorPicker"
@@ -23,81 +23,43 @@
             list
             :disabled="!isAdmin"
           />
-          <button
-            type="button"
-            class="mt-1 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:w-auto sm:text-sm"
+          <base-button
+            base
+            class="py-2.5 sm:ml-0"
             @click="$refs.colorPicker.click()"
           >
             Changer
-          </button>
+          </base-button>
         </div>
-        <div class="relative w-full ml-2">
-          <select
-            id="role"
-            v-model="team.rendering.accentEnabled"
-            :disabled="!isAdmin"
-            required
-            class="w-full inline-block appearance-none mt-1 px-3 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-          >
-            <template v-for="item in colors">
-              <option :key="item.value" :value="item.value">
-                {{ item.text }}
-              </option>
-            </template>
-          </select>
-          <div
-            class="pointer-events-none absolute inset-y-0 right-0 flex items-center mt-0.5 pr-3"
-          >
-            <i class="bx bx-down-arrow-alt text-xl"></i>
-          </div>
-        </div>
+        <base-select
+          id="role"
+          v-model="team.rendering.accentEnabled"
+          :disabled="!isAdmin"
+          required
+          class="ml-2"
+          :items="colors"
+        />
       </div>
     </div>
     <div class="mt-2">
-      <label for="zip">Demander une signature</label>
-      <div class="relative w-full">
-        <select
-          id="role"
-          v-model="team.rendering.signature"
-          :disabled="!isAdmin"
-          required
-          class="w-full inline-block appearance-none mt-1 px-3 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-        >
-          <template v-for="item in signature">
-            <option :key="item.value" :value="item.value">
-              {{ item.text }}
-            </option>
-          </template>
-        </select>
-        <div
-          class="pointer-events-none absolute inset-y-0 right-0 flex items-center mt-0.5 pr-3"
-        >
-          <i class="bx bx-down-arrow-alt text-xl"></i>
-        </div>
-      </div>
+      <base-label for="zip">Demander une signature</base-label>
+      <base-select
+        id="role"
+        v-model="team.rendering.signature"
+        :disabled="!isAdmin"
+        required
+        :items="signature"
+      />
     </div>
     <div class="mt-2">
-      <label for="zip">Afficher la quantité</label>
-      <div class="relative w-full">
-        <select
-          id="role"
-          v-model="team.rendering.quantityEnabled"
-          :disabled="!isAdmin"
-          required
-          class="w-full inline-block appearance-none mt-1 px-3 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-        >
-          <template v-for="item in quantity">
-            <option :key="item.value" :value="item.value">
-              {{ item.text }}
-            </option>
-          </template>
-        </select>
-        <div
-          class="pointer-events-none absolute inset-y-0 right-0 flex items-center mt-0.5 pr-3"
-        >
-          <i class="bx bx-down-arrow-alt text-xl"></i>
-        </div>
-      </div>
+      <base-label for="zip">Afficher la quantité</base-label>
+      <base-select
+        id="role"
+        v-model="team.rendering.quantityEnabled"
+        :disabled="!isAdmin"
+        required
+        :items="quantity"
+      />
     </div>
   </FormBox>
 </template>

@@ -4,12 +4,7 @@
       Créer une team
 
       <template #actions>
-        <button
-          type="submit"
-          class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
-        >
-          Créer
-        </button>
+        <base-nav-button type="submit"> Créer </base-nav-button>
       </template>
     </Header>
 
@@ -25,25 +20,18 @@
       </template>
 
       <div class="mt-2">
-        <label for="name">Propriétaire</label>
-        <input
-          id="name"
-          :value="user.name"
-          disabled
-          readonly
-          class="w-full mt-1 px-4 py-2 bg-gray-50 opacity-60 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-        />
+        <base-label for="name">Propriétaire</base-label>
+        <base-input id="name" :value="user.name" disabled readonly />
       </div>
 
       <div class="mt-2">
-        <label for="name">Nom de la team</label>
-        <input
+        <base-label for="name">Nom de la team</base-label>
+        <base-input
           id="name"
           v-model="name"
           required
           minlength="1"
           maxlength="20"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
         />
       </div>
     </FormBox>

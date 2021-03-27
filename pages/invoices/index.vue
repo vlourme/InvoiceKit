@@ -4,10 +4,9 @@
       Factures
 
       <template #actions>
-        <input
+        <base-nav-input
           v-model="search"
           placeholder="Chercher une facture"
-          class="bg-gray-200 bg-opacity-50 hover:bg-opacity-100 focus:bg-opacity-100 focus:outline-none px-4 h-full"
           @input="doSearch"
         />
       </template>

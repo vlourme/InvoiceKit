@@ -4,13 +4,9 @@
       <template #title> Factures </template>
       <template #description> Gerez les factures du client </template>
       <template #actions>
-        <button
-          class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
-          @click="dialog = true"
-        >
-          <i class="bx bx-plus mr-2"></i>
+        <base-button-inline info icon="plus" @click.prevent="dialog = true">
           Créer un nouveau devis ou facture
-        </button>
+        </base-button-inline>
       </template>
     </FormDescription>
 
@@ -100,32 +96,19 @@
           </div>
         </template>
         <template #footer>
-          <button
-            :disabled="!!selected"
-            type="submit"
-            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-500 text-base font-medium text-white hover:bg-green-600 disabled:text-gray-400 disabled:bg-green-100 focus:outline-none focus:ring-2 sm:ml-3 sm:w-auto sm:text-sm"
-          >
+          <base-button success :disabled="!!selected" type="submit">
             Confirmer
-          </button>
+          </base-button>
 
-          <button
-            type="button"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            @click="dialog = false"
-          >
+          <base-button base type="button" @click.prevent="dialog = false">
             Annuler
-          </button>
+          </base-button>
 
           <div class="w-full"></div>
 
-          <button
-            :disabled="!!selected"
-            type="button"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 disabled:text-gray-400 disabled:bg-gray-100 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            @click="startImport"
-          >
+          <base-button base :disabled="!!selected" @click.prevent="startImport">
             Importer
-          </button>
+          </base-button>
         </template>
       </Modal>
     </form>

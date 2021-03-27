@@ -10,44 +10,40 @@
     </template>
 
     <div class="mt-2">
-      <label for="address">Adresse</label>
-      <input
+      <base-label for="address">Adresse</base-label>
+      <base-input
         id="address"
         v-model="team.localization.street"
         type="text"
         :disabled="!isAdmin"
-        class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
       />
     </div>
     <div class="mt-2 grid grid-cols-3 gap-2">
       <div>
-        <label for="zip">Code postal</label>
-        <input
+        <base-label for="zip">Code postal</base-label>
+        <base-input
           id="zip"
           v-model="team.localization.zip"
           type="text"
           :disabled="!isAdmin"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
         />
       </div>
       <div>
-        <label for="city">Ville</label>
-        <input
+        <base-label for="city">Ville</base-label>
+        <base-input
           id="city"
           v-model="team.localization.city"
           type="text"
           :disabled="!isAdmin"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
         />
       </div>
       <div>
-        <label for="zip">Pays</label>
-        <input
+        <base-label for="zip">Pays</base-label>
+        <base-input
           id="country"
           v-model="team.localization.country"
           type="text"
           :disabled="!isAdmin"
-          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
         />
       </div>
     </div>
