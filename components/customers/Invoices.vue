@@ -1,93 +1,150 @@
 <template>
-  <Card no-body>
-    <template #title>Factures</template>
-
-    <template v-if="role > 0" #actions>
-      <v-btn color="success" text @click="dialog = true">
-        <v-icon left>mdi-plus</v-icon>
-        Ajouter
-      </v-btn>
-    </template>
-
-    <v-data-table
-      :items="invoices"
-      :headers="invoiceHeaders"
-      @click:row="navigateToInvoice"
-    >
-      <template #item.updatedAt="{ item }">
-        {{ new Date(item.updatedAt.seconds * 1000).toLocaleString() }}
-      </template>
-    </v-data-table>
-
-    <v-dialog v-model="dialog" width="650">
-      <v-card>
-        <v-card-title> Créer une nouvelle facture </v-card-title>
-
-        <v-card-text>
-          Séléctionnez l'adresse à utiliser pour la facture.
-        </v-card-text>
-
-        <input
-          ref="fileInput"
-          accept="application/json"
-          type="file"
-          hidden
-          @change="importDone"
-        />
-
-        <v-data-table
-          :headers="addressHeaders"
-          :items="addresses"
-          :items-per-page="-1"
-          hide-default-footer
-          @click:row="makeInvoice"
+  <div class="py-8 px-6 max-w-7xl mx-auto grid grid-cols-3">
+    <FormDescription>
+      <template #title> Factures </template>
+      <template #description> Gerez les factures du client </template>
+      <template #actions>
+        <button
+          class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
+          @click="dialog = true"
         >
-          <template #item.actions="{ item }">
-            <v-btn icon @click.stop="startImport(item)">
-              <v-icon>mdi-upload</v-icon>
-            </v-btn>
-          </template>
-        </v-data-table>
+          <i class="bx bx-plus mr-2"></i>
+          Créer un nouveau devis ou facture
+        </button>
+      </template>
+    </FormDescription>
 
-        <v-divider></v-divider>
+    <div class="col-span-2 mx-2 bg-gray-50 py-2 rounded-lg">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b">
+              <th class="text-left p-4 font-medium text-gray-600">ID</th>
+              <th class="text-left p-4 font-medium text-gray-600">Type</th>
+              <th class="text-left p-4 font-medium text-gray-600">Date</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y even:bg-gray-100">
+            <tr v-for="(item, idx) in invoices" :key="idx">
+              <td class="p-3">{{ item.id }}</td>
+              <td class="p-3">
+                {{ item.type === 'QUOTE' ? 'Devis' : 'Facture' }}
+              </td>
+              <td class="p-3">{{ item.date }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="warning" text @click="dialog = false">Annuler</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </Card>
+    <form @submit.prevent="makeInvoice">
+      <Modal :activator.sync="dialog" extended>
+        <template #title> Créer un devis ou une facture </template>
+        <template #icon>
+          <div
+            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10"
+          >
+            <i class="bx bxs-receipt text-indigo-600 text-xl"></i>
+          </div>
+        </template>
+        <template #content>
+          <input ref="fileInput" hidden type="file" accept="application/json" />
+
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th
+                    class="text-left font-medium text-gray-600 px-4 py-2"
+                  ></th>
+                  <th class="text-left font-medium text-gray-600 px-4 py-2">
+                    Adresse
+                  </th>
+                  <th class="text-left font-medium text-gray-600 px-4 py-2">
+                    Ville
+                  </th>
+                  <th class="text-left font-medium text-gray-600 px-4 py-2">
+                    Pays
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                <tr v-for="(item, idx) in addresses" :key="idx">
+                  <td class="px-4 py-2">
+                    <input
+                      :id="`address-${idx}`"
+                      v-model="selected"
+                      :value="idx"
+                      name="address"
+                      type="radio"
+                      required
+                      class="focus:outline-none mt-1 h-4 w-4 text-indigo-600 border-gray-300"
+                    />
+                  </td>
+                  <td class="px-4 py-2">
+                    <label :for="`address-${idx}`">{{ item.street }}</label>
+                  </td>
+                  <td class="px-4 py-2">
+                    <label :for="`address-${idx}`">
+                      {{ item.zip }} {{ item.city }}
+                    </label>
+                  </td>
+                  <td class="px-4 py-2">
+                    <label :for="`address-${idx}`">
+                      {{ item.country }}
+                    </label>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </template>
+        <template #footer>
+          <button
+            :disabled="!!selected"
+            type="submit"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-500 text-base font-medium text-white hover:bg-green-600 disabled:text-gray-400 disabled:bg-green-100 focus:outline-none focus:ring-2 sm:ml-3 sm:w-auto sm:text-sm"
+          >
+            Confirmer
+          </button>
+
+          <button
+            type="button"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            @click="dialog = false"
+          >
+            Annuler
+          </button>
+
+          <div class="w-full"></div>
+
+          <button
+            :disabled="!!selected"
+            type="button"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 disabled:text-gray-400 disabled:bg-gray-100 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            @click="startImport"
+          >
+            Importer
+          </button>
+        </template>
+      </Modal>
+    </form>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { DataTableHeader } from 'vuetify'
 import { mapGetters, mapState } from 'vuex'
 import { mapSnapshot } from '~/helpers/documentMapper'
-import { Address, AddressHeaders } from '~/types/address'
+import { Address } from '~/types/address'
 import { Invoice } from '~/types/invoice'
 import { importLegacy } from '~/helpers/legacyImport'
 
 export default Vue.extend({
   name: 'Invoices',
   data: () => ({
-    invoiceHeaders: [
-      {
-        text: 'ID',
-        value: 'id',
-      },
-      {
-        text: 'Date de facturation',
-        value: 'date',
-      },
-      {
-        text: 'Dernière mise à jour',
-        value: 'updatedAt',
-      },
-    ] as Array<DataTableHeader>,
     invoices: [] as Invoice[],
-    addressHeaders: AddressHeaders,
+    selected: -1,
     dialog: false,
     import: {} as Address,
   }),
@@ -108,18 +165,18 @@ export default Vue.extend({
     ...mapState('payload', ['customer', 'addresses']),
   },
   methods: {
-    makeInvoice(item: Address) {
+    makeInvoice() {
       this.$router.push({
         path: '/invoices/create',
         query: {
           customer: this.customer.$key,
-          address: item.$key,
+          address: this.addresses[this.selected].$key,
         },
       })
     },
 
-    startImport(address: Address): void {
-      this.import = address
+    startImport(): void {
+      this.import = this.addresses[this.selected]
       ;(this.$refs.fileInput as any).click()
     },
 

@@ -4,6 +4,7 @@
 
 import { Context } from '@nuxt/types'
 import { format, parse } from 'date-fns'
+import firebase from 'firebase'
 import { Customer } from '~/types/customer'
 import { Invoice, InvoiceStatus, InvoiceType } from '~/types/invoice'
 import { LegacyInvoice } from '~/types/legacyInvoice'
@@ -28,8 +29,8 @@ export const importLegacy = async (
     $key: null,
     id: json.number.trim(),
     address: addressId,
-    createdAt: date,
-    updatedAt: date,
+    createdAt: firebase.firestore.Timestamp.fromDate(date),
+    updatedAt: firebase.firestore.Timestamp.fromDate(date),
     date: invoiceDate,
     deposit: json.acompte.amount ?? 0,
     promotion: json.promotion.percentage ?? 0,

@@ -1,44 +1,84 @@
 <template>
-  <Header with-search>
-    <template #title> Factures </template>
+  <div class="flex flex-col h-screen overflow-y-hidden">
+    <Header>
+      Factures
 
-    <template #actions>
-      <v-text-field
-        v-model="search"
-        single-line
-        flat
-        solo-inverted
-        hide-details
-        label="Chercher une facture (par ID)"
-        @input="doSearch"
-      ></v-text-field>
-    </template>
+      <template #actions>
+        <input
+          v-model="search"
+          placeholder="Chercher une facture"
+          class="bg-gray-200 bg-opacity-50 hover:bg-opacity-100 focus:bg-opacity-100 focus:outline-none px-4 h-full"
+          @input="doSearch"
+        />
+      </template>
+    </Header>
 
-    <Card :width="1000" no-body no-toolbar no-divider>
-      <v-data-table
-        :search="search"
-        :headers="headers"
-        :items="invoices"
-        :loading="loading"
-        :options.sync="options"
-        :server-items-length="invoiceCount"
-        :items-per-page="15"
-        @click:row="navigateToInvoice"
-      >
-        <template #item.type="{ item }">
-          {{ item.type === 'QUOTE' ? 'Devis' : 'Facture' }}
-        </template>
-        <template #item.status="{ item }">
-          <v-chip :color="getStatusColor(item)">
-            {{ getStatus(item) }}
-          </v-chip>
-        </template>
-        <template #item.updatedAt="{ item }">
-          {{ new Date(item.updatedAt.seconds * 1000).toLocaleDateString() }}
-        </template>
-      </v-data-table>
-    </Card>
-  </Header>
+    <div class="flex-1 flex flex-col h-full">
+      <div class="flex flex-col h-full">
+        <div class="flex-grow overflow-auto">
+          <table class="relative w-full">
+            <thead>
+              <tr>
+                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                  ID
+                </th>
+                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                  Type
+                </th>
+                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                  Client
+                </th>
+                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                  Statut
+                </th>
+                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                  Dernière mise à jour
+                </th>
+                <th class="sticky top-0 bg-gray-50"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr
+                v-for="(invoice, idx) in invoices"
+                :key="idx"
+                class="even:bg-gray-50"
+              >
+                <td class="px-6 py-4 text-center font-semibold">
+                  {{ invoice.id }}
+                </td>
+                <td class="px-6 py-4 text-center">
+                  {{ invoice.type === 'QUOTE' ? 'Devis' : 'Facture' }}
+                </td>
+                <td class="px-6 py-4 text-center">
+                  {{ invoice.customer.fullName }}
+                  <span
+                    v-if="invoice.customer.society"
+                    class="text-sm text-gray-400"
+                  >
+                    ({{ invoice.customer.society }})
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  {{ getStatus(invoice) }}
+                </td>
+                <td class="px-6 py-4 text-center">
+                  {{ invoice.updatedAt.toDate().toLocaleString() }}
+                </td>
+                <td width="200" class="px-6 py-4 text-center">
+                  <nuxt-link
+                    class="text-blue-500 hover:text-blue-700"
+                    :to="`/invoices/${invoice.customer.$key}/${invoice.link}`"
+                  >
+                    Voir le document
+                  </nuxt-link>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -69,13 +109,8 @@ export default Vue.extend({
       )
     },
   },
-  watch: {
-    options: {
-      deep: true,
-      async handler(): Promise<void> {
-        await this.getData()
-      },
-    },
+  async mounted() {
+    await this.getData()
   },
   methods: {
     async doSearch(): Promise<void> {
@@ -135,20 +170,6 @@ export default Vue.extend({
         case InvoiceStatus.None:
         default:
           return 'Aucun'
-      }
-    },
-
-    getStatusColor(invoice: InvoiceIndex): string {
-      switch (invoice.status) {
-        case InvoiceStatus.Unpaid:
-          return 'error'
-        case InvoiceStatus.Pending:
-          return 'warning'
-        case InvoiceStatus.Paid:
-          return 'success'
-        case InvoiceStatus.None:
-        default:
-          return 'primary'
       }
     },
   },

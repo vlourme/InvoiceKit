@@ -1,44 +1,17 @@
 <template>
-  <div>
-    <v-app-bar app flat clipped-right color="#5386E4">
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-
-      <v-toolbar-title class="app-bar">
-        <slot name="title"></slot>
-      </v-toolbar-title>
-
-      <template v-if="withSearch">
-        <v-spacer></v-spacer>
-
-        <slot name="search"></slot>
-      </template>
-
-      <v-spacer></v-spacer>
-
-      <slot name="actions"></slot>
-    </v-app-bar>
-
-    <v-container>
+  <div class="h-14 w-full flex items-center bg-white border-b">
+    <h2 class="py-2 px-4 font-semibold text-xl flex-1 leading-loose">
       <slot></slot>
-    </v-container>
+    </h2>
+
+    <div class="h-14 flex divide-x border-l border-r mr-4">
+      <slot name="actions"></slot>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   name: 'Header',
-  props: {
-    withSearch: Boolean,
-  },
-  computed: {
-    drawer: {
-      get() {
-        return this.$store.state.sidebar.drawer
-      },
-      set(val) {
-        this.$store.commit('sidebar/SET_DRAWER', val)
-      },
-    },
-  },
 }
 </script>

@@ -1,76 +1,111 @@
 <template>
-  <Card no-toolbar no-divider :width="1000">
-    <v-row>
-      <v-col>
-        <v-text-field
-          v-model="invoice.data.id"
-          label="Identifiant"
-          :disabled="role === 0"
-          prepend-icon="mdi-pound"
-          placeholder="41-FR/2021"
-          :rules="[(v) => !!v || 'L\'identifiant est obligatoire']"
-        ></v-text-field>
+  <FormBox>
+    <template #description>
+      <FormDescription>
+        <template #title> Informations sur le document </template>
 
-        <v-select
-          v-model="invoice.data.type"
-          :items="types"
-          :disabled="role === 0"
-          prepend-icon="mdi-file"
-          label="Type de document"
-        ></v-select>
-      </v-col>
-      <v-col>
-        <v-select
-          v-model="invoice.data.status"
-          :items="statuses"
-          :disabled="role === 0"
-          prepend-icon="mdi-chart-line-variant"
-          label="Statut du document"
-        ></v-select>
+        <template #description>
+          Les informations essentielles sur le document
+        </template>
 
-        <v-dialog
-          ref="dialog"
-          v-model="dateMenu"
-          :return-value.sync="invoice.data.date"
-          persistent
-          width="290px"
-          @click:outside="dateMenu = false"
-        >
-          <template #activator="{ on, attrs }">
-            <v-text-field
-              :value="date"
-              label="Date"
-              prepend-icon="mdi-calendar"
-              readonly
+        <template #actions>
+          <button
+            type="button"
+            class="text-sm font-semibold text-red-400 hover:text-red-500 inline-flex items-center focus:outline-none"
+            @click.prevent="deleteInvoice()"
+          >
+            <i class="bx bx-minus mr-2"></i>
+            Supprimer le document
+          </button>
+        </template>
+      </FormDescription>
+    </template>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <div>
+          <label class="text-sm text-gray-500" for="id">Identifiant</label>
+          <input
+            id="id"
+            v-model="invoice.data.id"
+            :disabled="role === 0"
+            type="text"
+            required
+            class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+          />
+        </div>
+        <div class="mt-1">
+          <label class="text-sm text-gray-500" for="type">
+            Type de document
+          </label>
+          <div class="relative w-full">
+            <select
+              id="type"
+              v-model="invoice.data.type"
               :disabled="role === 0"
-              v-bind="attrs"
-              v-on="on"
-            ></v-text-field>
-          </template>
-          <v-date-picker v-model="invoice.data.date" locale="fr-fr" scrollable>
-            <v-spacer></v-spacer>
-            <v-btn text color="error" @click="dateMenu = false">
-              Annuler
-            </v-btn>
-            <v-btn
-              text
-              color="primary"
-              @click="$refs.dialog.save(invoice.data.date)"
+              required
+              class="w-full inline-block appearance-none mt-1 px-3 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
             >
-              Confirmer
-            </v-btn>
-          </v-date-picker>
-        </v-dialog>
-      </v-col>
-    </v-row>
-  </Card>
+              <template v-for="type in types">
+                <option :key="type.value" :value="type.value">
+                  {{ type.text }}
+                </option>
+              </template>
+            </select>
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center mt-0.5 pr-3"
+            >
+              <i class="bx bx-down-arrow-alt text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div>
+          <label class="text-sm text-gray-500" for="date">Date</label>
+          <input
+            id="date"
+            v-model="invoice.data.date"
+            :disabled="role === 0"
+            type="date"
+            required
+            class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+          />
+        </div>
+
+        <div class="mt-1">
+          <label class="text-sm text-gray-500" for="status"> Statut </label>
+          <div class="relative w-full">
+            <select
+              id="status"
+              v-model="invoice.data.status"
+              :disabled="role === 0"
+              required
+              class="w-full inline-block appearance-none mt-1 px-3 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+            >
+              <template v-for="status in statuses">
+                <option :key="status.value" :value="status.value">
+                  {{ status.text }}
+                </option>
+              </template>
+            </select>
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center mt-0.5 pr-3"
+            >
+              <i class="bx bx-down-arrow-alt text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </FormBox>
 </template>
 
 <script lang="ts">
-import { format, parseISO } from 'date-fns'
 import Vue, { PropOptions } from 'vue'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
+import { DialogType } from '~/types/dialog'
 import { InvoiceStatus, InvoiceType } from '~/types/invoice'
 
 export default Vue.extend({
@@ -92,9 +127,10 @@ export default Vue.extend({
       { text: 'En attente', value: InvoiceStatus.Pending },
       { text: 'Payé', value: InvoiceStatus.Paid },
     ],
-    dateMenu: false,
   }),
   computed: {
+    ...mapState('auth', ['user']),
+    ...mapState('payload', ['customer']),
     ...mapGetters('team', ['role']),
     invoice: {
       get(): InvoiceImpl {
@@ -104,11 +140,34 @@ export default Vue.extend({
         this.$emit('update:invoice', val)
       },
     },
-    date(): string {
-      return format(
-        parseISO(new Date(this.invoice.data.date).toISOString()),
-        'dd/MM/yyyy'
-      )
+  },
+  methods: {
+    deleteInvoice(): void {
+      this.$dialog({
+        title: 'Supprimer la facture',
+        message: 'Une fois supprimée, celle-ci sera irrecupérable.',
+        type: DialogType.Error,
+        showCancel: true,
+        actionMessage: 'Supprimer',
+        callback: async () => await this.deleteCallback(),
+      })
+    },
+
+    async deleteCallback(): Promise<void> {
+      const { invoice } = this.$route.params
+
+      // Delete invoice
+      await this.$fire.firestore
+        .collection('teams')
+        .doc(this.user.team)
+        .collection('customers')
+        .doc(this.customer.$key)
+        .collection('invoices')
+        .doc(invoice)
+        .delete()
+
+      // Redirect
+      this.$router.push('/invoices/')
     },
   },
 })

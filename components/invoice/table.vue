@@ -1,116 +1,171 @@
 <template>
-  <Card no-body :width="1000" class="my-4">
-    <template #title>Facturation</template>
-
-    <template #actions>
-      <v-btn v-if="role > 0" text color="primary" @click="dialog = true">
-        <v-icon left>mdi-plus</v-icon>
-        Nouveau prix
-      </v-btn>
-    </template>
-
-    <v-data-table
-      locale="fr-fr"
-      :headers="fieldHeaders"
-      :items="invoice.data.fields"
-      :items-per-page="-1"
+  <div class="px-4">
+    <div
+      class="w-full overflow-x-auto max-w-7xl mx-auto rounded-lg bg-gray-50 pt-2 pb-4"
     >
-      <template #body="props">
-        <draggable :list="props.items" tag="tbody">
-          <tr v-for="(item, idx) in props.items" :key="idx">
-            <td>
-              <v-icon v-if="role > 0" class="cursor-move">mdi-menu</v-icon>
+      <!-- Actions -->
+      <div class="flex justify-end items-center px-4 py-2">
+        <button
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+          type="button"
+          @click.prevent="dialog = true"
+        >
+          Ajouter un objet
+        </button>
+      </div>
+
+      <!-- Fields -->
+      <table class="w-full table-auto">
+        <thead>
+          <tr class="border-b">
+            <th class="px-4 py-2 w-4"></th>
+            <th class="text-left font-medium text-gray-600 px-4 py-2">Objet</th>
+            <th
+              v-if="team.rendering.quantityEnabled"
+              class="text-right font-medium text-gray-600 px-4 py-2"
+            >
+              Quantité
+            </th>
+            <th class="text-right font-medium text-gray-600 px-4 py-2">Prix</th>
+            <th class="text-right font-medium text-gray-600 px-4 py-2">
+              Total TTC
+            </th>
+          </tr>
+        </thead>
+        <draggable v-model="invoice.data.fields" tag="tbody" class="divide-y">
+          <tr
+            v-for="(item, idx) in invoice.data.fields"
+            :key="idx"
+            class="cursor-move even:bg-gray-100 active:bg-blue-100"
+          >
+            <td class="px-4 py-3 w-4">
+              <button
+                class="focus:outline-none mt-2"
+                type="button"
+                @click.prevent="editField(idx)"
+              >
+                <i class="bx bxs-pencil text-2xl text-indigo-500"></i>
+              </button>
             </td>
-            <v-menu max-width="150" offset-y>
-              <template #activator="{ on, attrs }">
-                <td
-                  v-bind="attrs"
-                  v-on="on"
-                  v-html="replaceWithHTMLBreak(item.description)"
-                ></td>
-              </template>
-              <v-list v-if="role > 0" dense color="grey darken-3">
-                <v-list-item link @click="editField(idx)">
-                  <v-list-item-icon>
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>Modifier</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item link @click="invoice.data.fields.splice(idx, 1)">
-                  <v-list-item-icon>
-                    <v-icon>mdi-delete</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>Supprimer</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-            <td v-if="team.rendering.quantityEnabled">{{ item.quantity }}</td>
-            <td>
-              <div class="d-flex flex-column justify-center">
-                {{ item.price }} €
-                <span class="font-weight-bold text-caption grey--text">
-                  {{ item.tax }}% taxes
-                </span>
+            <td
+              class="px-4 py-3 text-left whitespace-pre-line"
+              v-text="item.description"
+            ></td>
+            <td
+              v-if="team.rendering.quantityEnabled"
+              class="px-4 py-3 text-right"
+            >
+              {{ item.quantity }}
+            </td>
+            <td class="px-4 py-3 text-right">{{ item.price }} €</td>
+            <td class="px-4 py-3 text-right font-semibold">
+              {{ invoice.getPriceAtIndex(idx) }} €
+              <div class="text-sm font-normal text-gray-400">
+                dont {{ item.tax }} % de taxes
               </div>
             </td>
-            <td>{{ invoice.getPriceAtIndex(idx) }} €</td>
           </tr>
         </draggable>
-      </template>
-    </v-data-table>
+      </table>
 
-    <v-dialog v-model="dialog" width="500" @click:outside="closeField">
-      <v-card>
-        <v-card-title>Ajouter un objet</v-card-title>
-
-        <v-card-text>
-          <v-textarea
-            v-model="field.description"
-            label="Description"
-            rows="3"
-          ></v-textarea>
-
-          <v-row>
-            <v-col v-if="team.rendering.quantityEnabled">
-              <v-text-field
+      <Modal :activator.sync="dialog" extended>
+        <template #icon>
+          <div
+            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10"
+          >
+            <i class="bx bx-package text-indigo-600 text-xl"></i>
+          </div>
+        </template>
+        <template #title>
+          {{ update > -1 ? 'Modifier un objet' : 'Ajouter un objet' }}
+        </template>
+        <template #content>
+          <div class="mt-2">
+            <label class="text-sm text-gray-500" for="description"
+              >Description</label
+            >
+            <textarea
+              id="description"
+              v-model.trim="field.description"
+              class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+            ></textarea>
+          </div>
+          <div
+            class="grid mt-2 gap-2"
+            :class="{
+              'grid-cols-3': team.rendering.quantityEnabled,
+              'grid-cols-2': !team.rendering.quantityEnabled,
+            }"
+          >
+            <div v-if="team.rendering.quantityEnabled">
+              <label class="text-sm text-gray-500" for="quantity"
+                >Quantité</label
+              >
+              <input
+                id="quantity"
                 v-model.number="field.quantity"
-                label="Quantité"
-              ></v-text-field>
-            </v-col>
-            <v-col>
-              <v-text-field
+                class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+              />
+            </div>
+
+            <div>
+              <label class="text-sm text-gray-500" for="price">
+                Prix en Euro (€)
+              </label>
+              <input
+                id="price"
                 v-model.number="field.price"
-                label="Prix HT"
-                suffix="€"
-              ></v-text-field>
-            </v-col>
-            <v-col>
-              <v-text-field
+                class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+              />
+            </div>
+
+            <div>
+              <label class="text-sm text-gray-500" for="taxes">
+                Taxes en pourcentage (%)
+              </label>
+              <input
+                id="taxes"
                 v-model.number="field.tax"
-                label="Taxes"
-                suffix="%"
-                type="number"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-        </v-card-text>
+                class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+              />
+            </div>
+          </div>
+        </template>
+        <template #footer>
+          <div class="flex justify-between items-center w-full">
+            <div>
+              <button
+                v-if="update > -1"
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-gray-100 hover:bg-red-700 focus:outline-none focus:ring-2 sm:mt-0 sm:w-auto sm:text-sm"
+                type="button"
+                @click.prevent="deleteField"
+              >
+                Supprimer
+              </button>
+            </div>
 
-        <v-divider></v-divider>
+            <div>
+              <button
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:mt-0 sm:w-auto sm:text-sm"
+                type="button"
+                @click.prevent="closeField"
+              >
+                Fermer
+              </button>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="closeField">Annuler</v-btn>
-          <v-btn color="success" text @click="addField">
-            {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </Card>
+              <button
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-500 text-base font-medium text-gray-100 hover:bg-indigo-600 focus:outline-none focus:ring-2 sm:mt-0 sm:ml-1 sm:w-auto sm:text-sm"
+                type="button"
+                @click.prevent="addField"
+              >
+                {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
+              </button>
+            </div>
+          </div>
+        </template>
+      </Modal>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -174,11 +229,12 @@ export default Vue.extend({
       this.dialog = false
     },
 
-    replaceWithHTMLBreak(str: string) {
-      return str.replace(/\n/g, '<br />')
+    deleteField(): void {
+      this.invoice.data.fields.splice(this.update, 1)
+      this.closeField()
     },
 
-    closeField() {
+    closeField(): void {
       this.field = defaultField()
       this.update = -1
       this.dialog = false

@@ -1,43 +1,83 @@
 <template>
-  <Header>
-    <template #title>Créer une fiche client</template>
+  <form @submit.prevent="createCustomer">
+    <Header>
+      Créer une fiche client
 
-    <template #actions>
-      <v-btn :elevation="0" @click="createCustomer">
-        <v-icon left>mdi-check</v-icon>
-        Créer
-      </v-btn>
-    </template>
+      <template #actions>
+        <button
+          type="submit"
+          class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
+        >
+          Enregister
+        </button>
+      </template>
+    </Header>
 
-    <Card no-toolbar no-divider margin>
-      <v-form v-model="valid">
-        <v-text-field
+    <FormBox>
+      <template #description>
+        <FormDescription>
+          <template #title>Créer un nouveau client</template>
+          <template #description
+            >Créer un nouveau client pour lui assigner des adresses, factures et
+            contrats.</template
+          >
+        </FormDescription>
+      </template>
+
+      <div class="mt-2">
+        <label for="name">Nom complet</label>
+        <input
+          id="name"
           v-model="customer.fullName"
-          label="Nom complet"
-          placeholder="John Doe"
-        ></v-text-field>
+          required
+          minlength="1"
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
 
-        <v-text-field v-model="customer.society" label="Société"></v-text-field>
+      <div class="mt-2">
+        <label for="society">Entreprise</label>
+        <input
+          id="society"
+          v-model="customer.society"
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
 
-        <v-text-field
+      <div class="mt-2">
+        <label for="email">Email</label>
+        <input
+          id="email"
           v-model="customer.email"
-          :rules="rules.email"
-          label="Email"
-        ></v-text-field>
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
 
-        <v-text-field v-model="customer.phone" label="Téléphone"></v-text-field>
+      <div class="mt-2">
+        <label for="phone">Téléphone</label>
+        <input
+          id="phone"
+          v-model="customer.phone"
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
 
-        <v-textarea v-model="customer.notes" label="Notes"></v-textarea>
-      </v-form>
-    </Card>
-  </Header>
+      <div class="mt-2">
+        <label for="notes">Notes</label>
+        <textarea
+          id="notes"
+          v-model="customer.notes"
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        ></textarea>
+      </div>
+    </FormBox>
+  </form>
 </template>
 
 <script lang="ts">
 import { mapState } from 'vuex'
 import Vue from 'vue'
 import { Customer } from '~/types/customer'
-import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
   name: 'CreateCustomer',
@@ -57,12 +97,6 @@ export default Vue.extend({
   },
   methods: {
     async createCustomer(): Promise<void> {
-      // Check validity
-      if (!this.valid) {
-        this.$notify('Le formulaire est invalide', NotificationType.WARNING)
-        return
-      }
-
       // Create user
       const doc = await this.$fire.firestore
         .collection('teams')

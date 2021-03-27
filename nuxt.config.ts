@@ -23,7 +23,7 @@ const config: NuxtConfig = {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [],
+  css: ['boxicons/css/boxicons.min.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: ['~/plugins/notification.ts', '~/plugins/dialog.ts'],
@@ -32,7 +32,11 @@ const config: NuxtConfig = {
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-  buildModules: ['@nuxt/typescript-build', '@nuxtjs/vuetify'],
+  buildModules: [
+    '@nuxt/typescript-build',
+    '@nuxtjs/tailwindcss',
+    //'@nuxtjs/vuetify',
+  ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
@@ -80,10 +84,14 @@ const config: NuxtConfig = {
   build: {},
 
   // Vuetify Configuration
-  vuetify: {
+  /*vuetify: {
     theme: {
       dark: true,
     },
+  },*/
+
+  tailwindcss: {
+    jit: true,
   },
 }
 

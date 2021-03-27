@@ -1,54 +1,76 @@
 <template>
-  <Header>
-    <template #title>Paramètres de la team</template>
+  <form @submit.prevent="updateTeam">
+    <Header>
+      Paramètres de la team
 
-    <template #actions>
-      <v-badge overlap color="warning" :value="hasChanges">
-        <v-btn v-if="isAdmin" :elevation="0" @click="updateTeam">
-          <v-icon left>mdi-check</v-icon>
-          Sauvegarder
-        </v-btn>
-      </v-badge>
-    </template>
+      <template #actions>
+        <button
+          type="submit"
+          class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
+        >
+          Enregistrer
+        </button>
+      </template>
+    </Header>
 
-    <v-form v-model="valid">
-      <Card>
-        <template #title> Paramètres de la team </template>
+    <FormBox>
+      <template #description>
+        <FormDescription>
+          <template #title>Votre team</template>
+          <template #description>
+            Mettez à jour les informations essentielles de votre espace de
+            travail.
+          </template>
+          <template #actions>
+            <button
+              v-if="isOwner"
+              type="button"
+              class="text-sm mb-2 font-semibold text-red-400 hover:text-red-500 flex items-center focus:outline-none"
+              @click.prevent="deleteTeam()"
+            >
+              <i class="bx bx-minus mr-2"></i>
+              Supprimer la team
+            </button>
 
-        <template #actions>
-          <v-btn v-if="!isOwner" text color="error" @click="leaveTeam">
-            <v-icon left>mdi-close</v-icon>
-            Quitter la team
-          </v-btn>
+            <button
+              v-if="!isOwner"
+              type="button"
+              class="text-sm font-semibold text-yellow-500 hover:text-yellow-600 flex items-center focus:outline-none"
+              @click.prevent="leaveTeam()"
+            >
+              <i class="bx bx-exit mr-2"></i>
+              Quitter la team
+            </button>
+          </template>
+        </FormDescription>
+      </template>
 
-          <v-btn v-else text color="error" @click="deleteTeam">
-            <v-icon left>mdi-delete</v-icon>
-            Supprimer la team
-          </v-btn>
-        </template>
-
-        <v-text-field
+      <div class="mt-2">
+        <label for="name">Nom de la team</label>
+        <input
+          id="name"
           v-model="team.name"
+          required
+          minlength="1"
           :disabled="!isAdmin"
-          label="Nom de la team"
-          placeholder="John Doe"
-        ></v-text-field>
-      </Card>
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
+    </FormBox>
 
-      <teams-members :team-state.sync="team" class="my-4"></teams-members>
+    <teams-members :team-state.sync="team" class="my-4"></teams-members>
 
-      <teams-identity :team-state.sync="team" class="my-4"></teams-identity>
+    <teams-identity :team-state.sync="team" class="my-4"></teams-identity>
 
-      <teams-localization
-        :team-state.sync="team"
-        class="my-4"
-      ></teams-localization>
+    <teams-localization
+      :team-state.sync="team"
+      class="my-4"
+    ></teams-localization>
 
-      <teams-rendering :team-state.sync="team" class="my-4"></teams-rendering>
+    <teams-rendering :team-state.sync="team" class="my-4"></teams-rendering>
 
-      <teams-fields :team-state.sync="team" class="my-4"></teams-fields>
-    </v-form>
-  </Header>
+    <teams-fields :team-state.sync="team" class="my-4"></teams-fields>
+  </form>
 </template>
 
 <script lang="ts">
@@ -63,41 +85,28 @@ export default Vue.extend({
   name: 'Settings',
   layout: 'dashboard',
   middleware({ store, redirect }) {
-    if (!store.state.team.team) {
+    if (!store.state.auth.user.team) {
       redirect('/dashboard')
     }
   },
   data: () => ({
-    hasChanges: false,
-    valid: false,
     team: {} as Team,
   }),
+  fetch() {
+    this.team = _.cloneDeep(this.teamState)
+  },
   head: {
     title: 'Paramètres de la team',
   },
   computed: {
     ...mapState('auth', ['auth', 'user']),
-    ...mapGetters('team', ['isAdmin', 'isOwner']),
     ...mapState('team', {
       teamState: 'team',
     }),
-  },
-  mounted() {
-    this.team = _.cloneDeep(this.teamState)
-
-    // Check for fields
-    if (!this.team.fields) {
-      this.team.fields = []
-    }
-
-    // Start watcher
-    this.$watch(
-      'team',
-      () => {
-        this.hasChanges = !_.isEqual(this.team, this.teamState)
-      },
-      { deep: true }
-    )
+    ...mapGetters('team', ['isAdmin', 'isOwner']),
+    hasChanges(): boolean {
+      return !_.isEqual(this.team, this.teamState)
+    },
   },
   methods: {
     ...mapActions('team', ['switchTeam', 'getTeams']),
@@ -180,11 +189,6 @@ export default Vue.extend({
     },
 
     updateTeam(): void {
-      // Check validity
-      if (!this.valid) {
-        return
-      }
-
       // Update
       this.$fire.firestore
         .collection('teams')

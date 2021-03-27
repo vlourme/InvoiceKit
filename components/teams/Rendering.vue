@@ -1,48 +1,105 @@
 <template>
-  <Card>
-    <template #title>Fichiers PDF</template>
-    <template #actions>
-      <v-btn v-if="isAdmin" text @click="color = true">
-        Changer la couleur d'accent
-      </v-btn>
+  <FormBox>
+    <template #description>
+      <FormDescription>
+        <template #title>Exportation des documents</template>
+        <template #description>
+          Paramètres pour la création et l'exportation des documents PDF et
+          l'impression.
+        </template>
+      </FormDescription>
     </template>
 
-    <v-select
-      v-model="team.rendering.signature"
-      :items="signature"
-      :disabled="!isAdmin"
-      prepend-icon="mdi-account-check"
-      label="Signature requise en fin de document"
-    ></v-select>
-
-    <v-select
-      v-model="team.rendering.quantityEnabled"
-      :items="quantity"
-      :disabled="!isAdmin"
-      prepend-icon="mdi-tag"
-      label="Activer le champ 'quantité'"
-      hint="Le champ sera caché pendant l'édition de facture et sur les rendus PDF"
-    ></v-select>
-
-    <v-dialog v-model="color" :width="300">
-      <v-card>
-        <v-color-picker
-          v-model="team.rendering.accent"
-          :dot-size="25"
-          :swatches-max-height="200"
-          @input="enableAccent"
-        ></v-color-picker>
-
-        <v-card-actions>
-          <v-btn color="error" text @click="reset">Reset</v-btn>
-
-          <v-spacer></v-spacer>
-
-          <v-btn color="primary" text @click="color = false">Fermer</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </Card>
+    <div class="mt-2">
+      <label for="color">Couleur d'accent</label>
+      <div class="flex items-center">
+        <div>
+          <input
+            id="color"
+            ref="colorPicker"
+            v-model="team.rendering.accent"
+            type="color"
+            hidden
+            list
+            :disabled="!isAdmin"
+          />
+          <button
+            type="button"
+            class="mt-1 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 sm:w-auto sm:text-sm"
+            @click="$refs.colorPicker.click()"
+          >
+            Changer
+          </button>
+        </div>
+        <div class="relative w-full ml-2">
+          <select
+            id="role"
+            v-model="team.rendering.accentEnabled"
+            :disabled="!isAdmin"
+            required
+            class="w-full inline-block appearance-none mt-1 px-3 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+          >
+            <template v-for="item in colors">
+              <option :key="item.value" :value="item.value">
+                {{ item.text }}
+              </option>
+            </template>
+          </select>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-0 flex items-center mt-0.5 pr-3"
+          >
+            <i class="bx bx-down-arrow-alt text-xl"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-2">
+      <label for="zip">Demander une signature</label>
+      <div class="relative w-full">
+        <select
+          id="role"
+          v-model="team.rendering.signature"
+          :disabled="!isAdmin"
+          required
+          class="w-full inline-block appearance-none mt-1 px-3 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        >
+          <template v-for="item in signature">
+            <option :key="item.value" :value="item.value">
+              {{ item.text }}
+            </option>
+          </template>
+        </select>
+        <div
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center mt-0.5 pr-3"
+        >
+          <i class="bx bx-down-arrow-alt text-xl"></i>
+        </div>
+      </div>
+    </div>
+    <div class="mt-2">
+      <label for="zip">Afficher la quantité</label>
+      <div class="relative w-full">
+        <select
+          id="role"
+          v-model="team.rendering.quantityEnabled"
+          :disabled="!isAdmin"
+          required
+          class="w-full inline-block appearance-none mt-1 px-3 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        >
+          <template v-for="item in quantity">
+            <option :key="item.value" :value="item.value">
+              {{ item.text }}
+            </option>
+          </template>
+        </select>
+        <div
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center mt-0.5 pr-3"
+        >
+          <i class="bx bx-down-arrow-alt text-xl"></i>
+        </div>
+      </div>
+    </div>
+  </FormBox>
 </template>
 
 <script lang="ts">
@@ -69,6 +126,10 @@ export default Vue.extend({
     quantity: [
       { text: 'Afficher', value: true },
       { text: 'Cacher', value: false },
+    ],
+    colors: [
+      { text: 'Utiliser la couleur personnalisée', value: true },
+      { text: 'Utiliser la couleur de base', value: false },
     ],
   }),
   computed: {

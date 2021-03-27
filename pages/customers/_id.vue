@@ -1,61 +1,96 @@
 <template>
-  <Header>
-    <template #title>Modifier une fiche client</template>
+  <form @submit.prevent="updateCustomer">
+    <Header>
+      Modifier une fiche client
 
-    <template v-if="role > 0" #actions>
-      <v-btn class="ml-2" :elevation="0" color="red" @click="deleteCustomer">
-        <v-icon left>mdi-delete</v-icon>
-        Supprimer
-      </v-btn>
-
-      <v-badge overlap color="warning" :value="hasChanges">
-        <v-btn class="ml-2" :elevation="0" @click="updateCustomer">
-          <v-icon left>mdi-check</v-icon>
+      <template v-if="role > 0" #actions>
+        <button
+          type="submit"
+          class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
+        >
           Mettre à jour
-        </v-btn>
-      </v-badge>
-    </template>
+        </button>
+      </template>
+    </Header>
 
-    <Card no-toolbar no-divider margin>
-      <v-form v-model="valid">
-        <v-text-field
+    <FormBox>
+      <template #description>
+        <FormDescription>
+          <template #title>Mettre à jour un nouveau client</template>
+          <template #description>
+            Mettre à jour un client pour lui assigner des adresses, factures et
+            contrats.
+          </template>
+          <template v-if="role > 0" #actions>
+            <button
+              type="button"
+              class="text-sm font-semibold text-red-400 hover:text-red-500 inline-flex items-center focus:outline-none"
+              @click.prevent="deleteCustomer()"
+            >
+              <i class="bx bx-minus mr-2"></i>
+              Supprimer le client
+            </button>
+          </template>
+        </FormDescription>
+      </template>
+
+      <div class="mt-2">
+        <label for="name">Nom complet</label>
+        <input
+          id="name"
           v-model="customer.fullName"
-          label="Nom complet"
+          required
+          minlength="1"
           :disabled="role === 0"
-          placeholder="John Doe"
-        ></v-text-field>
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
 
-        <v-text-field
+      <div class="mt-2">
+        <label for="society">Entreprise</label>
+        <input
+          id="society"
           v-model="customer.society"
           :disabled="role === 0"
-          label="Société"
-        ></v-text-field>
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
 
-        <v-text-field
+      <div class="mt-2">
+        <label for="email">Email</label>
+        <input
+          id="email"
           v-model="customer.email"
-          :rules="rules.email"
           :disabled="role === 0"
-          label="Email"
-        ></v-text-field>
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
 
-        <v-text-field
+      <div class="mt-2">
+        <label for="phone">Téléphone</label>
+        <input
+          id="phone"
           v-model="customer.phone"
           :disabled="role === 0"
-          label="Téléphone"
-        ></v-text-field>
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
 
-        <v-textarea
+      <div class="mt-2">
+        <label for="notes">Notes</label>
+        <textarea
+          id="notes"
           v-model="customer.notes"
           :disabled="role === 0"
-          label="Notes"
-        ></v-textarea>
-      </v-form>
-    </Card>
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        ></textarea>
+      </div>
+    </FormBox>
 
     <customers-addresses class="my-4"></customers-addresses>
 
     <customers-invoices class="my-4"></customers-invoices>
-  </Header>
+  </form>
 </template>
 
 <script lang="ts">
@@ -75,7 +110,6 @@ export default Vue.extend({
     await store.dispatch('payload/fetchAddresses', id)
   },
   data: () => ({
-    valid: false,
     hasChanges: false,
     rules: {
       email: [(v: string) => !v || /.+@.+/.test(v) || "L'email est invalide."],
@@ -108,12 +142,6 @@ export default Vue.extend({
   },
   methods: {
     async updateCustomer(): Promise<void> {
-      // Check validity
-      if (!this.valid) {
-        this.$notify('Le formulaire est invalide', NotificationType.WARNING)
-        return
-      }
-
       // Update customer
       await this.$fire.firestore
         .collection('teams')

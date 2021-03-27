@@ -1,41 +1,57 @@
 <template>
-  <Card>
-    <template #title>Information complémentaires de l'entreprise</template>
+  <FormBox>
+    <template #description>
+      <FormDescription>
+        <template #title>Localisation de l'entreprise</template>
+        <template #description>
+          La localisation est utilisée pour remplir les documents PDF.
+        </template>
+      </FormDescription>
+    </template>
 
-    <v-text-field
-      v-model="team.localization.street"
-      :disabled="!isAdmin"
-      label="Adresse"
-      placeholder="12 rue des lilas"
-    ></v-text-field>
-
-    <v-row>
-      <v-col>
-        <v-text-field
-          v-model="team.localization.city"
-          :disabled="!isAdmin"
-          label="Ville"
-          placeholder="Lille"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
+    <div class="mt-2">
+      <label for="address">Adresse</label>
+      <input
+        id="address"
+        v-model="team.localization.street"
+        type="text"
+        :disabled="!isAdmin"
+        class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+      />
+    </div>
+    <div class="mt-2 grid grid-cols-3 gap-2">
+      <div>
+        <label for="zip">Code postal</label>
+        <input
+          id="zip"
           v-model="team.localization.zip"
+          type="text"
           :disabled="!isAdmin"
-          label="Code postal"
-          placeholder="59000"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
+      <div>
+        <label for="city">Ville</label>
+        <input
+          id="city"
+          v-model="team.localization.city"
+          type="text"
+          :disabled="!isAdmin"
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
+      <div>
+        <label for="zip">Pays</label>
+        <input
+          id="country"
           v-model="team.localization.country"
+          type="text"
           :disabled="!isAdmin"
-          label="Pays"
-          placeholder="France"
-        ></v-text-field>
-      </v-col>
-    </v-row>
-  </Card>
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
+    </div>
+  </FormBox>
 </template>
 
 <script lang="ts">

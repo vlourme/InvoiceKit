@@ -1,32 +1,53 @@
 <template>
-  <Header>
-    <template #title>Créer une team</template>
+  <div>
+    <Header>
+      Créer une team
 
-    <template #actions>
-      <v-btn :elevation="0" @click="createTeam">
-        <v-icon left>mdi-check</v-icon>
-        Créer
-      </v-btn>
-    </template>
+      <template #actions>
+        <button
+          type="submit"
+          class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
+        >
+          Créer
+        </button>
+      </template>
+    </Header>
 
-    <Card no-divider no-toolbar>
-      <v-form v-model="valid">
-        <v-text-field
-          label="Propriétaire"
-          readonly
-          disabled
+    <FormBox>
+      <template #description>
+        <FormDescription>
+          <template #title>Créer une team</template>
+          <template #description
+            >Créer une team afin de collaborer avec plusieurs personnes sur les
+            mêmes documents.</template
+          >
+        </FormDescription>
+      </template>
+
+      <div class="mt-2">
+        <label for="name">Propriétaire</label>
+        <input
+          id="name"
           :value="user.name"
-        ></v-text-field>
+          disabled
+          readonly
+          class="w-full mt-1 px-4 py-2 bg-gray-50 opacity-60 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
 
-        <v-text-field
+      <div class="mt-2">
+        <label for="name">Nom de la team</label>
+        <input
+          id="name"
           v-model="name"
-          label="Nom de la team"
-          :rules="rules.name"
-          placeholder="John Doe"
-        ></v-text-field>
-      </v-form>
-    </Card>
-  </Header>
+          required
+          minlength="1"
+          maxlength="20"
+          class="w-full mt-1 px-4 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
+        />
+      </div>
+    </FormBox>
+  </div>
 </template>
 
 <script lang="ts">
@@ -38,14 +59,6 @@ export default Vue.extend({
   name: 'Settings',
   layout: 'dashboard',
   data: () => ({
-    valid: false,
-    rules: {
-      name: [
-        (v: string) => !!v || 'Le nom est requis.',
-        (v: string) =>
-          v.length < 20 || 'Le nom doit faire maximum 20 caractères',
-      ],
-    },
     name: '',
   }),
   head: {
@@ -58,11 +71,6 @@ export default Vue.extend({
     ...mapActions('team', ['getTeams', 'switchTeam']),
 
     async createTeam(): Promise<void> {
-      // Check validity
-      if (!this.valid) {
-        return
-      }
-
       // Create team
       const team: Team = {
         ...defaultTeam(),

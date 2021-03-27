@@ -1,50 +1,57 @@
 <template>
-  <Header>
-    <template #title> Créer un document </template>
+  <form @submit.prevent="createInvoice">
+    <div class="flex flex-col h-screen overflow-y-hidden">
+      <Header>
+        Créer un document
 
-    <template #actions>
-      <v-btn :elevation="0" @click="createInvoice">
-        <v-icon left>mdi-check</v-icon>
-        Sauvegarder
-      </v-btn>
-    </template>
+        <template #actions>
+          <button
+            type="submit"
+            class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
+          >
+            Enregistrer
+          </button>
+        </template>
+      </Header>
 
-    <v-form v-model="valid">
-      <invoice-editor :invoice-state.sync="invoice"></invoice-editor>
+      <div class="flex flex-1 h-full">
+        <div class="flex-1">
+          <invoice-editor :invoice-state.sync="invoice"></invoice-editor>
 
-      <invoice-table :invoice-state.sync="invoice"></invoice-table>
+          <invoice-table :invoice-state.sync="invoice"></invoice-table>
+        </div>
 
-      <invoice-dialog-deposit
-        :invoice-state.sync="invoice"
-        :dialog.sync="depositDialog"
-      ></invoice-dialog-deposit>
+        <invoice-sidebar
+          :customer="customer"
+          :invoice="invoice"
+          :promotion-dialog.sync="promotionDialog"
+          :deposit-dialog.sync="depositDialog"
+          :note-dialog.sync="noteDialog"
+        ></invoice-sidebar>
+      </div>
+    </div>
 
-      <invoice-dialog-promotion
-        :invoice-state.sync="invoice"
-        :dialog.sync="promotionDialog"
-      ></invoice-dialog-promotion>
+    <invoice-dialog-deposit
+      :invoice-state.sync="invoice"
+      :dialog.sync="depositDialog"
+    ></invoice-dialog-deposit>
 
-      <invoice-dialog-note
-        :invoice-state.sync="invoice"
-        :dialog.sync="noteDialog"
-      ></invoice-dialog-note>
+    <invoice-dialog-promotion
+      :invoice-state.sync="invoice"
+      :dialog.sync="promotionDialog"
+    ></invoice-dialog-promotion>
 
-      <invoice-sidebar
-        :customer="customer"
-        :invoice="invoice"
-        :promotion-dialog.sync="promotionDialog"
-        :deposit-dialog.sync="depositDialog"
-        :note-dialog.sync="noteDialog"
-      ></invoice-sidebar>
-    </v-form>
-  </Header>
+    <invoice-dialog-note
+      :invoice-state.sync="invoice"
+      :dialog.sync="noteDialog"
+    ></invoice-dialog-note>
+  </form>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import { mapState } from 'vuex'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
-import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
   name: 'CreateInvoice',
@@ -75,11 +82,6 @@ export default Vue.extend({
   },
   methods: {
     async createInvoice() {
-      if (!this.customer.$key || !this.valid) {
-        this.$notify('Impossible de sauvegarder', NotificationType.WARNING)
-        return
-      }
-
       // Create invoice
       const doc = await this.$fire.firestore
         .collection('teams')

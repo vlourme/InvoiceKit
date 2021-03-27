@@ -60,7 +60,7 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
     ) as { [key: string]: Team }
 
     if (reload) {
-      dispatch('switchTeam', rootState.auth?.user?.team)
+      await dispatch('switchTeam', rootState.auth?.user?.team)
     }
 
     commit('SET_TEAMS', teams)
@@ -87,18 +87,26 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
 
     // Load team
     if (id) {
-      this.$fire.firestore
-        .collection('teams')
-        .doc(id)
-        .onSnapshot(
-          (snapshot) => {
-            commit('SET_TEAM', mapDocument<Team>(snapshot))
-          },
-          async () => {
-            // Error with the team, change it
-            await dispatch('switchTeam', null)
-          }
-        )
+      const ref = await this.$fire.firestore.collection('teams').doc(id).get()
+
+      if (ref.exists) {
+        commit('SET_TEAM', mapDocument<Team>(ref))
+      } else {
+        await dispatch('switchTeam', null)
+      }
+
+      // this.$fire.firestore
+      //   .collection('teams')
+      //   .doc(id)
+      //   .onSnapshot(
+      //     (snapshot) => {
+      //       commit('SET_TEAM', mapDocument<Team>(snapshot))
+      //     },
+      //     async () => {
+      //       // Error with the team, change it
+      //       await dispatch('switchTeam', null)
+      //     }
+      //   )
     }
   },
 }

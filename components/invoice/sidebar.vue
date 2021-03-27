@@ -1,168 +1,152 @@
 <template>
-  <v-navigation-drawer color="grey darken-4" app permanent clipped right>
-    <v-list nav dense subheader>
-      <v-subheader>Client</v-subheader>
-      <v-list-item>
-        <v-list-item-icon>
-          <v-icon>mdi-account</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ customer.fullName }}</v-list-item-title>
-          <v-list-item-subtitle>Nom complet</v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item v-if="customer.society">
-        <v-list-item-icon>
-          <v-icon>mdi-briefcase</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ customer.society }}</v-list-item-title>
-          <v-list-item-subtitle>Entreprise</v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item v-if="customer.phone">
-        <v-list-item-icon>
-          <v-icon>mdi-phone</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ customer.phone }}</v-list-item-title>
-          <v-list-item-subtitle>Téléphone</v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item v-if="customer.email">
-        <v-list-item-icon>
-          <v-icon>mdi-email</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ customer.email }}</v-list-item-title>
-          <v-list-item-subtitle>Email</v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item v-if="invoice.data.address">
-        <v-list-item-icon>
-          <v-icon>mdi-map</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title class="wrap">
-            {{ address.street }}, {{ address.city }} {{ address.zip }},
-            {{ address.country }}
-          </v-list-item-title>
-          <v-list-item-subtitle>Adresse</v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
+  <div
+    class="max-w-xs w-full min-h-full bg-gray-50 pb-20 overflow-y-auto border-l"
+  >
+    <!-- Customer -->
+    <p class="px-4 mt-3 mb-1 font-semibold text-gray-500 text-sm">Client</p>
+    <ul class="divide-y border-b">
+      <!-- Full name -->
+      <li class="p-4 inline-flex items-center w-full">
+        <i class="bx text-xl bxs-user text-indigo-500"></i>
+        <p class="ml-3">
+          {{ customer.fullName }}
+        </p>
+      </li>
+      <!-- Society -->
+      <li v-if="customer.society" class="p-4 inline-flex items-center w-full">
+        <i class="bx text-xl bxs-briefcase text-indigo-500"></i>
+        <p class="ml-3">
+          {{ customer.society }}
+        </p>
+      </li>
+      <!-- Email -->
+      <li v-if="customer.email" class="p-4 inline-flex items-center w-full">
+        <i class="bx text-xl bxs-envelope text-indigo-500"></i>
+        <p class="ml-3">
+          {{ customer.email }}
+        </p>
+      </li>
+      <!-- Phone -->
+      <li v-if="customer.phone" class="p-4 inline-flex items-center w-full">
+        <i class="bx text-xl bxs-phone text-indigo-500"></i>
+        <p class="ml-3">
+          {{ customer.phone }}
+        </p>
+      </li>
+      <!-- Address -->
+      <li class="p-4 inline-flex items-center w-full">
+        <i class="bx text-xl bxs-map text-indigo-500"></i>
+        <p class="ml-3">
+          {{ address.street }}, {{ address.zip }} {{ address.city }},
+          {{ address.country }}
+        </p>
+      </li>
+    </ul>
 
-    <v-divider></v-divider>
+    <!-- Pricing -->
+    <p class="px-4 mt-3 mb-1 font-semibold text-gray-500 text-sm">
+      Facturation
+    </p>
+    <ul class="divide-y border-b">
+      <!-- Taxes -->
+      <li class="p-4 inline-flex items-center w-full">
+        <i class="bx text-xl bxs-paper-plane text-yellow-500"></i>
+        <p class="ml-3 text-gray-500">
+          <span class="font-medium text-gray-600">{{ tax }} €</span> de taxes
+        </p>
+      </li>
+      <!-- Promotion -->
+      <li class="p-4 inline-flex items-center justify-between w-full">
+        <div class="inline-flex items-center">
+          <i class="bx text-xl bxs-offer text-yellow-500"></i>
+          <p class="ml-3 text-gray-500">
+            <span class="font-medium text-gray-600"
+              >{{ invoice.data.promotion || 0 }} %</span
+            >
+            de réduction
+          </p>
+        </div>
 
-    <v-list subheader dense nav>
-      <v-subheader>Facturation</v-subheader>
-      <v-list-item>
-        <v-list-item-icon>
-          <v-icon>mdi-arrow-top-right-thick</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ tax }} €</v-list-item-title>
-          <v-list-item-subtitle>Taxes</v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-      <v-list-item>
-        <v-list-item-icon>
-          <v-icon>mdi-plus-minus-variant</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>
-            — {{ invoice.data.promotion || 0 }} %
-          </v-list-item-title>
-          <v-list-item-subtitle>Réduction</v-list-item-subtitle>
-        </v-list-item-content>
-        <v-list-item-action>
-          <v-btn
-            v-if="role > 0"
-            icon
-            @click="$emit('update:promotion-dialog', true)"
-          >
-            <v-icon color="grey lighten-1">mdi-pencil-circle</v-icon>
-          </v-btn>
-        </v-list-item-action>
-      </v-list-item>
-      <v-list-item>
-        <v-list-item-icon>
-          <v-icon>mdi-bank</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>
-            — {{ invoice.data.deposit || 0 }} €
-          </v-list-item-title>
-          <v-list-item-subtitle>Acompte</v-list-item-subtitle>
-        </v-list-item-content>
-        <v-list-item-action>
-          <v-btn
-            v-if="role > 0"
-            icon
-            @click="$emit('update:deposit-dialog', true)"
-          >
-            <v-icon color="grey lighten-1">mdi-pencil-circle</v-icon>
-          </v-btn>
-        </v-list-item-action>
-      </v-list-item>
-      <v-list-item>
-        <v-list-item-icon>
-          <v-icon>mdi-arrow-down-thick</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ total }} €</v-list-item-title>
-          <v-list-item-subtitle>Total TTC</v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
-    <v-divider></v-divider>
-    <v-list nav dense subheader>
-      <v-subheader>Actions</v-subheader>
+        <button
+          type="button"
+          class="flex items-center justify-center focus:outline-none text-gray-700 hover:text-gray-400"
+          @click.prevent="$emit('update:promotion-dialog', true)"
+        >
+          <i class="bx bx-dots-horizontal-rounded text-2xl"></i>
+        </button>
+      </li>
+      <!-- Deposit -->
+      <li class="p-4 inline-flex items-center justify-between w-full">
+        <div class="inline-flex items-center">
+          <i class="bx text-xl bxs-purchase-tag text-yellow-500"></i>
+          <p class="ml-3 text-gray-500">
+            <span class="font-medium text-gray-600"
+              >{{ invoice.data.deposit || 0 }} €</span
+            >
+            d'acompte
+          </p>
+        </div>
 
-      <v-list-item :disabled="!invoice.data.$key" link @click="save">
-        <v-list-item-icon>
-          <v-icon>mdi-content-save</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Sauvegarder en PDF</v-list-item-title>
-          <v-list-item-subtitle v-if="!invoice.data.$key">
-            Document non sauvegardé
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
+        <button
+          type="button"
+          class="flex items-center justify-center focus:outline-none text-gray-700 hover:text-gray-400"
+          @click.prevent="$emit('update:deposit-dialog', true)"
+        >
+          <i class="bx bx-dots-horizontal-rounded text-2xl"></i>
+        </button>
+      </li>
+      <!-- Total -->
+      <li class="p-4 inline-flex items-center justify-between w-full">
+        <div class="inline-flex items-center">
+          <i class="bx text-xl bxs-receipt text-yellow-500"></i>
+          <p class="ml-3 text-gray-500">
+            <span class="font-medium text-gray-600">{{ total || 0 }} €</span>
+            au total TTC
+          </p>
+        </div>
+      </li>
+    </ul>
 
-      <v-list-item :disabled="!invoice.data.$key" link @click="printInvoice">
-        <v-list-item-icon>
-          <v-icon>mdi-printer</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Imprimer</v-list-item-title>
-          <v-list-item-subtitle v-if="!invoice.data.$key">
-            Document non sauvegardé
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
-
-    <v-divider></v-divider>
-
-    <v-list nav dense subheader>
-      <v-subheader>Autres actions</v-subheader>
-
-      <v-list-item
-        :disabled="role === 0"
-        link
-        @click="$emit('update:note-dialog', true)"
+    <!-- Printing -->
+    <p class="px-4 mt-3 mb-1 font-semibold text-gray-500 text-sm">
+      Exportation
+    </p>
+    <div class="divide-y border-b">
+      <button
+        :disabled="!invoice.data.$key"
+        type="button"
+        class="p-4 inline-flex items-center hover:bg-gray-100 transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none w-full"
+        @click.prevent="save"
       >
-        <v-list-item-icon>
-          <v-icon>mdi-text-short</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title> Ajouter une note </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
-  </v-navigation-drawer>
+        <i class="bx text-xl bxs-download text-blue-500"></i>
+        <p class="ml-3 text-gray-500">Sauvegarder en PDF</p>
+      </button>
+      <button
+        :disabled="!invoice.data.$key"
+        type="button"
+        class="p-4 inline-flex items-center hover:bg-gray-100 transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none w-full"
+        @click.prevent="printInvoice"
+      >
+        <i class="bx text-xl bxs-printer text-blue-500"></i>
+        <p class="ml-3 text-gray-500">Imprimer le document</p>
+      </button>
+    </div>
+
+    <!-- Misc -->
+    <p class="px-4 mt-3 mb-1 font-semibold text-gray-500 text-sm">
+      Autres actions
+    </p>
+    <div class="divide-y border-b">
+      <button
+        type="button"
+        class="p-4 inline-flex items-center hover:bg-gray-100 transition-colors focus:outline-none w-full"
+        @click.prevent="$emit('update:note-dialog', true)"
+      >
+        <i class="bx text-xl bxs-note text-green-500"></i>
+        <p class="ml-3 text-gray-500">Ajouter une note</p>
+      </button>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">

@@ -1,52 +1,52 @@
 <template>
-  <Header>
-    <template #title>
-      {{ invoice.data.type == 'QUOTE' ? 'Devis' : 'Facture' }}
-      #{{ invoice.data.id }}
-    </template>
+  <form @submit.prevent="updateInvoice">
+    <div class="flex flex-col h-screen overflow-y-hidden">
+      <Header>
+        {{ invoice.data.type === 'QUOTE' ? 'Devis' : 'Facture' }}
+        #{{ invoice.data.id }}
 
-    <template v-if="role > 0" #actions>
-      <v-btn color="error" :elevation="0" @click="deleteInvoice">
-        <v-icon left>mdi-delete</v-icon>
-        Supprimer
-      </v-btn>
+        <template #actions>
+          <button
+            type="submit"
+            class="bg-gray-200 bg-opacity-50 h-full px-4 inline-flex font-medium items-center hover:bg-opacity-100 focus:outline-none"
+          >
+            Enregistrer
+          </button>
+        </template>
+      </Header>
 
-      <v-badge overlap color="warning" :value="hasChanges">
-        <v-btn class="ml-2" :elevation="0" @click="updateInvoice">
-          <v-icon left>mdi-check</v-icon>
-          Sauvegarder
-        </v-btn>
-      </v-badge>
-    </template>
+      <div class="flex flex-1 h-full">
+        <div class="flex-1">
+          <invoice-editor :invoice-state.sync="invoice"></invoice-editor>
 
-    <v-form v-model="valid">
-      <invoice-editor :invoice-state.sync="invoice"></invoice-editor>
+          <invoice-table :invoice-state.sync="invoice"></invoice-table>
+        </div>
 
-      <invoice-table :invoice-state.sync="invoice"></invoice-table>
+        <invoice-sidebar
+          :customer="customer"
+          :invoice="invoice"
+          :promotion-dialog.sync="promotionDialog"
+          :deposit-dialog.sync="depositDialog"
+          :note-dialog.sync="noteDialog"
+        ></invoice-sidebar>
+      </div>
+    </div>
 
-      <invoice-dialog-deposit
-        :invoice-state.sync="invoice"
-        :dialog.sync="depositDialog"
-      ></invoice-dialog-deposit>
+    <invoice-dialog-deposit
+      :invoice-state.sync="invoice"
+      :dialog.sync="depositDialog"
+    ></invoice-dialog-deposit>
 
-      <invoice-dialog-promotion
-        :invoice-state.sync="invoice"
-        :dialog.sync="promotionDialog"
-      ></invoice-dialog-promotion>
+    <invoice-dialog-promotion
+      :invoice-state.sync="invoice"
+      :dialog.sync="promotionDialog"
+    ></invoice-dialog-promotion>
 
-      <invoice-dialog-note
-        :invoice-state.sync="invoice"
-        :dialog.sync="noteDialog"
-      ></invoice-dialog-note>
-
-      <invoice-sidebar
-        :invoice="invoice"
-        :promotion-dialog.sync="promotionDialog"
-        :deposit-dialog.sync="depositDialog"
-        :note-dialog.sync="noteDialog"
-      ></invoice-sidebar>
-    </v-form>
-  </Header>
+    <invoice-dialog-note
+      :invoice-state.sync="invoice"
+      :dialog.sync="noteDialog"
+    ></invoice-dialog-note>
+  </form>
 </template>
 
 <script lang="ts">
@@ -54,6 +54,7 @@ import { Invoice, InvoiceType } from '@/types/invoice'
 import _ from 'lodash'
 import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
+import firebase from 'firebase'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
 import { DialogType } from '~/types/dialog'
 import { NotificationType } from '~/types/notification'
@@ -61,7 +62,7 @@ import { NotificationType } from '~/types/notification'
 export default Vue.extend({
   name: 'UpdateInvoice',
   layout: 'dashboard',
-  async asyncData({ store, route }) {
+  async asyncData({ store, route }): Promise<void> {
     const { customer, invoice } = route.params
 
     await store.dispatch('payload/fetchCustomer', customer)
@@ -75,7 +76,7 @@ export default Vue.extend({
     noteDialog: false,
     valid: false,
   }),
-  head() {
+  head(): object {
     return {
       title: `${
         this.invoice.data.type === InvoiceType.Estimation ? 'Devis' : 'Facture'
@@ -90,7 +91,7 @@ export default Vue.extend({
       invoiceState: 'invoice',
     }),
   },
-  mounted() {
+  mounted(): void {
     this.invoice.data = _.cloneDeep(this.invoiceState)
 
     this.$watch(
@@ -102,12 +103,7 @@ export default Vue.extend({
     )
   },
   methods: {
-    async updateInvoice() {
-      if (!this.customer.$key || !this.valid) {
-        this.$notify('Impossible de sauvegarder', NotificationType.WARNING)
-        return
-      }
-
+    async updateInvoice(): Promise<void> {
       const { invoice } = this.$route.params
 
       // Update invoice
@@ -120,39 +116,11 @@ export default Vue.extend({
         .doc(invoice)
         .update({
           ...this.invoice.data,
-          updatedAt: new Date(),
+          updatedAt: firebase.firestore.Timestamp.fromDate(new Date()),
         } as Invoice)
 
       this.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
       this.hasChanges = false
-    },
-
-    deleteInvoice(): void {
-      this.$dialog({
-        title: 'Supprimer la facture',
-        message: 'Une fois supprimée, celle-ci sera irrecupérable.',
-        type: DialogType.Error,
-        showCancel: true,
-        actionMessage: 'Supprimer',
-        callback: async () => await this.deleteCallback(),
-      })
-    },
-
-    async deleteCallback() {
-      const { invoice } = this.$route.params
-
-      // Delete invoice
-      await this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('customers')
-        .doc(this.customer.$key)
-        .collection('invoices')
-        .doc(invoice)
-        .delete()
-
-      // Redirect
-      this.$router.push('/invoices/')
     },
   },
 })
