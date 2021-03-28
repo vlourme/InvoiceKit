@@ -87,26 +87,17 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
 
     // Load team
     if (id) {
-      const ref = await this.$fire.firestore.collection('teams').doc(id).get()
+      try {
+        const ref = await this.$fire.firestore.collection('teams').doc(id).get()
 
-      if (ref.exists) {
-        commit('SET_TEAM', mapDocument<Team>(ref))
-      } else {
+        if (ref.exists) {
+          commit('SET_TEAM', mapDocument<Team>(ref))
+        } else {
+          throw new Error('cannot get team')
+        }
+      } catch {
         await dispatch('switchTeam', null)
       }
-
-      // this.$fire.firestore
-      //   .collection('teams')
-      //   .doc(id)
-      //   .onSnapshot(
-      //     (snapshot) => {
-      //       commit('SET_TEAM', mapDocument<Team>(snapshot))
-      //     },
-      //     async () => {
-      //       // Error with the team, change it
-      //       await dispatch('switchTeam', null)
-      //     }
-      //   )
     }
   },
 }
