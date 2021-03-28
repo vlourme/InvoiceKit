@@ -113,28 +113,43 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { MemberPermission, Team } from '@/types/team'
-import { mapGetters, mapState } from 'vuex'
+import {
+  computed,
+  defineComponent,
+  PropOptions,
+  ref,
+  useContext,
+  useFetch,
+  useStore,
+} from '@nuxtjs/composition-api'
+import useTeam from './useTeam'
+import RootState from '~/store'
+import { MemberPermission, Team } from '~/types/team'
 import User from '~/types/user'
+import { SelectItem } from '~/types/UI'
 import { mapDocument } from '~/helpers/documentMapper'
 import { DialogType } from '~/types/dialog'
 
-export default Vue.extend({
-  name: 'Members',
+export default defineComponent({
   props: {
     teamState: {
       type: Object,
       required: true,
     } as PropOptions<Team>,
   },
-  data: () => ({
-    members: [] as User[],
-    dialog: false,
-    email: '',
-    update: -1,
-    role: MemberPermission.Editor,
-    roles: [
+  setup(props, { emit }) {
+    // Context
+    const ctx = useContext()
+    const store = useStore<RootState>()
+
+    // Data
+    const members = ref<User[]>([])
+    const dialog = ref(false)
+    const email = ref('')
+    const update = ref(-1)
+    const error = ref('')
+    const role = ref(MemberPermission.Editor)
+    const roles: SelectItem[] = [
       {
         text: 'Lecteur',
         value: MemberPermission.Viewer,
@@ -147,40 +162,30 @@ export default Vue.extend({
         text: 'Administrateur',
         value: MemberPermission.Admin,
       },
-    ],
-    error: '',
-  }),
-  async fetch() {
-    // Load members
-    for (const uid in this.team.members) {
-      const doc = await this.$fire.firestore.collection('users').doc(uid).get()
+    ]
 
-      this.members.push(mapDocument<User>(doc))
-    }
+    // Computed
+    const { team, isAdmin } = useTeam(props, emit)
+    const user = computed(() => store.state.auth.user)
 
-    // Sort by permissions
-    this.members.sort(
-      (a, b) => this.team.members[b.$key!] - this.team.members[a.$key!]
-    )
-  },
-  computed: {
-    ...mapGetters('team', ['isAdmin']),
-    ...mapState('auth', {
-      userState: 'user',
-    }),
-    team: {
-      get(): Team {
-        return this.teamState
-      },
+    // Fetch
+    useFetch(async () => {
+      // Load members
+      for (const uid in team.value.members) {
+        const doc = await ctx.$fire.firestore.collection('users').doc(uid).get()
 
-      set(value: Team): void {
-        this.$emit('update:team', value)
-      },
-    },
-  },
-  methods: {
-    getRole(user: User): string {
-      switch (this.team.members[user.$key!]) {
+        members.value.push(mapDocument<User>(doc))
+      }
+
+      // Sort by permissions
+      members.value.sort(
+        (a, b) => team.value.members[b.$key!] - team.value.members[a.$key!]
+      )
+    })
+
+    // Methods
+    const getRole = (user: User): string => {
+      switch (team.value.members[user.$key!]) {
         case MemberPermission.Editor:
           return 'Editeur'
         case MemberPermission.Admin:
@@ -189,61 +194,61 @@ export default Vue.extend({
         default:
           return 'Lecteur'
       }
-    },
+    }
 
-    async addMember(): Promise<void> {
+    const addMember = async (): Promise<void> => {
       // Check for update
-      if (this.update > -1) {
+      if (update.value > -1) {
         // Get member
-        const member = this.members[this.update]
+        const member = members.value[update.value]
 
-        this.team.members[member.$key!] = this.role
+        team.value.members[member.$key!] = role.value
       } else {
         // Search for user
-        const doc = await this.$fire.firestore
+        const doc = await ctx.$fire.firestore
           .collection('users')
-          .where('email', '==', this.email)
+          .where('email', '==', email.value)
           .limit(1)
           .get()
 
         // Check if empty
         if (doc.empty) {
-          this.error = "Aucun membre n'a été trouvé pour cet email."
+          error.value = "Aucun membre n'a été trouvé pour cet email."
           return
         }
 
         // Check if already in team
-        if (this.team.members[doc.docs[0].id]) {
-          this.error = 'Ce membre est déjà dans la team.'
+        if (team.value.members[doc.docs[0].id]) {
+          error.value = 'Ce membre est déjà dans la team.'
           return
         }
 
         // Add user
-        this.team.members[doc.docs[0].id] = this.role
-        this.members.push(mapDocument<User>(doc.docs[0]))
+        team.value.members[doc.docs[0].id] = role.value
+        members.value.push(mapDocument<User>(doc.docs[0]))
       }
 
       // Close dialog
-      this.closeDialog()
-    },
+      closeDialog()
+    }
 
-    editUser(user: User, idx: number): void {
-      this.update = idx
-      this.email = user.email
-      this.role = this.team.members[user.$key!]
-      this.dialog = true
-    },
+    const editUser = (user: User, idx: number): void => {
+      update.value = idx
+      email.value = user.email
+      role.value = team.value.members[user.$key!]
+      dialog.value = true
+    }
 
-    closeDialog(): void {
-      this.error = ''
-      this.email = ''
-      this.role = MemberPermission.Editor
-      this.update = -1
-      this.dialog = false
-    },
+    const closeDialog = (): void => {
+      error.value = ''
+      email.value = ''
+      role.value = MemberPermission.Editor
+      update.value = -1
+      dialog.value = false
+    }
 
-    kickUser(user: User, idx: number): void {
-      this.$dialog({
+    const kickUser = (user: User, idx: number): void => {
+      ctx.$dialog({
         type: DialogType.Error,
         title: 'Supprimer ce membre ?',
         message:
@@ -251,11 +256,29 @@ export default Vue.extend({
         showCancel: true,
         actionMessage: 'Supprimer',
         callback: () => {
-          delete this.team.members[user.$key!]
-          this.members.splice(idx, 1)
+          delete team.value.members[user.$key!]
+          members.value.splice(idx, 1)
         },
       })
-    },
+    }
+
+    return {
+      members,
+      dialog,
+      email,
+      update,
+      error,
+      role,
+      roles,
+      team,
+      isAdmin,
+      user,
+      getRole,
+      addMember,
+      editUser,
+      closeDialog,
+      kickUser,
+    }
   },
 })
 </script>

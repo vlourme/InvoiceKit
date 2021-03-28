@@ -1,10 +1,9 @@
 <template>
   <div class="relative w-full">
     <select
-      id="type"
       v-bind="$attrs"
       class="w-full inline-block disabled:opacity-60 appearance-none mt-1 px-3 py-2 bg-gray-50 focus:outline-none focus:border-indigo-500 rounded-md border-2 border-gray-200"
-      v-on="$listeners"
+      @input="$emit('input', $event.target.value)"
     >
       <template v-for="item in items">
         <option :key="item.value" :value="item.value">

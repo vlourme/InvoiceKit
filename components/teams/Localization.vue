@@ -51,29 +51,19 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { Team } from '@/types/team'
-import { mapGetters } from 'vuex'
+import { defineComponent, PropOptions } from '@nuxtjs/composition-api'
+import useTeam from './useTeam'
+import { Team } from '~/types/team'
 
-export default Vue.extend({
-  name: 'Localization',
+export default defineComponent({
   props: {
     teamState: {
       type: Object,
       required: true,
     } as PropOptions<Team>,
   },
-  computed: {
-    ...mapGetters('team', ['isAdmin']),
-    team: {
-      get(): Team {
-        return this.teamState
-      },
-
-      set(value: Team): void {
-        this.$emit('update:team', value)
-      },
-    },
+  setup(props, { emit }) {
+    return useTeam(props, emit)
   },
 })
 </script>

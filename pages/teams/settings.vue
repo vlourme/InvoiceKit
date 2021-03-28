@@ -65,14 +65,20 @@
 </template>
 
 <script lang="ts">
-import { mapActions, mapGetters, mapState } from 'vuex'
-import Vue from 'vue'
+import {
+  computed,
+  defineComponent,
+  ref,
+  useContext,
+  useRouter,
+  useStore,
+} from '@nuxtjs/composition-api'
 import _ from 'lodash'
-import { Team } from '~/types/team'
-import { NotificationType } from '~/types/notification'
+import RootState from '~/store'
 import { DialogType } from '~/types/dialog'
+import { NotificationType } from '~/types/notification'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Settings',
   layout: 'dashboard',
   middleware({ store, redirect }) {
@@ -80,130 +86,137 @@ export default Vue.extend({
       redirect('/dashboard')
     }
   },
-  data: () => ({
-    team: {} as Team,
-  }),
-  fetch() {
-    this.team = _.cloneDeep(this.teamState)
-  },
-  head: {
-    title: 'Paramètres de la team',
-  },
-  computed: {
-    ...mapState('auth', ['auth', 'user']),
-    ...mapState('team', {
-      teamState: 'team',
-    }),
-    ...mapGetters('team', ['isAdmin', 'isOwner']),
-    hasChanges(): boolean {
-      return !_.isEqual(this.team, this.teamState)
-    },
-  },
-  methods: {
-    ...mapActions('team', ['switchTeam', 'getTeams']),
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+    const ctx = useContext()
+    const router = useRouter()
 
-    deleteTeam(): void {
-      this.$dialog({
+    // Data
+    const user = store.state.auth.user!
+    const teamState = store.state.team.team!
+    const team = ref(_.cloneDeep(teamState))
+
+    // Computed
+    const isOwner = computed(() => store.getters['team/isOwner'])
+    const isAdmin = computed(() => store.getters['team/isAdmin'])
+    const hasChanges = computed((): boolean => {
+      return !_.isEqual(team.value, teamState)
+    })
+
+    // Methods
+    const deleteTeam = (): void => {
+      ctx.$dialog({
         type: DialogType.Error,
         title: 'Êtes-vous sur de supprimer la team ?',
         message:
           'Toutes les données associées seront supprimées et irrécupérables.',
         showCancel: true,
         actionMessage: 'Supprimer',
-        callback: async () => await this.deleteTeamCallback(),
+        callback: async () => await deleteTeamCallback(),
       })
-    },
+    }
 
-    async deleteTeamCallback() {
-      const fn = this.$fire.functions.httpsCallable('deleteTeam', {
+    const deleteTeamCallback = async () => {
+      const fn = ctx.$fire.functions.httpsCallable('deleteTeam', {
         timeout: 2000,
       })
 
       try {
-        const res = await fn({ teamId: this.user.team })
+        const res = await fn({ teamId: user.team })
 
         if (res.data.success) {
-          this.$notify('La team à été supprimée', NotificationType.SUCCESS)
+          ctx.$notify('La team à été supprimée', NotificationType.SUCCESS)
 
-          await this.changeTeam()
+          await changeTeam()
         } else {
           throw new Error('team was not deleted')
         }
       } catch (e) {
         console.error(e)
-        this.$notify('Impossible de supprimer la team', NotificationType.ERROR)
+        ctx.$notify('Impossible de supprimer la team', NotificationType.ERROR)
       }
-    },
+    }
 
-    leaveTeam(): void {
-      this.$dialog({
+    const leaveTeam = (): void => {
+      ctx.$dialog({
         type: DialogType.Warning,
         title: 'Êtes-vous sur de quitter la team ?',
         message:
           'Si vous voulez revenir dans cette team, le propriétaire devra vous inviter à nouveau.',
         showCancel: true,
         actionMessage: 'Quitter',
-        callback: async () => await this.leaveTeamCallback(),
+        callback: async () => await leaveTeamCallback(),
       })
-    },
+    }
 
-    async leaveTeamCallback(): Promise<void> {
-      const fn = this.$fire.functions.httpsCallable('leaveTeam', {
+    const leaveTeamCallback = async (): Promise<void> => {
+      const fn = ctx.$fire.functions.httpsCallable('leaveTeam', {
         timeout: 2000,
       })
 
       try {
-        const response = await fn({ teamId: this.user.team })
+        const response = await fn({ teamId: user.team })
 
         if (response.data.success) {
-          this.$notify('Vous avez quitté la team.', NotificationType.SUCCESS)
+          ctx.$notify('Vous avez quitté la team.', NotificationType.SUCCESS)
 
-          await this.changeTeam()
+          await changeTeam()
         } else {
           throw new Error('cannot leave team')
         }
       } catch (e) {
         console.error(e)
-        this.$notify('Impossible de quitter la team', NotificationType.ERROR)
+        ctx.$notify('Impossible de quitter la team', NotificationType.ERROR)
       }
-    },
+    }
 
-    async changeTeam() {
+    const changeTeam = async () => {
       // Switch to profile
-      await this.switchTeam()
+      await store.dispatch('team/switchTeam')
 
       // Reload teams
-      await this.getTeams(false)
+      await store.dispatch('team/getTeams', false)
 
       // Redirect to dashboard
-      this.$router.push('/dashboard')
-    },
+      router.push('/dashboard')
+    }
 
-    updateTeam(): void {
+    const updateTeam = (): void => {
       // Update
-      this.$fire.firestore
+      ctx.$fire.firestore
         .collection('teams')
-        .doc(this.user.team)
-        .update(this.team)
+        .doc(user.team!)
+        .update(team.value)
         .then(() => {
-          this.$notify(
+          ctx.$notify(
             'Les paramètres ont étés sauvegardés.',
             NotificationType.SUCCESS
           )
 
           // Reload team
-          this.$store.commit('team/SET_TEAM', this.team)
-
-          // Reset changes
-          this.hasChanges = false
+          store.commit('team/SET_TEAM', team.value)
         })
         .catch(() => {
-          this.$notify(
+          ctx.$notify(
             'Une erreur est survenue lors de la sauvegarde.',
             NotificationType.WARNING
           )
         })
-    },
+    }
+
+    return {
+      team,
+      hasChanges,
+      isOwner,
+      isAdmin,
+      deleteTeam,
+      leaveTeam,
+      updateTeam,
+    }
+  },
+  head: {
+    title: 'Paramètres de la team',
   },
 })
 </script>

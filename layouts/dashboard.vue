@@ -84,15 +84,28 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapActions, mapState } from 'vuex'
+import {
+  computed,
+  defineComponent,
+  ref,
+  useContext,
+  useRouter,
+  useStore,
+} from '@nuxtjs/composition-api'
+import RootState from '~/store'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Dashboard',
   middleware: 'auth',
-  data: () => ({
-    open: false,
-    links: [
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+    const ctx = useContext()
+    const router = useRouter()
+
+    // Data
+    const open = ref(false)
+    const links = ref([
       {
         route: '/dashboard',
         name: 'Tableau de bord',
@@ -111,35 +124,19 @@ export default Vue.extend({
         icon: 'bxs-cabinet',
         teamRequired: true,
       },
-    ],
-  }),
-  computed: {
-    ...mapState('auth', ['auth', 'user']),
-    ...mapState('team', ['teams']),
-    ...mapState('sidebar', ['extended']),
-    drawer: {
-      get(): boolean {
-        return this.extended
-      },
-      set(value: boolean): void {
-        this.$store.commit('sidebar/SET_EXTENDED', value)
-      },
-    },
-    teamName(): string {
-      return !this.user.team ? 'Personnel' : this.teams[this.user.team].name
-    },
-    hasTeams(): boolean {
-      return (this.teams.length ?? 0) > 0
-    },
-  },
-  methods: {
-    ...mapActions('team', ['switchTeam']),
+    ])
 
-    async logout(): Promise<void> {
-      await this.$fire.auth.signOut()
+    // Computed
+    const user = computed(() => store.state.auth.user!)
 
-      await this.$router.push({ path: '/' })
-    },
+    // Methods
+    const logout = async (): Promise<void> => {
+      await ctx.$fire.auth.signOut()
+
+      await router.push({ path: '/' })
+    }
+
+    return { open, links, user, logout }
   },
 })
 </script>

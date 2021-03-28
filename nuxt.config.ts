@@ -35,7 +35,7 @@ const config: NuxtConfig = {
   buildModules: [
     '@nuxt/typescript-build',
     '@nuxtjs/tailwindcss',
-    //'@nuxtjs/vuetify',
+    '@nuxtjs/composition-api',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -83,13 +83,7 @@ const config: NuxtConfig = {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
 
-  // Vuetify Configuration
-  /*vuetify: {
-    theme: {
-      dark: true,
-    },
-  },*/
-
+  // TailwindCSS
   tailwindcss: {
     jit: true,
   },

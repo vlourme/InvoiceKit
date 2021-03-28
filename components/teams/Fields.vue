@@ -35,7 +35,8 @@
                 <button
                   v-if="isAdmin"
                   class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
-                  @click="editField(idx)"
+                  type="button"
+                  @click.prevent="editField(idx)"
                 >
                   Modifier
                 </button>
@@ -43,7 +44,8 @@
                 <button
                   v-if="isAdmin"
                   class="ml-4 text-sm font-semibold text-red-400 hover:text-red-500 inline-flex items-center focus:outline-none"
-                  @click="deleteField(idx)"
+                  type="button"
+                  @click.prevent="deleteField(idx)"
                 >
                   Supprimer
                 </button>
@@ -88,64 +90,65 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { Team } from '@/types/team'
+import { defineComponent, PropOptions, ref } from '@nuxtjs/composition-api'
 import _ from 'lodash'
-import { mapGetters } from 'vuex'
+import useTeam from './useTeam'
+import { Team } from '~/types/team'
 
-export default Vue.extend({
-  name: 'Fields',
+export default defineComponent({
   props: {
     teamState: {
       type: Object,
       required: true,
     } as PropOptions<Team>,
   },
-  data: () => ({
-    dialog: false,
-    value: '',
-    update: -1,
-  }),
-  computed: {
-    ...mapGetters('team', ['isAdmin']),
-    team: {
-      get(): Team {
-        return this.teamState
-      },
+  setup(props, { emit }) {
+    // Data
+    const dialog = ref(false)
+    const update = ref(-1)
+    const value = ref('')
 
-      set(value: Team): void {
-        this.$emit('update:team', value)
-      },
-    },
-  },
-  methods: {
-    addField() {
-      if (this.update === -1) {
-        this.team.fields.push(this.value)
+    // Computed
+    const { team, isAdmin } = useTeam(props, emit)
+
+    // Methods
+    const addField = () => {
+      if (update.value > -1) {
+        team.value.fields[update.value] = value.value
       } else {
-        this.team.fields[this.update] = this.value
+        team.value.fields.push(value.value)
       }
 
-      this.closeDialog()
-    },
+      closeDialog()
+    }
 
-    editField(idx: number) {
-      this.update = idx
-      this.value = _.clone(this.team.fields[this.update])
-      this.dialog = true
-    },
+    const editField = (idx: number) => {
+      update.value = idx
+      value.value = _.clone(team.value.fields[update.value])
+      dialog.value = true
+    }
 
-    deleteField(idx: number) {
-      this.team.fields.splice(idx, 1)
-    },
+    const deleteField = (idx: number) => {
+      team.value.fields.splice(idx, 1)
+    }
 
-    closeDialog() {
-      this.$nextTick(() => {
-        this.dialog = false
-        this.update = -1
-        this.value = ''
-      })
-    },
+    const closeDialog = () => {
+      dialog.value = false
+      update.value = -1
+      value.value = ''
+    }
+
+    return {
+      dialog,
+      update,
+      value,
+      team,
+      isAdmin,
+      addField,
+      editField,
+      deleteField,
+      closeDialog,
+    }
   },
 })
 </script>

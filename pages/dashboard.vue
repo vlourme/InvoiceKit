@@ -108,14 +108,23 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapActions, mapState } from 'vuex'
+import {
+  computed,
+  defineComponent,
+  ref,
+  useStore,
+} from '@nuxtjs/composition-api'
+import RootState from '~/store'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Dashboard',
   layout: 'dashboard',
-  data: () => ({
-    analytics: [
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+
+    // Data
+    const analytics = ref([
       {
         value: 'INVOICE',
         name: 'Factures',
@@ -128,25 +137,30 @@ export default Vue.extend({
         value: 'customers',
         name: 'Clients',
       },
-    ],
-  }),
-  head: () => ({
-    title: 'Tableau de bord',
-  }),
-  computed: {
-    ...mapState('auth', ['user']),
-    ...mapState('team', ['team', 'teams']),
-  },
-  methods: {
-    ...mapActions('team', ['switchTeam']),
+    ])
 
-    getCounter(value: string): number {
-      if (!this.team.counter) {
+    // Computed
+    const user = computed(() => store.state.auth.user)
+    const teams = computed(() => store.state.team.teams)
+    const team = computed(() => store.state.team.team)
+
+    // Methods
+    const switchTeam = async (id: string | null) => {
+      await store.dispatch('team/switchTeam', id)
+    }
+
+    const getCounter = (value: string): number => {
+      if (!team.value?.counter) {
         return 0
       }
 
-      return this.team.counter[value] ?? 0
-    },
+      return team.value?.counter[value] ?? 0
+    }
+
+    return { analytics, user, teams, team, switchTeam, getCounter }
+  },
+  head: {
+    title: 'Tableau de bord',
   },
 })
 </script>

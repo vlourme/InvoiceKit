@@ -111,81 +111,94 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { Team } from '@/types/team'
-import { mapGetters, mapState } from 'vuex'
+import {
+  defineComponent,
+  onMounted,
+  PropOptions,
+  ref,
+  useContext,
+  useStore,
+} from '@nuxtjs/composition-api'
+import useTeam from './useTeam'
+import { Team } from '~/types/team'
+import RootState from '~/store'
 
-export default Vue.extend({
-  name: 'Identity',
+export default defineComponent({
   props: {
     teamState: {
       type: Object,
       required: true,
     } as PropOptions<Team>,
   },
-  data: () => ({
-    rules: {
-      email: [(v: string) => !v || /.+@.+/.test(v) || "L'email est invalide."],
-      url: [(v: string) => !v || /.+\.\w\w.*/.test(v) || "L'URL est invalide."],
-    },
-    dialog: false,
-    error: '',
-    file: null as File | null,
-    image: '',
-  }),
-  computed: {
-    ...mapState('auth', ['user']),
-    ...mapGetters('team', ['isAdmin']),
-    team: {
-      get(): Team {
-        return this.teamState
-      },
+  setup(props, { emit }) {
+    // Context
+    const store = useStore<RootState>()
+    const ctx = useContext()
 
-      set(value: Team): void {
-        this.$emit('update:team', value)
-      },
-    },
-  },
-  mounted() {
-    // Get image
-    this.$fire.storage
-      .ref(this.user.team)
-      .getDownloadURL()
-      .then((url) => {
-        this.image = url
-      })
-  },
-  methods: {
-    onFileChange(e: any) {
+    // Data
+    const image = ref('')
+    const file = ref<File>()
+    const dialog = ref(false)
+    const error = ref('')
+
+    // Computed
+    const user = store.state.auth.user
+    const { team, isAdmin } = useTeam(props, emit)
+
+    // On mount
+    onMounted(() => {
+      ctx.$fire.storage
+        .ref(user?.team!)
+        .getDownloadURL()
+        .then((url) => {
+          image.value = url
+        })
+        .catch(() => {})
+    })
+
+    // Methods
+    const onFileChange = (e: any) => {
       const files = e.target.files || e.dataTransfer.files
       if (!files.length) return
-      this.file = files[0]
-    },
+      file.value = files[0]
+    }
 
-    async uploadImage() {
-      if (!this.file) {
-        this.error = "Aucune image n'a été séléctionnée."
+    const uploadImage = async () => {
+      if (!file.value) {
+        error.value = "Aucune image n'a été séléctionnée."
         return
       }
 
       // Upload file
-      const task = await this.$fire.storage
-        .ref(`/teams/${this.user.team}`)
-        .put(this.file)
+      const task = await ctx.$fire.storage
+        .ref(`/teams/${user?.team!}`)
+        .put(file.value)
 
       // Change image
-      this.image = await task.ref.getDownloadURL()
+      image.value = await task.ref.getDownloadURL()
 
-      this.dialog = false
-    },
+      dialog.value = false
+    }
 
-    async deleteImage() {
+    const deleteImage = async () => {
       try {
-        await this.$fire.storage.ref(`/teams/${this.user.team}`).delete()
+        await ctx.$fire.storage.ref(`/teams/${user?.team!}`).delete()
 
-        this.image = ''
+        image.value = ''
       } catch {}
-    },
+    }
+
+    return {
+      team,
+      isAdmin,
+      image,
+      file,
+      dialog,
+      error,
+      onFileChange,
+      uploadImage,
+      deleteImage,
+    }
   },
 })
 </script>

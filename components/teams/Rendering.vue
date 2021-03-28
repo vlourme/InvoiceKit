@@ -65,56 +65,40 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { RenderingSignature, Team } from '@/types/team'
-import { mapGetters } from 'vuex'
+import { defineComponent, PropOptions, reactive } from '@nuxtjs/composition-api'
+import useTeam from './useTeam'
+import { RenderingSignature, Team } from '~/types/team'
 
-export default Vue.extend({
-  name: 'Rendering',
+export default defineComponent({
   props: {
     teamState: {
       type: Object,
       required: true,
     } as PropOptions<Team>,
   },
-  data: () => ({
-    color: false,
-    signature: [
-      { text: 'Pas de signature', value: RenderingSignature.None },
-      { text: 'Devis uniquement', value: RenderingSignature.Quote },
-      { text: 'Factures uniquement', value: RenderingSignature.Invoice },
-      { text: 'Devis et factures', value: RenderingSignature.Both },
-    ],
-    quantity: [
-      { text: 'Afficher', value: true },
-      { text: 'Cacher', value: false },
-    ],
-    colors: [
-      { text: 'Utiliser la couleur personnalisée', value: true },
-      { text: 'Utiliser la couleur de base', value: false },
-    ],
-  }),
-  computed: {
-    ...mapGetters('team', ['isAdmin']),
-    team: {
-      get(): Team {
-        return this.teamState
-      },
+  setup(props, { emit }) {
+    // Data
+    const refs = reactive({
+      signature: [
+        { text: 'Pas de signature', value: RenderingSignature.None },
+        { text: 'Devis uniquement', value: RenderingSignature.Quote },
+        { text: 'Factures uniquement', value: RenderingSignature.Invoice },
+        { text: 'Devis et factures', value: RenderingSignature.Both },
+      ],
+      quantity: [
+        { text: 'Afficher', value: true },
+        { text: 'Cacher', value: false },
+      ],
+      colors: [
+        { text: 'Utiliser la couleur personnalisée', value: true },
+        { text: 'Utiliser la couleur de base', value: false },
+      ],
+    })
 
-      set(value: Team): void {
-        this.$emit('update:team', value)
-      },
-    },
-  },
-  methods: {
-    reset() {
-      this.team.rendering.accentEnabled = false
-      this.color = false
-    },
+    // Computed
+    const { team, isAdmin } = useTeam(props, emit)
 
-    enableAccent() {
-      this.team.rendering.accentEnabled = true
-    },
+    return { team, isAdmin, ...refs }
   },
 })
 </script>

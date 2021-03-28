@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@mdi/js": "^5.9.55",
+    "@nuxtjs/composition-api": "^0.22.4",
     "@nuxtjs/firebase": "^7.5.0",
     "boxicons": "^2.0.7",
     "child_process": "^1.0.2",
