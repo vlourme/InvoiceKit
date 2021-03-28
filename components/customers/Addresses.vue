@@ -114,14 +114,13 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { Address, AddressHeaders } from '@/types/address'
+import { Address } from '@/types/address'
 import { mapGetters, mapState } from 'vuex'
 import { NotificationType } from '~/types/notification'
 
 export default Vue.extend({
   name: 'Addresses',
   data: () => ({
-    addressHeaders: AddressHeaders,
     address: {} as Address,
     dialog: false,
     update: false,

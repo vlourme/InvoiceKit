@@ -1,5 +1,3 @@
-import _ from 'lodash'
-import { DataTableHeader } from 'vuetify'
 import firebase from 'firebase'
 import { Customer } from './customer'
 import Model from './model'
@@ -67,59 +65,4 @@ export const defaultInvoice = (): Invoice => ({
   note: '',
   createdAt: firebase.firestore.Timestamp.fromDate(new Date()),
   updatedAt: firebase.firestore.Timestamp.fromDate(new Date()),
-})
-
-export const InvoiceHeaders: Array<DataTableHeader> = [
-  {
-    text: 'ID',
-    value: 'id',
-  },
-  {
-    text: 'Type',
-    value: 'type',
-  },
-  {
-    text: 'Client',
-    value: 'customer.fullName',
-  },
-  {
-    text: 'Status',
-    value: 'status',
-  },
-  {
-    text: 'Dernière mise à jour',
-    value: 'updatedAt',
-  },
-]
-
-export const FieldHeaders: Array<DataTableHeader> = [
-  {
-    text: '',
-    value: 'sort',
-    width: 50,
-    sortable: false,
-  },
-  {
-    text: 'Description',
-    value: 'description',
-    sortable: false,
-  },
-  {
-    text: 'Prix',
-    value: 'price',
-    width: 125,
-  },
-  {
-    text: 'Total',
-    value: 'total',
-    width: 150,
-  },
-]
-
-export const FieldHeadersWithQuantity = _.clone(FieldHeaders)
-
-FieldHeadersWithQuantity.splice(2, 0, {
-  text: 'Quantité',
-  value: 'quantity',
-  width: 100,
 })
