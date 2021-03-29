@@ -7,9 +7,9 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
+import { defineComponent, PropOptions } from '@nuxtjs/composition-api'
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     icon: {
       type: String,
