@@ -34,7 +34,7 @@
         </aside>
       </div>
 
-      <div class="relative inline-block text-left">
+      <div v-if="user" class="relative inline-block text-left">
         <div
           class="flex items-center justify-center w-full hover:bg-gray-200 py-6 cursor-pointer"
           @click="open = !open"
@@ -127,7 +127,7 @@ export default defineComponent({
     ])
 
     // Computed
-    const user = computed(() => store.state.auth.user!)
+    const user = computed(() => store.state.auth.user)
 
     // Methods
     const logout = async (): Promise<void> => {
