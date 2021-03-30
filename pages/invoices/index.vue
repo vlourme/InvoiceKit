@@ -38,7 +38,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200">
               <tr
-                v-for="(invoice, idx) in invoices"
+                v-for="(invoice, idx) in results"
                 :key="idx"
                 class="even:bg-gray-50"
               >
@@ -81,82 +81,45 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapState } from 'vuex'
-import { InvoiceIndex, InvoiceStatus } from '@/types/invoice'
-import { mapSnapshot } from '~/helpers/documentMapper'
+import {
+  computed,
+  defineComponent,
+  useFetch,
+  useRouter,
+  useStore,
+} from '@nuxtjs/composition-api'
+import useSearch from '~/composables/useSearch'
+import RootState from '~/store'
+import { InvoiceIndex, InvoiceStatus } from '~/types/invoice'
 
-export default Vue.extend({
-  name: 'Invoices',
+export default defineComponent({
   layout: 'dashboard',
-  data: () => ({
-    loading: false,
-    search: '',
-    invoices: [] as InvoiceIndex[],
-  }),
-  head: {
-    title: 'Factures',
-  },
-  computed: {
-    ...mapState('auth', ['user']),
-    ...mapState('team', ['team']),
-    invoiceCount(): number {
-      return (
-        (this.team?.counter?.INVOICE ?? 0) + (this.team?.counter?.QUOTE ?? 0)
-      )
-    },
-  },
-  async mounted() {
-    await this.getData()
-  },
-  methods: {
-    async doSearch(): Promise<void> {
-      if (this.search.length >= 2 || this.search.length === 0) {
-        this.invoices = []
-        await this.getData()
-      }
-    },
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+    const router = useRouter()
 
-    async getData(): Promise<void> {
-      // Toggle loading
-      this.loading = true
+    // Computed
+    const user = computed(() => store.state.auth.user)
 
-      // Query
-      let query = this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('invoices')
-        .orderBy('id')
-        .startAfter(
-          this.invoices.length > 0
-            ? this.invoices[this.invoices.length - 1].id
-            : null
-        )
-        .limit(15)
+    // Search
+    const { search, getData, doSearch, results } = useSearch<InvoiceIndex>(
+      'id',
+      `teams/${user.value?.team}/invoices`
+    )
 
-      // On search
-      if (this.search.length >= 3) {
-        this.invoices = []
-        query = query.startAt(this.search).endAt(this.search + '\uF8FF')
+    // Mounted
+    useFetch(async () => {
+      if (!user.value?.team) {
+        await router.push('/dashboard')
+        return
       }
 
-      // Get ref
-      const ref = await query.get()
+      await getData()
+    })
 
-      // Push customers
-      this.invoices.push(...mapSnapshot<InvoiceIndex>(ref))
-
-      // Untoggle loading
-      this.loading = false
-    },
-
-    async navigateToInvoice(invoice: InvoiceIndex): Promise<void> {
-      await this.$router.push(
-        `/invoices/${invoice.customer.$key}/${invoice.link}`
-      )
-    },
-
-    getStatus(invoice: InvoiceIndex): string {
+    // Methods
+    const getStatus = (invoice: InvoiceIndex): string => {
       switch (invoice.status) {
         case InvoiceStatus.Unpaid:
           return 'Impayé'
@@ -168,7 +131,12 @@ export default Vue.extend({
         default:
           return 'Aucun'
       }
-    },
+    }
+
+    return { doSearch, getStatus, search, results }
+  },
+  head: {
+    title: 'Factures',
   },
 })
 </script>

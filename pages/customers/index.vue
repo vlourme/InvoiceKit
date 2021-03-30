@@ -36,7 +36,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200">
               <tr
-                v-for="(customer, idx) in customers"
+                v-for="(customer, idx) in results"
                 :key="idx"
                 class="even:bg-gray-50"
               >
@@ -66,77 +66,49 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapGetters, mapState } from 'vuex'
-import { Customer } from '@/types/customer'
-import { mapSnapshot } from '~/helpers/documentMapper'
+import {
+  computed,
+  defineComponent,
+  useFetch,
+  useRouter,
+  useStore,
+} from '@nuxtjs/composition-api'
+import useSearch from '~/composables/useSearch'
+import RootState from '~/store'
+import { Customer } from '~/types/customer'
 
-export default Vue.extend({
-  name: 'Customers',
+export default defineComponent({
   layout: 'dashboard',
-  data: () => ({
-    loading: false,
-    search: '',
-    customers: [] as Customer[],
-  }),
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+    const router = useRouter()
+
+    // Computed
+    const user = computed(() => store.state.auth.user)
+
+    // Search
+    const { search, getData, doSearch, results } = useSearch<Customer>(
+      'fullName',
+      `teams/${user.value?.team}/customers`
+    )
+
+    // Mounted
+    useFetch(async () => {
+      if (!user.value?.team) {
+        await router.push('/dashboard')
+        return
+      }
+
+      await getData()
+    })
+
+    // Methods
+
+    return { doSearch, search, results }
+  },
   head: {
-    title: 'Clients',
-  },
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('auth', ['user']),
-    ...mapState('team', ['team']),
-    customerCount(): number {
-      return this.team?.counter?.customers ?? 0
-    },
-  },
-  async mounted() {
-    await this.getData()
-  },
-  methods: {
-    async doSearch(): Promise<void> {
-      if (this.search.length >= 3 || this.search.length === 0) {
-        this.customers = []
-        await this.getData()
-      }
-    },
-
-    async getData(): Promise<void> {
-      // Toggle loading
-      this.loading = true
-
-      // Query
-      let query = this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('customers')
-        .orderBy('fullName')
-        .startAfter(
-          this.customers.length > 0
-            ? this.customers[this.customers.length - 1].fullName
-            : null
-        )
-        .limit(15)
-
-      // On search
-      if (this.search.length >= 3) {
-        this.customers = []
-        query = query.startAt(this.search).endAt(this.search + '\uF8FF')
-      }
-
-      // Get ref
-      const ref = await query.get()
-
-      // Push customers
-      this.customers.push(...mapSnapshot<Customer>(ref))
-
-      // Untoggle loading
-      this.loading = false
-    },
-
-    async navigateToCustomer(customer: Customer): Promise<void> {
-      await this.$router.push(`/customers/${customer.$key}`)
-    },
+    title: 'Factures',
   },
 })
 </script>
