@@ -86,6 +86,7 @@ export default defineComponent({
 
     // Computed
     const user = computed(() => store.state.auth.user)
+    const role = computed(() => store.getters['team/role'])
 
     // Search
     const { search, getData, doSearch, results } = useSearch<Customer>(
@@ -103,9 +104,7 @@ export default defineComponent({
       await getData()
     })
 
-    // Methods
-
-    return { doSearch, search, results }
+    return { role, doSearch, search, results }
   },
   head: {
     title: 'Factures',
