@@ -1,19 +1,13 @@
 <template>
-  <transition
-    enter-class="opacity-0"
-    enter-active-class="opacity-100"
-    leave-active-class="opacity-100"
-    leave-to-class="opacity-0"
-    class="transition-all"
-  >
+  <BaseTransition>
     <div
-      v-show="show"
-      class="fixed z-10 inset-0 transition-all overflow-y-auto"
+      v-if="show"
+      class="fixed z-10 inset-0 overflow-y-auto"
       role="dialog"
       aria-modal="true"
     >
       <div
-        class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 transition-all duration-300 text-center sm:block sm:p-0"
+        class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
       >
         <div
           class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
@@ -51,7 +45,7 @@
         </div>
       </div>
     </div>
-  </transition>
+  </BaseTransition>
 </template>
 
 <script lang="ts">

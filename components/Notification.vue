@@ -1,15 +1,9 @@
 <template>
   <div class="absolute z-50 my-4 top-0 left-0 w-screen">
-    <transition
-      enter-class="scale-75 opacity-0"
-      enter-active-class="scale-100 opacity-100"
-      class="transition-all transform translate-y-0"
-    >
+    <BaseTransition>
       <div
-        v-if="notification"
-        v-show="show"
+        v-if="show && notification"
         class="mx-auto max-w-xs transition-all transform translate-y-0 w-full flex items-center px-4 py-2 bg-gray-50 border-2 border-gray-100 shadow-md rounded-md"
-        top
       >
         <i
           :class="{
@@ -23,7 +17,7 @@
 
         {{ notification.message }}
       </div>
-    </transition>
+    </BaseTransition>
   </div>
 </template>
 
