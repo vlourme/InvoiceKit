@@ -1,10 +1,4 @@
 {
-  "functions": {
-    "predeploy": ["npm --prefix functions run watch"]
-  },
-  "firestore": {
-    "rules": "firestore.rules"
-  },
   "emulators": {
     "functions": {
       "port": 5001
