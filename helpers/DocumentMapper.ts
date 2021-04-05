@@ -10,7 +10,7 @@ import Model from '~/types/model'
  */
 export function mapSnapshot<T extends Model>(
   snapshot: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
-): Array<T> {
+): T[] {
   return snapshot.docs.map(
     (document) =>
       ({
