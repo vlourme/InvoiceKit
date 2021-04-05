@@ -1,5 +1,5 @@
 import { ActionTree, GetterTree, MutationTree } from 'vuex/types/index'
-import { mapDocument } from '~/helpers/documentMapper'
+import { mapDocument, mapSnapshot } from '~/helpers/documentMapper'
 import RootState from '~/store'
 import { MemberPermission, Team } from '~/types/team'
 import User from '~/types/user'
@@ -43,27 +43,27 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
   /**
    * Get teams user belong to
    */
-  async getTeams(
-    { commit, dispatch, rootState },
-    reload: boolean = true
-  ): Promise<void> {
+  getTeams({ commit, rootState }): void {
     const uid = rootState.auth.auth?.uid
 
-    const doc = await this.$fire.firestore
+    this.$fire.firestore
       .collection('teams')
       .where(`members.${uid}`, '>=', 0)
-      .get()
+      .onSnapshot(
+        (snapshot) => {
+          const teams = mapSnapshot<Team>(snapshot)
 
-    const teams = doc.docs.reduce(
-      (ac, a) => ({ ...ac, [a.id]: a.data() }),
-      {}
-    ) as { [key: string]: Team }
+          const sorted: { [key: string]: Team } = {}
+          teams.forEach((team) => {
+            sorted[team.$key!] = team
+          })
 
-    if (reload) {
-      await dispatch('switchTeam', rootState.auth?.user?.team)
-    }
-
-    commit('SET_TEAMS', teams)
+          commit('SET_TEAMS', sorted)
+        },
+        (error) => {
+          console.error(error)
+        }
+      )
   },
 
   async switchTeam(
