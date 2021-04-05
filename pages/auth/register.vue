@@ -11,7 +11,7 @@
       {{ error }}
     </div>
 
-    <form @submit.prevent="login">
+    <form @submit.prevent="register">
       <div class="flex flex-col my-2">
         <label class="text-sm mb-1" for="name"> Nom complet </label>
         <div class="mt-1 relative rounded-md shadow-sm">
@@ -82,62 +82,54 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Login',
+<script lang="ts">
+import {
+  defineComponent,
+  ref,
+  useContext,
+  useRouter,
+} from '@nuxtjs/composition-api'
+
+export default defineComponent({
   layout: 'auth',
-  data: () => ({
-    valid: false,
-    rules: {
-      name: [(v) => !!v || 'Le nom est requis'],
-      email: [
-        (v) => !!v || "L'email est requis.",
-        (v) => /.+@.+/.test(v) || "L'adresse mail est invalide.",
-      ],
-      password: [
-        (v) => !!v || 'Le mot de passe est requis.',
-        (v) =>
-          v.length >= 8 || 'Le mot de passe doit faire minimum 8 charactères.',
-      ],
-    },
-    name: '',
-    email: '',
-    password: '',
-    error: null,
-  }),
-  methods: {
-    async register() {
-      if (!this.valid) {
-        this.error = 'Les champs sont invalides'
-        return
-      }
+  setup() {
+    // Context
+    const ctx = useContext()
+    const router = useRouter()
 
-      try {
-        // Register
-        const auth = await this.$fire.auth.createUserWithEmailAndPassword(
-          this.email,
-          this.password
-        )
+    // Data
+    const name = ref('')
+    const email = ref('')
+    const password = ref('')
+    const error = ref('')
 
-        // Write a reference
-        await this.$fire.firestore
-          .collection('users')
-          .doc(auth.user.uid)
-          .set({
-            email: this.email,
-            name: this.name,
-            image: 'https://eu.ui-avatars.com/api/?name=' + this.name,
-            team: null,
-          })
+    // Methods
+    const register = () => {
+      ctx.$fire.auth
+        .createUserWithEmailAndPassword(email.value, password.value)
+        .then(async (auth) => {
+          // Write a reference
+          await ctx.$fire.firestore
+            .collection('users')
+            .doc(auth.user?.uid)
+            .set({
+              email: email.value,
+              name: name.value,
+              image: 'https://eu.ui-avatars.com/api/?name=' + name.value,
+              team: null,
+            })
 
-        // Redirect
-        this.$router.push({ path: '/dashboard' })
-      } catch (error) {
-        this.error = error
-      }
-    },
+          await router.push('/dashboard')
+        })
+        .catch((err) => {
+          error.value = err
+        })
+    }
+
+    return { name, email, password, error, register }
   },
-}
+  head: {
+    title: 'Inscrivez-vous',
+  },
+})
 </script>
-
-<style scoped></style>

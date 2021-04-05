@@ -64,49 +64,42 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Login',
+<script lang="ts">
+import {
+  defineComponent,
+  ref,
+  useContext,
+  useRouter,
+} from '@nuxtjs/composition-api'
+
+export default defineComponent({
   layout: 'auth',
-  data: () => ({
-    valid: false,
-    rules: {
-      email: [
-        (v) => !!v || "L'email est requis.",
-        (v) => /.+@.+/.test(v) || "L'adresse mail est invalide.",
-      ],
-      password: [
-        (v) => !!v || 'Le mot de passe est requis.',
-        (v) =>
-          v.length >= 8 || 'Le mot de passe doit faire minimum 8 charactères.',
-      ],
-    },
-    email: '',
-    password: '',
-    error: null,
-  }),
-  methods: {
-    async login() {
-      // if (!this.valid) {
-      //   return (this.error = 'Les champs sont invalides')
-      // }
+  setup() {
+    // Context
+    const ctx = useContext()
+    const router = useRouter()
 
-      try {
-        // Login
-        await this.$fire.auth.signInWithEmailAndPassword(
-          this.email,
-          this.password
-        )
+    // Data
+    const email = ref('')
+    const password = ref('')
+    const error = ref('')
 
-        // Redirect
-        await this.$router.push({ path: '/dashboard' })
-      } catch (error) {
-        console.error(error)
-        this.error = error
-      }
-    },
+    // Methods
+    const login = () => {
+      ctx.$fire.auth
+        .signInWithEmailAndPassword(email.value, password.value)
+        .then(() => {
+          router.push('/dashboard')
+        })
+        .catch((err) => {
+          error.value = err
+        })
+    }
+
+    return { email, password, error, login }
   },
-}
+  head: {
+    title: 'Connectez-vous',
+  },
+})
 </script>
-
-<style scoped></style>
