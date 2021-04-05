@@ -87,18 +87,15 @@
 import {
   computed,
   defineComponent,
-  onMounted,
   ref,
-  useAsync,
   useContext,
   useFetch,
-  useMeta,
   useRoute,
   useRouter,
   useStore,
 } from '@nuxtjs/composition-api'
 import RootState from '~/store'
-import { Customer, defaultCustomer } from '~/types/customer'
+import { defaultCustomer } from '~/types/customer'
 import { DialogType } from '~/types/dialog'
 import { NotificationType } from '~/types/notification'
 
