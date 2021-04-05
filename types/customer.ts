@@ -7,3 +7,12 @@ export interface Customer extends Model {
   phone: string
   notes: string
 }
+
+export const defaultCustomer = (): Customer => ({
+  $key: '',
+  email: '',
+  society: '',
+  fullName: '',
+  phone: '',
+  notes: '',
+})

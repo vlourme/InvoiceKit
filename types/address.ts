@@ -6,3 +6,11 @@ export interface Address extends Model {
   city: string
   country: string
 }
+
+export const defaultAddress = (): Address => ({
+  $key: '',
+  street: '',
+  zip: '',
+  city: '',
+  country: '',
+})
