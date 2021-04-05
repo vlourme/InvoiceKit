@@ -2,7 +2,7 @@
  * Legacy Import from HCInvoice
  */
 
-import { Context } from '@nuxt/types'
+import { NuxtAppOptions } from '@nuxt/types'
 import { format, parse } from 'date-fns'
 import firebase from 'firebase'
 import { Customer } from '~/types/customer'
@@ -10,7 +10,7 @@ import { Invoice, InvoiceStatus, InvoiceType } from '~/types/invoice'
 import { LegacyInvoice } from '~/types/legacyInvoice'
 
 export const importLegacy = async (
-  app: Context,
+  app: NuxtAppOptions,
   customer: Customer,
   addressId: string,
   file: File
@@ -52,7 +52,7 @@ export const importLegacy = async (
   }
 
   // Send to Firestore
-  const state = app.store.state
+  const state = app.store?.state
 
   // Create invoice
   const doc = await app.$fire.firestore
