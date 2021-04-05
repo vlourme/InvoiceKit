@@ -57,12 +57,12 @@ export const actions: ActionTree<AuthModuleState, AuthModuleState> = {
     await dispatch('team/getTeams', authUser.uid, { root: true })
   },
 
-  getUser({ commit, state }): void {
-    this.$fire.firestore
+  async getUser({ commit, state }): Promise<void> {
+    const doc = await this.$fire.firestore
       .collection('users')
       .doc(state.auth?.uid)
-      .onSnapshot((snapshot) => {
-        commit('SET_USER', mapDocument<User>(snapshot))
-      })
+      .get()
+
+    commit('SET_USER', mapDocument<User>(doc))
   },
 }
