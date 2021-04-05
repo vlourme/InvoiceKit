@@ -31,15 +31,17 @@
               <td class="p-3">{{ item.country }}</td>
               <td class="p-3 text-right">
                 <button
+                  type="button"
                   class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
-                  @click="editAddress(item)"
+                  @click.prevent="editAddress(item)"
                 >
                   Modifier
                 </button>
 
                 <button
+                  type="button"
                   class="ml-4 text-sm font-semibold text-red-400 hover:text-red-500 inline-flex items-center focus:outline-none"
-                  @click="deleteAddress(address)"
+                  @click.prevent="deleteAddress(item)"
                 >
                   Supprimer
                 </button>
@@ -113,70 +115,93 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { Address } from '@/types/address'
-import { mapGetters, mapState } from 'vuex'
+import {
+  computed,
+  defineComponent,
+  ref,
+  useContext,
+  useStore,
+} from '@nuxtjs/composition-api'
+import _ from 'lodash'
+import RootState from '~/store'
+import { Address, defaultAddress } from '~/types/address'
 import { NotificationType } from '~/types/notification'
 
-export default Vue.extend({
-  name: 'Addresses',
-  data: () => ({
-    address: {} as Address,
-    dialog: false,
-    update: false,
-  }),
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('auth', ['user']),
-    ...mapState('payload', ['customer', 'addresses']),
-  },
-  methods: {
-    async addAddress() {
-      if (this.update && this.address.$key) {
-        await this.$fire.firestore
+export default defineComponent({
+  setup() {
+    // Context
+    const ctx = useContext()
+    const store = useStore<RootState>()
+
+    // Computed
+    const addresses = computed(() => store.state.payload.addresses)
+    const role = computed(() => store.getters['team/role'])
+    const customer = computed(() => store.state.payload.customer!)
+    const user = computed(() => store.state.auth.user!)
+
+    // Data
+    const address = ref(defaultAddress())
+    const dialog = ref(false)
+    const update = ref(false)
+
+    // Methods
+    const addAddress = async () => {
+      if (update && address.value.$key) {
+        await ctx.$fire.firestore
           .collection('teams')
-          .doc(this.user.team)
+          .doc(user.value.team!)
           .collection('customers')
-          .doc(this.customer.$key)
+          .doc(customer.value.$key!)
           .collection('addresses')
-          .doc(this.address.$key)
-          .update(this.address)
+          .doc(address.value.$key)
+          .update(address.value)
       } else {
-        await this.$fire.firestore
+        await ctx.$fire.firestore
           .collection('teams')
-          .doc(this.user.team)
+          .doc(user.value.team!)
           .collection('customers')
-          .doc(this.customer.$key)
+          .doc(customer.value.$key!)
           .collection('addresses')
-          .add(this.address)
+          .add(address.value)
       }
 
-      this.address = {} as Address
-      this.dialog = false
-      this.$notify(
+      address.value = defaultAddress()
+      dialog.value = false
+      ctx.$notify(
         'Les changements ont étés sauvegardés',
         NotificationType.SUCCESS
       )
-    },
+    }
 
-    editAddress(address: Address) {
-      this.address = address
-      this.update = true
-      this.dialog = true
-    },
+    const editAddress = (adr: Address) => {
+      address.value = _.cloneDeep(adr)
+      update.value = true
+      dialog.value = true
+    }
 
-    async deleteAddress(address: Address) {
-      await this.$fire.firestore
+    const deleteAddress = async (address: Address) => {
+      await ctx.$fire.firestore
         .collection('teams')
-        .doc(this.user.team)
+        .doc(user.value.team!)
         .collection('customers')
-        .doc(this.customer.$key)
+        .doc(customer.value.$key!)
         .collection('addresses')
         .doc(address.$key!)
         .delete()
 
-      this.$notify("L'adresse à été supprimée", NotificationType.SUCCESS)
-    },
+      ctx.$notify("L'adresse à été supprimée", NotificationType.SUCCESS)
+    }
+
+    return {
+      address,
+      dialog,
+      update,
+      addAddress,
+      editAddress,
+      deleteAddress,
+      addresses,
+      role,
+    }
   },
 })
 </script>

@@ -53,38 +53,45 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'vuex'
-import Vue from 'vue'
-import { Customer } from '~/types/customer'
+import {
+  computed,
+  defineComponent,
+  ref,
+  useContext,
+  useRouter,
+  useStore,
+} from '@nuxtjs/composition-api'
+import RootState from '~/store'
+import { defaultCustomer } from '~/types/customer'
 
-export default Vue.extend({
-  name: 'CreateCustomer',
+export default defineComponent({
   layout: 'dashboard',
-  data: () => ({
-    valid: false,
-    customer: {} as Customer,
-    rules: {
-      email: [(v: string) => !v || /.+@.+/.test(v) || "L'email est invalide."],
-    },
-  }),
+  setup() {
+    const ctx = useContext()
+    const router = useRouter()
+    const store = useStore<RootState>()
+
+    // Data
+    const customer = ref(defaultCustomer())
+
+    // Computed
+    const user = computed(() => store.state.auth.user!)
+
+    // Methods
+    const createCustomer = async (): Promise<void> => {
+      const doc = await ctx.$fire.firestore
+        .collection('teams')
+        .doc(user.value.team!)
+        .collection('customers')
+        .add(customer.value)
+
+      router.push(`/customers/${doc.id}`)
+    }
+
+    return { customer, createCustomer }
+  },
   head: {
     title: 'Créer une fiche client',
-  },
-  computed: {
-    ...mapState('auth', ['auth', 'user']),
-  },
-  methods: {
-    async createCustomer(): Promise<void> {
-      // Create user
-      const doc = await this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('customers')
-        .add(this.customer)
-
-      // Redirect to settings
-      this.$router.push(`/customers/${doc.id}`)
-    },
   },
 })
 </script>

@@ -1,7 +1,8 @@
 <template>
   <form @submit.prevent="updateCustomer">
     <Header>
-      Modifier une fiche client
+      {{ customer.fullName }}
+      <span v-if="customer.society">@ {{ customer.society }}</span>
 
       <template v-if="role > 0" #actions>
         <base-nav-button> Mettre à jour </base-nav-button>
@@ -83,93 +84,90 @@
 </template>
 
 <script lang="ts">
-import { mapGetters, mapState } from 'vuex'
-import Vue from 'vue'
-import _ from 'lodash'
-import { NotificationType } from '~/types/notification'
-import { Customer } from '~/types/customer'
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  ref,
+  useAsync,
+  useContext,
+  useFetch,
+  useMeta,
+  useRoute,
+  useRouter,
+  useStore,
+} from '@nuxtjs/composition-api'
+import RootState from '~/store'
+import { Customer, defaultCustomer } from '~/types/customer'
 import { DialogType } from '~/types/dialog'
+import { NotificationType } from '~/types/notification'
 
-export default Vue.extend({
-  name: 'ViewCustomer',
+export default defineComponent({
   layout: 'dashboard',
-  async asyncData({ route, store }) {
-    const { id } = route.params
-    await store.dispatch('payload/fetchCustomer', id)
-    await store.dispatch('payload/fetchAddresses', id)
-  },
-  data: () => ({
-    hasChanges: false,
-    rules: {
-      email: [(v: string) => !v || /.+@.+/.test(v) || "L'email est invalide."],
-    },
-    customer: {} as Customer,
-    dialog: false,
-  }),
-  head() {
-    return {
-      title: `${this.customerState.fullName} — Fiche client`,
-    }
-  },
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('auth', ['user']),
-    ...mapState('payload', {
-      customerState: 'customer',
-    }),
-  },
-  mounted() {
-    this.customer = Object.assign({}, this.customerState)
+  setup() {
+    // Context
+    const ctx = useContext()
+    const store = useStore<RootState>()
+    const route = useRoute()
+    const router = useRouter()
 
-    this.$watch(
-      'customer',
-      () => {
-        this.hasChanges = !_.isEqual(this.customer, this.customerState)
-      },
-      { deep: true }
-    )
-  },
-  methods: {
-    async updateCustomer(): Promise<void> {
+    // Data
+    const user = store.state.auth.user!
+    const customer = ref(defaultCustomer())
+
+    // Fetch data
+    useFetch(async () => {
+      const { id } = route.value.params
+      await store.dispatch('payload/fetchCustomer', id)
+      await store.dispatch('payload/fetchAddresses', id)
+
+      customer.value = store.state.payload.customer!
+    })
+
+    // Computed
+    const role = computed(() => store.getters['team/role'])
+
+    // Methods
+    const updateCustomer = async (): Promise<void> => {
       // Update customer
-      await this.$fire.firestore
+      await ctx.$fire.firestore
         .collection('teams')
-        .doc(this.user.team)
+        .doc(user.team!)
         .collection('customers')
-        .doc(this.customerState.$key)
-        .update(this.customer)
+        .doc(customer.value.$key!)
+        .update(customer.value)
 
-      this.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
-      this.hasChanges = false
-    },
+      ctx.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
+    }
 
-    /**
-     * TODO: There is a small error during less than 1 second after deleting
-     * This is due to the snapshot trying to refresh.
-     */
-    deleteCustomer(): void {
-      this.$dialog({
+    const deleteCustomer = (): void => {
+      ctx.$dialog({
         title: 'Supprimer cette fiche client',
         message:
           'Tout le contenu associé sera supprimé (factures, contrats, etc.) et irrécuperable.',
         type: DialogType.Error,
-        callback: async () => await this.deleteCallback(),
+        callback: async () => await deleteCallback(),
         showCancel: true,
         actionMessage: 'Supprimer',
       })
-    },
+    }
 
-    async deleteCallback(): Promise<void> {
+    const deleteCallback = async (): Promise<void> => {
       // Delete customer
-      await this.$fire.firestore
+      await ctx.$fire.firestore
         .collection('teams')
-        .doc(this.user.team)
+        .doc(user.team!)
         .collection('customers')
-        .doc(this.customerState.$key)
+        .doc(customer.value.$key!)
         .delete()
 
-      await this.$router.push('/customers')
-    },
+      await router.push('/customers')
+    }
+
+    return { updateCustomer, deleteCustomer, customer, role }
+  },
+  head: {
+    title: 'Fiche client',
   },
 })
 </script>

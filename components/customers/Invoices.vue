@@ -116,67 +116,100 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapGetters, mapState } from 'vuex'
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  ref,
+  useContext,
+  useFetch,
+  useRoute,
+  useRouter,
+  useStore,
+} from '@nuxtjs/composition-api'
 import { mapSnapshot } from '~/helpers/documentMapper'
-import { Address } from '~/types/address'
-import { Invoice } from '~/types/invoice'
 import { importLegacy } from '~/helpers/legacyImport'
+import RootState from '~/store'
+import { defaultAddress } from '~/types/address'
+import { Invoice } from '~/types/invoice'
 
-export default Vue.extend({
-  name: 'Invoices',
-  data: () => ({
-    invoices: [] as Invoice[],
-    selected: -1,
-    dialog: false,
-    import: {} as Address,
-  }),
-  fetch() {
-    this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('customers')
-      .doc(this.customer.$key)
-      .collection('invoices')
-      .onSnapshot((snapshot) => {
-        this.invoices = mapSnapshot<Invoice>(snapshot)
-      })
-  },
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('auth', ['user']),
-    ...mapState('payload', ['customer', 'addresses']),
-  },
-  methods: {
-    makeInvoice() {
-      this.$router.push({
+export default defineComponent({
+  setup() {
+    // Context
+    const ctx = useContext()
+    const store = useStore<RootState>()
+    const route = useRoute()
+    const router = useRouter()
+
+    // Data
+    const invoices = ref<Invoice[]>([])
+    const selected = ref(-1)
+    const dialog = ref(false)
+    const importAddress = ref(defaultAddress())
+    const fileInput = ref<HTMLElement | null>(null)
+
+    // Computed
+    const user = computed(() => store.state.auth.user!)
+    const customer = computed(() => store.state.payload.customer!)
+    const addresses = computed(() => store.state.payload.addresses!)
+    const role = computed(() => store.getters['team/role'])
+
+    // Fetch
+    useFetch(() => {
+      ctx.$fire.firestore
+        .collection('teams')
+        .doc(user.value.team!)
+        .collection('customers')
+        .doc(route.value.params.id)
+        .collection('invoices')
+        .onSnapshot((snapshot) => {
+          invoices.value = mapSnapshot<Invoice>(snapshot)
+        })
+    })
+
+    // Methods
+    const makeInvoice = () => {
+      router.push({
         path: '/invoices/create',
         query: {
-          customer: this.customer.$key,
-          address: this.addresses[this.selected].$key,
+          customer: customer.value.$key,
+          address: addresses.value[selected.value].$key,
         },
       })
-    },
+    }
 
-    startImport(): void {
-      this.import = this.addresses[this.selected]
-      ;(this.$refs.fileInput as any).click()
-    },
+    const startImport = (): void => {
+      importAddress.value = addresses.value[selected.value]
+      fileInput.value?.click()
+    }
 
-    async importDone(event: any): Promise<void> {
+    const importDone = async (event: any): Promise<void> => {
       const docId = await importLegacy(
-        this.$nuxt.context,
-        this.customer,
-        this.import.$key!,
+        ctx.app,
+        customer.value,
+        importAddress.value.$key!,
         event.target.files[0]
       )
 
-      this.$router.push(`/invoices/${this.customer.$key}/${docId}`)
-    },
+      router.push(`/invoices/${customer.value.$key}/${docId}`)
+    }
 
-    navigateToInvoice(invoice: Invoice) {
-      this.$router.push(`/invoices/${this.customer.$key}/${invoice.$key}`)
-    },
+    const navigateToInvoice = (invoice: Invoice) => {
+      router.push(`/invoices/${customer.value.$key!}/${invoice.$key}`)
+    }
+
+    return {
+      invoices,
+      fileInput,
+      addresses,
+      selected,
+      dialog,
+      role,
+      makeInvoice,
+      startImport,
+      importDone,
+      navigateToInvoice,
+    }
   },
 })
 </script>
