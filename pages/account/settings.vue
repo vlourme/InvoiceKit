@@ -54,82 +54,99 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'vuex'
-import Vue from 'vue'
+import {
+  computed,
+  defineComponent,
+  ref,
+  useContext,
+  useStore,
+} from '@nuxtjs/composition-api'
+import RootState from '~/store'
+import { NotificationType } from '~/types/notification'
 
-export default Vue.extend({
-  name: 'Settings',
+export default defineComponent({
   layout: 'dashboard',
-  data: () => ({
-    name: '',
-  }),
-  head: {
-    title: 'Paramètres du compte',
-  },
-  computed: {
-    ...mapState('auth', ['auth', 'user']),
-    canDeletePhoto(): boolean {
-      return !(this.user.image as string).startsWith(
-        'https://eu.ui-avatars.com'
-      )
-    },
-  },
-  mounted() {
-    this.name = this.user.name
-  },
-  methods: {
-    async changePicture(e: any) {
+  setup() {
+    // Context
+    const ctx = useContext()
+    const store = useStore<RootState>()
+
+    // Computed
+    const user = computed(() => store.state.auth.user!)
+    const canDeletePhoto = computed(() => {
+      return !user.value.image.startsWith('https://eu.ui-avatars.com')
+    })
+
+    // Data
+    const name = ref(user.value.name)
+
+    // Methods
+    const changePicture = async (e: any) => {
       const image = e.target.files[0]
 
-      await this.deleteFromStorage()
+      if (canDeletePhoto.value) {
+        await deleteFromStorage()
+      }
 
       // Upload new image
-      this.$fire.storage
-        .ref(this.auth.uid)
+      ctx.$fire.storage
+        .ref(user.value.$key!)
         .put(image)
         .then(async (snapshot) => {
-          await this.$fire.firestore
+          await ctx.$fire.firestore
             .collection('users')
-            .doc(this.auth.uid)
+            .doc(user.value.$key!)
             .update({
-              ...this.user,
+              ...user.value,
               image: await snapshot.ref.getDownloadURL(),
             })
         })
-    },
+    }
 
-    async deleteFromStorage() {
+    const deleteFromStorage = async () => {
       try {
-        await this.$fire.storage.refFromURL(this.user.photoURL).delete()
+        await ctx.$fire.storage.refFromURL(user.value.image).delete()
       } catch {
-        /* Do nothing */
+        ctx.$notify("Impossible de supprimer l'image", NotificationType.ERROR)
       }
-    },
+    }
 
-    async deletePhoto() {
-      await this.deleteFromStorage()
+    const deletePhoto = async () => {
+      await deleteFromStorage()
 
-      await this.$fire.firestore
+      await ctx.$fire.firestore
         .collection('users')
-        .doc(this.auth.uid)
+        .doc(user.value.$key!)
         .update({
-          ...this.user,
-          image: 'https://eu.ui-avatars.com/api/?name=' + this.user.name,
+          ...user.value,
+          image: 'https://eu.ui-avatars.com/api/?name=' + user.value.name,
         })
-    },
+    }
 
-    async updateProfile() {
+    const updateProfile = async () => {
       // Update name
-      if (this.name !== this.user.name) {
-        await this.$fire.firestore
+      if (name.value !== user.value.name) {
+        await ctx.$fire.firestore
           .collection('users')
-          .doc(this.auth.uid)
+          .doc(user.value.$key!)
           .update({
-            ...this.user,
-            name: this.name,
+            ...user.value,
+            name: name.value,
           })
       }
-    },
+    }
+
+    return {
+      name,
+      user,
+      canDeletePhoto,
+      updateProfile,
+      deletePhoto,
+      changePicture,
+    }
+  },
+  head: {
+    title: 'Paramètres du compte',
   },
 })
 </script>
