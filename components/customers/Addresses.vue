@@ -105,7 +105,7 @@
             {{ update ? 'Mettre à jour' : 'Ajouter' }}
           </base-button>
 
-          <base-button base type="button" @click.prevent="dialog = false">
+          <base-button base type="button" @click.prevent="closeDialog">
             Annuler
           </base-button>
         </template>
@@ -153,8 +153,7 @@ export default defineComponent({
           .add(address.value)
       }
 
-      address.value = defaultAddress()
-      dialog.value = false
+      closeDialog()
       ctx.$notify(
         'Les changements ont étés sauvegardés',
         NotificationType.SUCCESS
@@ -165,6 +164,12 @@ export default defineComponent({
       address.value = _.cloneDeep(adr)
       update.value = true
       dialog.value = true
+    }
+
+    const closeDialog = () => {
+      address.value = defaultAddress()
+      dialog.value = false
+      update.value = false
     }
 
     const deleteAddress = async (address: Address) => {
@@ -186,6 +191,7 @@ export default defineComponent({
       dialog,
       update,
       addAddress,
+      closeDialog,
       editAddress,
       deleteAddress,
       role,
