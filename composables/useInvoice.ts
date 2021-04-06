@@ -1,5 +1,5 @@
 import { useContext, useRouter, useStore } from '@nuxtjs/composition-api'
-import { computed, reactive, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, reactive, toRefs, watch } from '@vue/composition-api'
 import _ from 'lodash'
 import { getFinalPrice, getTotalTaxes } from './useInvoicePricing'
 import { mapDocument } from '~/helpers/documentMapper'
@@ -36,7 +36,7 @@ export default () => {
       state.taxes = getTotalTaxes(invoice)
       state.total = getFinalPrice(invoice)
     },
-    { deep: true }
+    { deep: true, immediate: true }
   )
 
   // Methods
