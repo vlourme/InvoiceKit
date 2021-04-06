@@ -43,27 +43,27 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
   /**
    * Get teams user belong to
    */
-  getTeams({ commit, rootState }): void {
+  async getTeams({ commit, rootState }): Promise<void> {
     const uid = rootState.auth.auth?.uid
 
-    this.$fire.firestore
-      .collection('teams')
-      .where(`members.${uid}`, '>=', 0)
-      .onSnapshot(
-        (snapshot) => {
-          const teams = mapSnapshot<Team>(snapshot)
+    try {
+      const ref = await this.$fire.firestore
+        .collection('teams')
+        .where(`members.${uid}`, '>=', 0)
+        .get()
 
-          const sorted: { [key: string]: Team } = {}
-          teams.forEach((team) => {
-            sorted[team.$key!] = team
-          })
+      const teams = mapSnapshot<Team>(ref)
 
-          commit('SET_TEAMS', sorted)
-        },
-        (error) => {
-          console.error(error)
-        }
-      )
+      const sorted: { [key: string]: Team } = {}
+
+      teams.forEach((team) => {
+        sorted[team.$key!] = team
+      })
+
+      commit('SET_TEAMS', sorted)
+    } catch (err) {
+      console.error(err)
+    }
   },
 
   async switchTeam(
@@ -88,6 +88,7 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
     // Load team
     if (id) {
       try {
+        console.log('[Store] Loading team:', id)
         const ref = await this.$fire.firestore.collection('teams').doc(id).get()
 
         if (ref.exists) {
@@ -96,6 +97,7 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
           throw new Error('cannot get team')
         }
       } catch {
+        console.log('[Store] Switching to empty team')
         await dispatch('switchTeam', null)
       }
     }
