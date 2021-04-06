@@ -5,7 +5,9 @@
       <span v-if="customer.society">@ {{ customer.society }}</span>
 
       <template v-if="role > 0" #actions>
-        <base-nav-button> Mettre à jour </base-nav-button>
+        <base-nav-button type="submit" :disabled="!hasChanges">
+          Mettre à jour
+        </base-nav-button>
       </template>
     </Header>
 
@@ -18,11 +20,7 @@
             contrats.
           </template>
           <template v-if="role > 0" #actions>
-            <base-button-inline
-              danger
-              icon="minus"
-              @click.prevent="deleteCustomer"
-            >
+            <base-button-inline danger icon="minus" @click.prevent="askDelete">
               Supprimer le client
             </base-button-inline>
           </template>
@@ -77,91 +75,89 @@
       </div>
     </FormBox>
 
-    <customers-addresses class="my-4"></customers-addresses>
+    <customers-addresses
+      v-if="!$fetchState.pending"
+      class="my-4"
+    ></customers-addresses>
 
-    <customers-invoices class="my-4"></customers-invoices>
+    <customers-invoices
+      v-if="!$fetchState.pending"
+      class="my-4"
+    ></customers-invoices>
   </form>
 </template>
 
 <script lang="ts">
 import {
-  computed,
   defineComponent,
-  ref,
   useContext,
   useFetch,
+  useMeta,
   useRoute,
-  useRouter,
-  useStore,
 } from '@nuxtjs/composition-api'
-import RootState from '~/store'
-import { defaultCustomer } from '~/types/customer'
 import { DialogType } from '~/types/dialog'
 import { NotificationType } from '~/types/notification'
+import useCustomer from '~/composables/useCustomer'
 
 export default defineComponent({
   layout: 'dashboard',
   setup() {
     // Context
     const ctx = useContext()
-    const store = useStore<RootState>()
+    const { title } = useMeta()
     const route = useRoute()
-    const router = useRouter()
 
     // Data
-    const user = store.state.auth.user!
-    const customer = ref(defaultCustomer())
+    const {
+      state,
+      role,
+      hasChanges,
+      loadCustomer,
+      loadAddresses,
+      saveCustomer,
+      deleteCustomer,
+    } = useCustomer()
 
     // Fetch data
     useFetch(async () => {
-      const { id } = route.value.params
-      await store.dispatch('payload/fetchCustomer', id)
-      await store.dispatch('payload/fetchAddresses', id)
+      const id = route.value.params.id
+      await loadCustomer(id)
+      loadAddresses(id)
 
-      customer.value = store.state.payload.customer!
+      title.value = `${state.customer.value.fullName} — Fiche client`
     })
 
-    // Computed
-    const role = computed(() => store.getters['team/role'])
-
-    // Methods
-    const updateCustomer = async (): Promise<void> => {
-      // Update customer
-      await ctx.$fire.firestore
-        .collection('teams')
-        .doc(user.team!)
-        .collection('customers')
-        .doc(customer.value.$key!)
-        .update(customer.value)
-
-      ctx.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
-    }
-
-    const deleteCustomer = (): void => {
+    const askDelete = (): void => {
       ctx.$dialog({
         title: 'Supprimer cette fiche client',
         message:
           'Tout le contenu associé sera supprimé (factures, contrats, etc.) et irrécuperable.',
         type: DialogType.Error,
-        callback: async () => await deleteCallback(),
+        callback: async () => {
+          await deleteCustomer()
+          ctx.$notify('Le client a été supprimé.', NotificationType.SUCCESS)
+        },
         showCancel: true,
         actionMessage: 'Supprimer',
       })
     }
 
-    const deleteCallback = async (): Promise<void> => {
-      // Delete customer
-      await ctx.$fire.firestore
-        .collection('teams')
-        .doc(user.team!)
-        .collection('customers')
-        .doc(customer.value.$key!)
-        .delete()
-
-      await router.push('/customers')
+    const updateCustomer = async () => {
+      await saveCustomer(true)
+      ctx.$notify(
+        'Les changements ont étés sauvegardés',
+        NotificationType.SUCCESS
+      )
     }
 
-    return { updateCustomer, deleteCustomer, customer, role }
+    return {
+      ...state,
+      deleteCustomer,
+      updateCustomer,
+      hasChanges,
+      askDelete,
+      role,
+    }
   },
   head: {
     title: 'Fiche client',

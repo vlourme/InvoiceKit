@@ -1,10 +1,12 @@
 <template>
-  <form @submit.prevent="createCustomer">
+  <form @submit.prevent="saveCustomer(false)">
     <Header>
       Créer une fiche client
 
       <template #actions>
-        <base-nav-button type="submit"> Enregister </base-nav-button>
+        <base-nav-button :disabled="!hasChanges" type="submit">
+          Enregister
+        </base-nav-button>
       </template>
     </Header>
 
@@ -53,42 +55,21 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  ref,
-  useContext,
-  useRouter,
-  useStore,
-} from '@nuxtjs/composition-api'
-import RootState from '~/store'
-import { defaultCustomer } from '~/types/customer'
+import { defineComponent } from '@nuxtjs/composition-api'
+import useCustomer from '~/composables/useCustomer'
 
 export default defineComponent({
   layout: 'dashboard',
   setup() {
-    const ctx = useContext()
-    const router = useRouter()
-    const store = useStore<RootState>()
-
     // Data
-    const customer = ref(defaultCustomer())
+    const { state, role, hasChanges, saveCustomer } = useCustomer()
 
-    // Computed
-    const user = computed(() => store.state.auth.user!)
-
-    // Methods
-    const createCustomer = async (): Promise<void> => {
-      const doc = await ctx.$fire.firestore
-        .collection('teams')
-        .doc(user.value.team!)
-        .collection('customers')
-        .add(customer.value)
-
-      router.push(`/customers/${doc.id}`)
+    return {
+      ...state,
+      hasChanges,
+      saveCustomer,
+      role,
     }
-
-    return { customer, createCustomer }
   },
   head: {
     title: 'Créer une fiche client',

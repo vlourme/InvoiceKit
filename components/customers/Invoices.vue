@@ -117,18 +117,14 @@
 
 <script lang="ts">
 import {
-  computed,
   defineComponent,
   ref,
   useContext,
   useFetch,
-  useRoute,
   useRouter,
-  useStore,
 } from '@nuxtjs/composition-api'
-import { mapSnapshot } from '~/helpers/documentMapper'
+import useCustomer from '~/composables/useCustomer'
 import { importLegacy } from '~/helpers/legacyImport'
-import RootState from '~/store'
 import { defaultAddress } from '~/types/address'
 import { Invoice } from '~/types/invoice'
 
@@ -136,34 +132,20 @@ export default defineComponent({
   setup() {
     // Context
     const ctx = useContext()
-    const store = useStore<RootState>()
-    const route = useRoute()
     const router = useRouter()
 
     // Data
-    const invoices = ref<Invoice[]>([])
     const selected = ref(-1)
     const dialog = ref(false)
     const importAddress = ref(defaultAddress())
     const fileInput = ref<HTMLElement | null>(null)
 
     // Computed
-    const user = computed(() => store.state.auth.user!)
-    const customer = computed(() => store.state.payload.customer!)
-    const addresses = computed(() => store.state.payload.addresses!)
-    const role = computed(() => store.getters['team/role'])
+    const { state, role, loadInvoices } = useCustomer()
 
     // Fetch
     useFetch(() => {
-      ctx.$fire.firestore
-        .collection('teams')
-        .doc(user.value.team!)
-        .collection('customers')
-        .doc(route.value.params.id)
-        .collection('invoices')
-        .onSnapshot((snapshot) => {
-          invoices.value = mapSnapshot<Invoice>(snapshot)
-        })
+      loadInvoices(state.customer.value.$key!)
     })
 
     // Methods
@@ -171,36 +153,35 @@ export default defineComponent({
       router.push({
         path: '/invoices/create',
         query: {
-          customer: customer.value.$key,
-          address: addresses.value[selected.value].$key,
+          customer: state.customer.value.$key,
+          address: state.addresses.value[selected.value].$key,
         },
       })
     }
 
     const startImport = (): void => {
-      importAddress.value = addresses.value[selected.value]
+      importAddress.value = state.addresses.value[selected.value]
       fileInput.value?.click()
     }
 
     const importDone = async (event: any): Promise<void> => {
       const docId = await importLegacy(
         ctx.app,
-        customer.value,
+        state.customer.value,
         importAddress.value.$key!,
         event.target.files[0]
       )
 
-      router.push(`/invoices/${customer.value.$key}/${docId}`)
+      router.push(`/invoices/${state.customer.value.$key}/${docId}`)
     }
 
     const navigateToInvoice = (invoice: Invoice) => {
-      router.push(`/invoices/${customer.value.$key!}/${invoice.$key}`)
+      router.push(`/invoices/${state.customer.value.$key!}/${invoice.$key}`)
     }
 
     return {
-      invoices,
+      ...state,
       fileInput,
-      addresses,
       selected,
       dialog,
       role,

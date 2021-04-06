@@ -24,7 +24,7 @@
               <th class="p-4 font-medium text-gray-600"></th>
             </tr>
           </thead>
-          <tbody class="divide-y even:bg-gray-100">
+          <tbody class="divide-y">
             <tr v-for="(item, idx) in addresses" :key="idx">
               <td class="p-3">{{ item.street }}</td>
               <td class="p-3">{{ item.zip }} {{ item.city }}</td>
@@ -115,15 +115,9 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  ref,
-  useContext,
-  useStore,
-} from '@nuxtjs/composition-api'
+import { defineComponent, ref, useContext } from '@nuxtjs/composition-api'
 import _ from 'lodash'
-import RootState from '~/store'
+import useCustomer from '~/composables/useCustomer'
 import { Address, defaultAddress } from '~/types/address'
 import { NotificationType } from '~/types/notification'
 
@@ -131,15 +125,9 @@ export default defineComponent({
   setup() {
     // Context
     const ctx = useContext()
-    const store = useStore<RootState>()
-
-    // Computed
-    const addresses = computed(() => store.state.payload.addresses)
-    const role = computed(() => store.getters['team/role'])
-    const customer = computed(() => store.state.payload.customer!)
-    const user = computed(() => store.state.auth.user!)
 
     // Data
+    const { state, user, role } = useCustomer()
     const address = ref(defaultAddress())
     const dialog = ref(false)
     const update = ref(false)
@@ -151,7 +139,7 @@ export default defineComponent({
           .collection('teams')
           .doc(user.value.team!)
           .collection('customers')
-          .doc(customer.value.$key!)
+          .doc(state.customer.value.$key!)
           .collection('addresses')
           .doc(address.value.$key)
           .update(address.value)
@@ -160,7 +148,7 @@ export default defineComponent({
           .collection('teams')
           .doc(user.value.team!)
           .collection('customers')
-          .doc(customer.value.$key!)
+          .doc(state.customer.value.$key!)
           .collection('addresses')
           .add(address.value)
       }
@@ -184,7 +172,7 @@ export default defineComponent({
         .collection('teams')
         .doc(user.value.team!)
         .collection('customers')
-        .doc(customer.value.$key!)
+        .doc(state.customer.value.$key!)
         .collection('addresses')
         .doc(address.$key!)
         .delete()
@@ -193,13 +181,13 @@ export default defineComponent({
     }
 
     return {
+      ...state,
       address,
       dialog,
       update,
       addAddress,
       editAddress,
       deleteAddress,
-      addresses,
       role,
     }
   },
