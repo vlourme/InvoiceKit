@@ -107,7 +107,7 @@ export default defineComponent({
     return { role, doSearch, search, results }
   },
   head: {
-    title: 'Factures',
+    title: 'Clients',
   },
 })
 </script>
