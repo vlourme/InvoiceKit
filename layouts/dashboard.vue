@@ -15,7 +15,7 @@
             >
               <i
                 :class="{
-                  'text-indigo-500': $route.path == link.route,
+                  'text-indigo-500': $route.path.startsWith(link.route),
                   [link.icon]: true,
                 }"
                 class="bx text-xl text-gray-700"
@@ -23,7 +23,7 @@
 
               <div
                 :class="{
-                  'text-indigo-500': $route.path == link.route,
+                  'text-indigo-500': $route.path.startsWith(link.route),
                 }"
                 class="ml-6 font-medium text-gray-600"
               >
