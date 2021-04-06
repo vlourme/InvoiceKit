@@ -12,7 +12,7 @@
       </template>
     </Header>
 
-    <div class="flex-1 flex flex-col h-full">
+    <div class="flex-1 flex flex-col h-8/9">
       <div class="flex flex-col h-full">
         <div class="flex-grow overflow-auto">
           <table class="relative w-full">
@@ -77,6 +77,15 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="results.length >= 15"
+      class="flex h-1/9 items-center justify-end px-4 py-2 bg-gray-50 border-t"
+    >
+      <BaseButton base :disabled="!canLoadMore" @click.prevent="getData">
+        Charger plus de résultats
+      </BaseButton>
+    </div>
   </div>
 </template>
 
@@ -101,6 +110,13 @@ export default defineComponent({
 
     // Computed
     const user = computed(() => store.state.auth.user)
+    const team = computed(() => store.state.team.team!)
+    const canLoadMore = computed(() => {
+      return (
+        (team.value.counter.INVOICE ?? 0 + team.value.counter.QUOTE ?? 0) !==
+        results.value.length
+      )
+    })
 
     // Search
     const { search, getData, doSearch, results } = useSearch<InvoiceIndex>(
@@ -133,7 +149,7 @@ export default defineComponent({
       }
     }
 
-    return { doSearch, getStatus, search, results }
+    return { doSearch, getData, getStatus, search, results, canLoadMore }
   },
   head: {
     title: 'Factures',
