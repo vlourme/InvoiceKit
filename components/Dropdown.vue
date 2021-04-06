@@ -1,5 +1,5 @@
 <template>
-  <div class="relative inline-block text-left">
+  <div v-click-outside="hide" class="relative inline-block text-left">
     <div @click="open = !open">
       <slot></slot>
     </div>
@@ -22,11 +22,21 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-export default Vue.extend({
-  name: 'Dropdown',
-  data: () => ({
-    open: false,
-  }),
+import { defineComponent, ref } from '@nuxtjs/composition-api'
+import ClickOutside from 'vue-click-outside'
+
+export default defineComponent({
+  directives: {
+    ClickOutside,
+  },
+  setup() {
+    const open = ref(false)
+
+    const hide = () => {
+      open.value = false
+    }
+
+    return { open, hide }
+  },
 })
 </script>
