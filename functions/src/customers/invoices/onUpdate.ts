@@ -41,6 +41,7 @@ export const onTeamInvoiceUpdate = functions.firestore
 
       await doc.ref.update({
         ...doc.data(),
+        id: after.id,
         updatedAt: new Date(),
         status: after.status,
         type: after.type,
