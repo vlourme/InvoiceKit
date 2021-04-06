@@ -1,7 +1,7 @@
 <template>
   <div
     id="main"
-    class="subpixel-antialiased h-screen flex justify-center items-center"
+    class="font-body subpixel-antialiased h-screen flex justify-center items-center"
   >
     <div class="p-4 rounded-md bg-gray-100 max-w-md w-full">
       <nuxt />
