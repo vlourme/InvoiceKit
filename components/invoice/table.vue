@@ -28,9 +28,9 @@
             </th>
           </tr>
         </thead>
-        <draggable v-model="invoice.data.fields" tag="tbody" class="divide-y">
+        <draggable v-model="invoice.fields" tag="tbody" class="divide-y">
           <tr
-            v-for="(item, idx) in invoice.data.fields"
+            v-for="(item, idx) in invoice.fields"
             :key="idx"
             class="cursor-move even:bg-gray-100 active:bg-blue-100"
           >
@@ -55,7 +55,7 @@
             </td>
             <td class="px-4 py-3 text-right">{{ item.price }} €</td>
             <td class="px-4 py-3 text-right font-semibold">
-              {{ invoice.getPriceAtIndex(idx) }} €
+              {{ getPriceAtIndex(invoice, idx) }} €
               <div class="text-sm font-normal text-gray-400">
                 dont {{ item.tax }} % de taxes
               </div>
@@ -131,75 +131,79 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
+import {
+  computed,
+  defineComponent,
+  reactive,
+  toRefs,
+  useStore,
+} from '@nuxtjs/composition-api'
 import draggable from 'vuedraggable'
-import { mapGetters, mapState } from 'vuex'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
+import { getPriceAtIndex } from '~/composables/useInvoicePricing'
+import useInvoice from '~/composables/useInvoice'
 import { defaultField } from '~/types/invoice'
+import RootState from '~/store'
 
-export default Vue.extend({
-  name: 'InvoiceTable',
+export default defineComponent({
   components: {
     draggable,
   },
-  props: {
-    invoiceState: {
-      type: InvoiceImpl,
-      required: true,
-    } as PropOptions<InvoiceImpl>,
-  },
-  data: () => ({
-    field: defaultField(),
-    dialog: false,
-    update: -1,
-  }),
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('team', ['team']),
-    invoice: {
-      get(): InvoiceImpl {
-        return this.invoiceState
-      },
-      set(val: InvoiceImpl): void {
-        this.$emit('update:invoice', val)
-      },
-    },
-  },
-  methods: {
-    addField(): void {
-      if (this.update === -1) {
-        this.invoice.data.fields.push(this.field)
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+
+    // Data
+    const { state, role } = useInvoice()
+    const data = reactive({
+      field: defaultField(),
+      dialog: false,
+      update: -1,
+    })
+
+    // Computed
+    const team = computed(() => store.state.team.team!)
+
+    // Methods
+    const addField = (): void => {
+      if (data.update === -1) {
+        state.invoice.value.fields.push(data.field)
       } else {
-        this.invoice.data.fields[this.update] = this.field
+        state.invoice.value.fields[data.update] = data.field
       }
 
-      this.update = -1
-      this.field = defaultField()
-      this.dialog = false
-    },
+      data.update = -1
+      data.field = defaultField()
+      data.dialog = false
+    }
 
-    deleteField(): void {
-      this.invoice.data.fields.splice(this.update, 1)
-      this.closeField()
-    },
+    const deleteField = (): void => {
+      state.invoice.value.fields.splice(data.update, 1)
+      closeField()
+    }
 
-    closeField(): void {
-      this.field = defaultField()
-      this.update = -1
-      this.dialog = false
-    },
+    const closeField = (): void => {
+      data.field = defaultField()
+      data.update = -1
+      data.dialog = false
+    }
 
-    editField(idx: number): void {
-      this.field = this.invoice.data.fields[idx]
-      this.update = idx
-      this.dialog = true
-    },
+    const editField = (idx: number): void => {
+      data.field = state.invoice.value.fields[idx]
+      data.update = idx
+      data.dialog = true
+    }
+
+    return {
+      ...state,
+      ...toRefs(data),
+      role,
+      team,
+      getPriceAtIndex,
+      addField,
+      deleteField,
+      closeField,
+      editField,
+    }
   },
 })
 </script>
-
-<style scoped>
-.cursor-move {
-  cursor: move;
-}
-</style>

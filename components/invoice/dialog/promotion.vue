@@ -10,7 +10,7 @@
 
         <base-input
           id="promotion"
-          v-model.number="invoice.data.promotion"
+          v-model.number="invoice.promotion"
           type="number"
         />
       </div>
@@ -22,38 +22,31 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
+import { computed, defineComponent, PropOptions } from '@nuxtjs/composition-api'
+import useInvoice from '~/composables/useInvoice'
 
-export default Vue.extend({
-  name: 'InvoicePromotion',
+export default defineComponent({
   props: {
     dialog: {
       type: Boolean,
       required: true,
     } as PropOptions<boolean>,
-    invoiceState: {
-      type: InvoiceImpl,
-      required: true,
-    } as PropOptions<InvoiceImpl>,
   },
-  computed: {
-    display: {
+  setup(props, { emit }) {
+    // Data
+    const { state } = useInvoice()
+
+    // Computed
+    const display = computed({
       get(): boolean {
-        return this.dialog
+        return props.dialog!
       },
-      set(val: boolean): void {
-        this.$emit('update:dialog', val)
+      set(val: boolean) {
+        emit('update:dialog', val)
       },
-    },
-    invoice: {
-      get(): InvoiceImpl {
-        return this.invoiceState
-      },
-      set(val: InvoiceImpl): void {
-        this.$emit('update:invoice', val)
-      },
-    },
+    })
+
+    return { ...state, display }
   },
 })
 </script>

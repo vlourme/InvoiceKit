@@ -9,11 +9,7 @@
         </template>
 
         <template #actions>
-          <base-button-inline
-            danger
-            icon="minus"
-            @click.prevent="deleteInvoice"
-          >
+          <base-button-inline danger icon="minus" @click.prevent="askDelete">
             Supprimer le document
           </base-button-inline>
         </template>
@@ -26,7 +22,7 @@
           <base-label for="id">Identifiant</base-label>
           <base-input
             id="id"
-            v-model.trim="invoice.data.id"
+            v-model.trim="invoice.id"
             :disabled="role === 0"
             required
           />
@@ -35,7 +31,7 @@
           <base-label for="type">Identifiant</base-label>
           <base-select
             id="type"
-            v-model="invoice.data.type"
+            v-model="invoice.type"
             :disabled="role === 0"
             required
             :items="types"
@@ -47,7 +43,7 @@
           <base-label for="date">Date</base-label>
           <base-input
             id="date"
-            v-model.trim="invoice.data.date"
+            v-model.trim="invoice.date"
             :disabled="role === 0"
             type="date"
             required
@@ -58,7 +54,7 @@
           <base-label for="status">Statut</base-label>
           <base-select
             id="status"
-            v-model="invoice.data.status"
+            v-model="invoice.status"
             :disabled="role === 0"
             required
             :items="statuses"
@@ -70,73 +66,51 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { mapGetters, mapState } from 'vuex'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
+import { defineComponent, reactive, useContext } from '@nuxtjs/composition-api'
+import useInvoice from '~/composables/useInvoice'
 import { DialogType } from '~/types/dialog'
 import { InvoiceStatus, InvoiceType } from '~/types/invoice'
 
-export default Vue.extend({
-  name: 'InvoiceStatus',
-  props: {
-    invoiceState: {
-      type: InvoiceImpl,
-      required: true,
-    } as PropOptions<InvoiceImpl>,
-  },
-  data: () => ({
-    types: [
-      { text: 'Facture', value: InvoiceType.Invoice },
-      { text: 'Devis', value: InvoiceType.Estimation },
-    ],
-    statuses: [
-      { text: 'Aucun', value: InvoiceStatus.None },
-      { text: 'Impayé', value: InvoiceStatus.Unpaid },
-      { text: 'En attente', value: InvoiceStatus.Pending },
-      { text: 'Payé', value: InvoiceStatus.Paid },
-    ],
-  }),
-  computed: {
-    ...mapState('auth', ['user']),
-    ...mapState('payload', ['customer']),
-    ...mapGetters('team', ['role']),
-    invoice: {
-      get(): InvoiceImpl {
-        return this.invoiceState
-      },
-      set(val: InvoiceImpl) {
-        this.$emit('update:invoice', val)
-      },
-    },
-  },
-  methods: {
-    deleteInvoice(): void {
-      this.$dialog({
+export default defineComponent({
+  setup() {
+    // Context
+    const ctx = useContext()
+
+    // Data
+    const { state, role, canDelete, deleteInvoice } = useInvoice()
+    const selects = reactive({
+      types: [
+        { text: 'Facture', value: InvoiceType.Invoice },
+        { text: 'Devis', value: InvoiceType.Estimation },
+      ],
+      statuses: [
+        { text: 'Aucun', value: InvoiceStatus.None },
+        { text: 'Impayé', value: InvoiceStatus.Unpaid },
+        { text: 'En attente', value: InvoiceStatus.Pending },
+        { text: 'Payé', value: InvoiceStatus.Paid },
+      ],
+    })
+
+    // Methods
+    const askDelete = (): void => {
+      ctx.$dialog({
         title: 'Supprimer la facture',
         message: 'Une fois supprimée, celle-ci sera irrecupérable.',
         type: DialogType.Error,
         showCancel: true,
         actionMessage: 'Supprimer',
-        callback: async () => await this.deleteCallback(),
+        callback: async () => await deleteInvoice(),
       })
-    },
+    }
 
-    async deleteCallback(): Promise<void> {
-      const { invoice } = this.$route.params
-
-      // Delete invoice
-      await this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('customers')
-        .doc(this.customer.$key)
-        .collection('invoices')
-        .doc(invoice)
-        .delete()
-
-      // Redirect
-      this.$router.push('/invoices/')
-    },
+    return {
+      ...state,
+      ...selects,
+      role,
+      canDelete,
+      askDelete,
+      deleteInvoice,
+    }
   },
 })
 </script>

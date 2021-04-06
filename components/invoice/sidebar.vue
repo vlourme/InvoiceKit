@@ -6,7 +6,7 @@
     <p class="px-4 mt-3 mb-1 font-semibold text-gray-500 text-sm">Client</p>
     <ul class="divide-y border-b">
       <!-- Full name -->
-      <li class="p-4 inline-flex items-center w-full">
+      <li v-if="customer.fullName" class="p-4 inline-flex items-center w-full">
         <i class="bx text-xl bxs-user text-indigo-500"></i>
         <p class="ml-3">
           {{ customer.fullName }}
@@ -34,7 +34,7 @@
         </p>
       </li>
       <!-- Address -->
-      <li class="p-4 inline-flex items-center w-full">
+      <li v-if="address" class="p-4 inline-flex items-center w-full">
         <i class="bx text-xl bxs-map text-indigo-500"></i>
         <p class="ml-3">
           {{ address.street }}, {{ address.zip }} {{ address.city }},
@@ -52,7 +52,7 @@
       <li class="p-4 inline-flex items-center w-full">
         <i class="bx text-xl bxs-paper-plane text-yellow-500"></i>
         <p class="ml-3 text-gray-500">
-          <span class="font-medium text-gray-600">{{ tax }} €</span> de taxes
+          <span class="font-medium text-gray-600">{{ taxes }} €</span> de taxes
         </p>
       </li>
       <!-- Promotion -->
@@ -61,7 +61,7 @@
           <i class="bx text-xl bxs-offer text-yellow-500"></i>
           <p class="ml-3 text-gray-500">
             <span class="font-medium text-gray-600"
-              >{{ invoice.data.promotion || 0 }} %</span
+              >{{ invoice.promotion || 0 }} %</span
             >
             de réduction
           </p>
@@ -81,7 +81,7 @@
           <i class="bx text-xl bxs-purchase-tag text-yellow-500"></i>
           <p class="ml-3 text-gray-500">
             <span class="font-medium text-gray-600"
-              >{{ invoice.data.deposit || 0 }} €</span
+              >{{ invoice.deposit || 0 }} €</span
             >
             d'acompte
           </p>
@@ -113,7 +113,7 @@
     </p>
     <div class="divide-y border-b">
       <button
-        :disabled="!invoice.data.$key"
+        :disabled="!invoice.$key"
         type="button"
         class="p-4 inline-flex items-center hover:bg-gray-100 transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none w-full"
         @click.prevent="save"
@@ -122,7 +122,7 @@
         <p class="ml-3 text-gray-500">Sauvegarder en PDF</p>
       </button>
       <button
-        :disabled="!invoice.data.$key"
+        :disabled="!invoice.$key"
         type="button"
         class="p-4 inline-flex items-center hover:bg-gray-100 transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none w-full"
         @click.prevent="printInvoice"
@@ -150,19 +150,21 @@
 </template>
 
 <script lang="ts">
+import {
+  computed,
+  defineComponent,
+  PropOptions,
+  useContext,
+  useStore,
+} from '@nuxtjs/composition-api'
 import jsPDF from 'jspdf'
-import Vue, { PropOptions } from 'vue'
-import { mapGetters, mapState } from 'vuex'
+import useInvoice from '~/composables/useInvoice'
 import InvoiceImpl from '~/implementations/InvoiceImpl'
+import RootState from '~/store'
 import BasicInvoiceTemplate from '~/templates/basic'
 
-export default Vue.extend({
-  name: 'InvoiceSidebar',
+export default defineComponent({
   props: {
-    invoice: {
-      type: InvoiceImpl,
-      required: true,
-    } as PropOptions<InvoiceImpl>,
     promotionDialog: {
       type: Boolean,
       required: true,
@@ -176,90 +178,69 @@ export default Vue.extend({
       required: true,
     } as PropOptions<boolean>,
   },
-  data: () => ({
-    total: 0,
-    tax: 0,
-  }),
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('auth', ['user']),
-    ...mapState('team', ['team']),
-    ...mapState('payload', {
-      customer: 'customer',
-      invoiceState: 'invoice',
-      address: 'address',
-    }),
-  },
-  watch: {
-    'invoice.data': {
-      deep: true,
-      handler() {
-        this.total = this.invoice.getFinalPrice()
-        this.tax = this.invoice.getTotalTaxes()
-      },
-    },
-  },
-  mounted() {
-    this.total = this.invoice.getFinalPrice()
-    this.tax = this.invoice.getTotalTaxes()
-  },
-  methods: {
-    /**
-     * Render PDF
-     */
-    async render(): Promise<jsPDF> {
+  setup() {
+    // Context
+    const ctx = useContext()
+    const store = useStore<RootState>()
+
+    // Data
+    const { state, user, role } = useInvoice()
+
+    // Computed
+    const team = computed(() => store.state.team.team!)
+
+    // Methods
+    const render = async (): Promise<jsPDF> => {
       let logo = ''
 
       try {
-        logo = await this.$fire.storage
-          .ref(`/teams/${this.user.team}`)
+        logo = await ctx.$fire.storage
+          .ref(`/teams/${user.value.team}`)
           .getDownloadURL()
       } catch {}
 
       const template = new BasicInvoiceTemplate(
-        this.invoice,
-        this.customer,
-        this.address,
-        this.team,
+        new InvoiceImpl(), // TODO: Adapt to new invoice system
+        state.customer.value,
+        state.address.value,
+        team.value,
         logo
       )
 
       return await template.render()
-    },
+    }
 
     /**
      * Save PDF on computer
      */
-    async save() {
+    const save = async () => {
       // Render
-      const document = await this.render()
+      const document = await render()
 
       // Get name
       const name = `${
-        this.invoice.data.type === 'QUOTE' ? 'Devis' : 'Facture'
-      } #${this.invoice.data.id}`
+        state.invoice.value.type === 'QUOTE' ? 'Devis' : 'Facture'
+      } #${state.invoice.value.id}`
 
       // Save
       document.save(name)
-    },
+    }
 
-    /**
-     * Print PDF in a new window
-     */
-    async printInvoice() {
+    const printInvoice = async () => {
       // Render
-      const document = await this.render()
+      const document = await render()
 
       // Print
       document.autoPrint()
       document.output('dataurlnewwindow')
-    },
+    }
+
+    return {
+      ...state,
+      save,
+      printInvoice,
+      role,
+    }
   },
 })
 </script>
-
-<style scoped>
-.wrap {
-  white-space: normal;
-}
-</style>
