@@ -42,7 +42,7 @@ export const actions: ActionTree<AuthModuleState, AuthModuleState> = {
     // Refresh token
 
     try {
-      await authUser.getIdToken(false)
+      await authUser.getIdToken(true)
     } catch (e) {
       console.error(e)
     }
