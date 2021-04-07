@@ -159,7 +159,6 @@ import {
 } from '@nuxtjs/composition-api'
 import jsPDF from 'jspdf'
 import useInvoice from '~/composables/useInvoice'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
 import RootState from '~/store'
 import BasicInvoiceTemplate from '~/templates/basic'
 
@@ -200,7 +199,7 @@ export default defineComponent({
       } catch {}
 
       const template = new BasicInvoiceTemplate(
-        new InvoiceImpl(), // TODO: Adapt to new invoice system
+        state.invoice.value,
         state.customer.value,
         state.address.value,
         team.value,

@@ -4,9 +4,9 @@ import { ColumnInput } from 'jspdf-autotable'
 import { RenderingSignature, Team } from '~/types/team'
 import { Address } from '~/types/address'
 import { Customer } from '~/types/customer'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
 import DataURI from '~/helpers/dataURI'
-import { InvoiceType } from '~/types/invoice'
+import { Invoice, InvoiceType } from '~/types/invoice'
+import { getPriceAtIndex } from '~/composables/useInvoicePricing'
 
 export default abstract class Template {
   /**
@@ -44,7 +44,7 @@ export default abstract class Template {
    * @param teamLogo
    */
   constructor(
-    public invoice: InvoiceImpl,
+    public invoice: Invoice,
     public customer: Customer,
     public address: Address,
     public team: Team,
@@ -71,11 +71,11 @@ export default abstract class Template {
    * Is document an Invoice
    */
   get isInvoice(): boolean {
-    return this.invoice.data.type === InvoiceType.Invoice
+    return this.invoice.type === InvoiceType.Invoice
   }
 
   get date(): string {
-    return format(new Date(this.invoice.data.date), 'dd/MM/yyyy')
+    return format(new Date(this.invoice.date), 'dd/MM/yyyy')
   }
 
   /**
@@ -83,7 +83,7 @@ export default abstract class Template {
    */
   get hasSignature(): boolean {
     const signature = this.team.rendering.signature
-    const document = this.invoice.data.type
+    const document = this.invoice.type
 
     return (
       signature === RenderingSignature.Both ||
@@ -101,12 +101,12 @@ export default abstract class Template {
   getLines(): string[][] {
     const lines = []
 
-    for (const [idx, field] of this.invoice.data.fields.entries()) {
+    for (const [idx, field] of this.invoice.fields.entries()) {
       const line = [
         field.description,
         field.price + ' €',
         field.tax + ' %',
-        this.invoice?.getPriceAtIndex(idx) + ' €',
+        getPriceAtIndex(this.invoice, idx) + ' €',
       ]
 
       if (this.team.rendering.quantityEnabled) {

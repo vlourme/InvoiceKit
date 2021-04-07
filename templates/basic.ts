@@ -4,6 +4,11 @@
 
 import autoTable from 'jspdf-autotable'
 import Template from './template'
+import {
+  getFinalPrice,
+  getTotalPrice,
+  getTotalTaxes,
+} from '~/composables/useInvoicePricing'
 
 export default class BasicInvoiceTemplate extends Template {
   /**
@@ -56,7 +61,7 @@ export default class BasicInvoiceTemplate extends Template {
       .setFont('Helvetica', 'normal')
       .setFontSize(14)
       .setTextColor(107, 114, 128)
-      .text(`# ${this.invoice.data.id}`, 195, 21, { align: 'right' })
+      .text(`# ${this.invoice.id}`, 195, 21, { align: 'right' })
       .setFontSize(10)
       .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')
@@ -117,9 +122,9 @@ export default class BasicInvoiceTemplate extends Template {
    */
   drawTotalPricing(): void {
     // Calculate prices
-    const noTax = this.invoice.getTotalPrice()
-    const tax = this.invoice.getTotalTaxes()
-    const total = this.invoice.getFinalPrice()
+    const noTax = getTotalPrice(this.invoice)
+    const tax = getTotalTaxes(this.invoice)
+    const total = getFinalPrice(this.invoice)
 
     // Get text
     const text = [
@@ -130,21 +135,18 @@ export default class BasicInvoiceTemplate extends Template {
     let startY = 233
 
     // Check for promotion
-    if (this.invoice.data.promotion) {
+    if (this.invoice.promotion) {
       text.splice(text.length, 0, [
         'Réduction',
-        `- ${this.invoice.data.promotion} %`,
+        `- ${this.invoice.promotion} %`,
       ])
 
       startY -= 6
     }
 
     // Check for deposit
-    if (this.invoice.data.deposit) {
-      text.splice(text.length, 0, [
-        'Acompte',
-        `- ${this.invoice.data.deposit} €`,
-      ])
+    if (this.invoice.deposit) {
+      text.splice(text.length, 0, ['Acompte', `- ${this.invoice.deposit} €`])
 
       startY -= 6
     }
@@ -195,7 +197,7 @@ export default class BasicInvoiceTemplate extends Template {
       .setFont('Helvetica', 'normal')
       .setFontSize(9)
       .setTextColor(107, 114, 128)
-      .text(this.invoice.data.note, this.hasSignature ? 55 : 15, 233, {
+      .text(this.invoice.note, this.hasSignature ? 55 : 15, 233, {
         maxWidth: 65,
       })
   }
@@ -257,7 +259,7 @@ export default class BasicInvoiceTemplate extends Template {
     // Get footer size
     const footer = [[''], [''], ['']]
 
-    if (this.invoice.data.promotion || this.invoice.data.deposit) {
+    if (this.invoice.promotion || this.invoice.deposit) {
       footer.push([''])
     }
 
@@ -330,7 +332,7 @@ export default class BasicInvoiceTemplate extends Template {
     }
 
     // Draw notes
-    if (this.invoice.data.note) {
+    if (this.invoice.note) {
       this.drawNotes()
     }
 
