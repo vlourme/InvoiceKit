@@ -28,7 +28,7 @@
           />
         </div>
         <div class="mt-1">
-          <base-label for="type">Identifiant</base-label>
+          <base-label for="type">Type de document</base-label>
           <base-select
             id="type"
             v-model="invoice.type"
