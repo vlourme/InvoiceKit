@@ -18,22 +18,32 @@
           <table class="relative w-full">
             <thead>
               <tr>
-                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
-                  ID
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
+                  <abbr title="Identifiant">#</abbr>
                 </th>
-                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
                   Type
                 </th>
-                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
                   Client
                 </th>
-                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
                   Statut
                 </th>
-                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
                   Dernière mise à jour
                 </th>
-                <th class="sticky top-0 bg-gray-50"></th>
+                <th class="sticky top-0 bg-gray-50 text-right"></th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -42,30 +52,47 @@
                 :key="idx"
                 class="even:bg-gray-50"
               >
-                <td class="px-6 py-4 text-center font-semibold">
+                <td class="px-6 py-4 font-semibold">
                   {{ invoice.id }}
                 </td>
-                <td class="px-6 py-4 text-center">
+                <td class="px-6 py-4">
                   {{ invoice.type === 'QUOTE' ? 'Devis' : 'Facture' }}
                 </td>
-                <td class="px-6 py-4 text-center">
-                  {{ invoice.customer.fullName }}
-                  <span
-                    v-if="invoice.customer.society"
-                    class="text-sm text-gray-400"
+                <td class="px-6 py-4">
+                  <nuxt-link
+                    class="border-b border-blue-300 pb-1 hover:text-blue-500 hover:border-blue-400 transition-colors"
+                    :to="'/customers/' + invoice.customer.$key"
                   >
-                    ({{ invoice.customer.society }})
-                  </span>
+                    {{ invoice.customer.fullName }}
+                    <span
+                      v-if="invoice.customer.society"
+                      class="text-sm text-gray-400"
+                    >
+                      ({{ invoice.customer.society }})
+                    </span>
+                  </nuxt-link>
                 </td>
-                <td class="px-6 py-4 text-center">
-                  {{ getStatus(invoice) }}
+                <td class="px-6 py-4">
+                  <div class="inline-flex items-center">
+                    <div
+                      :class="{
+                        'bg-gray-400': invoice.status === InvoiceStatus.None,
+                        'bg-red-400': invoice.status === InvoiceStatus.Unpaid,
+                        'bg-yellow-400':
+                          invoice.status === InvoiceStatus.Pending,
+                        'bg-green-400': invoice.status === InvoiceStatus.Paid,
+                      }"
+                      class="h-2 w-2 rounded-full mr-2"
+                    ></div>
+                    {{ getStatus(invoice) }}
+                  </div>
                 </td>
-                <td class="px-6 py-4 text-center">
+                <td class="px-6 py-4">
                   {{ invoice.updatedAt.toDate().toLocaleString() }}
                 </td>
-                <td width="200" class="px-6 py-4 text-center">
+                <td width="200" class="px-6 py-4 text-right">
                   <nuxt-link
-                    class="text-blue-500 hover:text-blue-700"
+                    class="text-blue-500 hover:text-blue-700 transition-colors"
                     :to="`/invoices/${invoice.customer.$key}/${invoice.link}`"
                   >
                     Voir le document
@@ -149,7 +176,15 @@ export default defineComponent({
       }
     }
 
-    return { doSearch, getData, getStatus, search, results, canLoadMore }
+    return {
+      doSearch,
+      getData,
+      getStatus,
+      search,
+      results,
+      canLoadMore,
+      InvoiceStatus,
+    }
   },
   head: {
     title: 'Factures',
