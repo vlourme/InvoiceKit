@@ -4,14 +4,26 @@
       <slot></slot>
     </h2>
 
-    <div class="h-14 flex divide-x border-l border-r mr-4">
+    <div
+      :class="{ 'border-l border-r': empty }"
+      class="h-14 flex divide-x mr-4"
+    >
       <slot name="actions"></slot>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Header',
-}
+<script lang="ts">
+import { computed, defineComponent } from '@nuxtjs/composition-api'
+
+export default defineComponent({
+  setup(_props, { slots }) {
+    // Computed
+    const empty = computed(() => {
+      return !!slots.actions
+    })
+
+    return { empty }
+  },
+})
 </script>
