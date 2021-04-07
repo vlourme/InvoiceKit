@@ -31,6 +31,13 @@ export default () => {
   const hasChanges = computed(() => !_.isEqual(state.customer, state.oldState))
 
   // Methods
+  const resetState = () => {
+    state.oldState = defaultCustomer()
+    state.customer = defaultCustomer()
+    state.addresses = []
+    state.invoices = []
+  }
+
   const loadCustomer = async (customerId: string) => {
     const doc = await ctx.$fire.firestore
       .collection('teams')
@@ -104,6 +111,7 @@ export default () => {
     user,
     role,
     hasChanges,
+    resetState,
     loadCustomer,
     loadAddresses,
     loadInvoices,

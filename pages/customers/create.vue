@@ -55,14 +55,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@nuxtjs/composition-api'
+import { defineComponent, onMounted } from '@nuxtjs/composition-api'
 import useCustomer from '~/composables/useCustomer'
 
 export default defineComponent({
   layout: 'dashboard',
   setup() {
     // Data
-    const { state, role, hasChanges, saveCustomer } = useCustomer()
+    const { state, role, hasChanges, resetState, saveCustomer } = useCustomer()
+
+    onMounted(resetState)
 
     return {
       ...state,
