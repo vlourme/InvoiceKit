@@ -17,7 +17,7 @@
         <div class="flex-grow overflow-auto">
           <table class="relative w-full">
             <thead>
-              <tr>
+              <tr class="border-b">
                 <th
                   class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
                 >
@@ -46,7 +46,7 @@
                 <th class="sticky top-0 bg-gray-50 text-right"></th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
               <tr
                 v-for="(invoice, idx) in results"
                 :key="idx"

@@ -21,37 +21,43 @@
         <div class="flex-grow overflow-auto">
           <table class="relative w-full">
             <thead>
-              <tr>
-                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+              <tr class="border-b">
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
                   Nom complet
                 </th>
-                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
                   Entreprise
                 </th>
-                <th class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700">
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
                   Email
                 </th>
-                <th class="sticky top-0 bg-gray-50"></th>
+                <th class="sticky top-0 bg-gray-50 text-right"></th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody>
               <tr
                 v-for="(customer, idx) in results"
                 :key="idx"
                 class="even:bg-gray-50"
               >
-                <td class="px-6 py-4 text-center">
+                <td class="px-6 py-4 text-left">
                   {{ customer.fullName }}
                 </td>
-                <td class="px-6 py-4 text-center">
+                <td class="px-6 py-4 text-left">
                   {{ customer.society }}
                 </td>
-                <td class="px-6 py-4 text-center">
+                <td class="px-6 py-4 text-left">
                   {{ customer.email }}
                 </td>
-                <td width="200" class="px-6 py-4 text-center">
+                <td width="200" class="px-6 py-4 text-right">
                   <nuxt-link
-                    class="text-blue-500 hover:text-blue-700"
+                    class="text-blue-500 hover:text-blue-700 transition-colors"
                     :to="`/customers/${customer.$key}`"
                     >Voir la fiche</nuxt-link
                   >
