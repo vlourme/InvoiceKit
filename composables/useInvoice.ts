@@ -40,6 +40,15 @@ export default () => {
   )
 
   // Methods
+  const resetState = () => {
+    state.invoice = defaultInvoice()
+    state.address = defaultAddress()
+    state.customer = defaultCustomer()
+    state.oldState = defaultInvoice()
+    state.taxes = 0
+    state.total = 0
+  }
+
   const loadCustomer = async (customerId: string) => {
     const ref = await ctx.$fire.firestore
       .collection('teams')
@@ -132,6 +141,7 @@ export default () => {
     role,
     hasChanges,
     canDelete,
+    resetState,
     loadCustomer,
     loadAddress,
     loadInvoice,

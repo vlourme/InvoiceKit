@@ -58,6 +58,7 @@ export default defineComponent({
     const {
       state,
       hasChanges,
+      resetState,
       loadCustomer,
       loadAddress,
       saveInvoice,
@@ -72,6 +73,7 @@ export default defineComponent({
     useFetch(async () => {
       const query = route.value.query as { [key: string]: string }
 
+      resetState()
       await loadCustomer(query.customer)
       await loadAddress(query.customer, query.address)
     })
