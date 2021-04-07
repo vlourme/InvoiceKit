@@ -40,10 +40,13 @@
               {{ link.name }}
             </p>
             <div class="py-1">
-              <nuxt-link
+              <component
+                :is="item.absolute ? 'a' : 'nuxt-link'"
                 v-for="item in link.routes"
                 :key="item.route"
-                :to="item.route"
+                :target="item.absolute ? '_blank' : null"
+                :to="item.absolute ? null : item.route"
+                :href="item.absolute ? item.route : null"
                 :class="{
                   'bg-white rounded-md shadow': $route.path.startsWith(
                     item.route
@@ -65,7 +68,7 @@
                 >
                   {{ item.name }}
                 </p>
-              </nuxt-link>
+              </component>
             </div>
           </div>
         </aside>
@@ -135,7 +138,7 @@ export default defineComponent({
               icon: 'bxs-message',
             },
             {
-              route: '/issues',
+              route: 'https://github.com/vlourme/invoicekit',
               absolute: true,
               name: 'Signaler un bug',
               icon: 'bxs-bug',
