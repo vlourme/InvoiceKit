@@ -16,8 +16,10 @@
     "start:functions": "npm run watch --prefix functions"
   },
   "dependencies": {
+    "@nuxt/content": "^1.14.0",
     "@nuxtjs/composition-api": "^0.22.4",
     "@nuxtjs/firebase": "^7.5.0",
+    "@tailwindcss/typography": "^0.4.0",
     "boxicons": "^2.0.7",
     "core-js": "^3.9.0",
     "date-fns": "^2.19.0",
