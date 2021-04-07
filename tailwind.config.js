@@ -7,6 +7,7 @@ module.exports = {
   theme: {
     fontFamily: {
       body: ['Inter', 'system-ui', 'sans-serif'],
+      poppins: ['Poppins', 'system-ui', 'sans-serif'],
     },
     extend: {
       height: {
