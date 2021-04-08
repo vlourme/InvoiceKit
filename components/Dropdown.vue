@@ -1,5 +1,5 @@
 <template>
-  <div v-click-outside="hide" class="relative inline-block text-left">
+  <div ref="dropdown" class="relative inline-block text-left">
     <div @click="open = !open">
       <slot></slot>
     </div>
@@ -22,21 +22,32 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from '@nuxtjs/composition-api'
-import ClickOutside from 'vue-click-outside'
+import { defineComponent, onMounted, ref } from '@nuxtjs/composition-api'
 
 export default defineComponent({
-  directives: {
-    ClickOutside,
-  },
   setup() {
     const open = ref(false)
+    const dropdown = ref()
+    const content = ref()
+
+    onMounted(() => {
+      document.addEventListener('click', (event) => {
+        if (
+          dropdown.value.contains(event.target) &&
+          !content.value.contains(event.target)
+        ) {
+          return
+        }
+
+        hide()
+      })
+    })
 
     const hide = () => {
       open.value = false
     }
 
-    return { open, hide }
+    return { dropdown, content, open, hide }
   },
 })
 </script>
