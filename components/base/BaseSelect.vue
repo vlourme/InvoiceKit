@@ -10,7 +10,7 @@
         )
       "
     >
-      <template v-for="item in items">
+      <template v-for="item in options">
         <option :key="item.value" :value="item.value">
           {{ item.text }}
         </option>
@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropOptions } from '@nuxtjs/composition-api'
+import { computed, defineComponent, PropOptions } from '@nuxtjs/composition-api'
 import { SelectItem } from '~/types/UI'
 
 export default defineComponent({
@@ -38,6 +38,12 @@ export default defineComponent({
       type: Boolean,
       required: false,
     } as PropOptions<boolean>,
+  },
+  setup(props) {
+    // Computed
+    const options = computed(() => props.items ?? [])
+
+    return { options }
   },
 })
 </script>
