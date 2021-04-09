@@ -63,13 +63,7 @@
                     class="border-b border-blue-300 pb-1 hover:text-blue-500 hover:border-blue-400 transition-colors"
                     :to="'/customers/' + invoice.customer.$key"
                   >
-                    {{ invoice.customer.fullName }}
-                    <span
-                      v-if="invoice.customer.society"
-                      class="text-sm text-gray-400"
-                    >
-                      ({{ invoice.customer.society }})
-                    </span>
+                    {{ invoice.customer[primary.value] }}
                   </nuxt-link>
                 </td>
                 <td class="px-6 py-4">
@@ -124,6 +118,7 @@ import {
   useRouter,
   useStore,
 } from '@nuxtjs/composition-api'
+import useExtensibleField from '~/composables/useExtensibleField'
 import useSearch from '~/composables/useSearch'
 import RootState from '~/store'
 import { InvoiceIndex, InvoiceStatus } from '~/types/invoice'
@@ -137,13 +132,13 @@ export default defineComponent({
 
     // Computed
     const user = computed(() => store.state.auth.user)
-    const team = computed(() => store.state.team.team!)
     const canLoadMore = computed(() => {
       return (
         (team.value.counter.INVOICE ?? 0 + team.value.counter.QUOTE ?? 0) !==
         results.value.length
       )
     })
+    const { team, primary } = useExtensibleField('customers')
 
     // Search
     const { search, getData, doSearch, results } = useSearch<InvoiceIndex>(
@@ -183,6 +178,7 @@ export default defineComponent({
       search,
       results,
       canLoadMore,
+      primary: primary()!,
       InvoiceStatus,
     }
   },

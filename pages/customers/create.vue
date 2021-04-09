@@ -21,56 +21,47 @@
         </FormDescription>
       </template>
 
-      <div class="mt-2">
-        <base-label for="name">Nom complet</base-label>
-        <base-input
-          id="name"
-          v-model="customer.fullName"
-          required
-          minlength="1"
-        />
-      </div>
-
-      <div class="mt-2">
-        <base-label for="society">Entreprise</base-label>
-        <base-input id="society" v-model="customer.society" />
-      </div>
-
-      <div class="mt-2">
-        <base-label for="email">Email</base-label>
-        <base-input id="email" v-model="customer.email" />
-      </div>
-
-      <div class="mt-2">
-        <base-label for="phone">Téléphone</base-label>
-        <base-input id="phone" v-model="customer.phone" />
-      </div>
-
-      <div class="mt-2">
-        <base-label for="notes">Notes</base-label>
-        <base-textarea id="notes" v-model="customer.notes"></base-textarea>
-      </div>
+      <customers-inputs
+        :fields="team.extensions.customers"
+        :customer-state.sync="customer"
+      />
     </FormBox>
   </form>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from '@nuxtjs/composition-api'
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  useStore,
+} from '@nuxtjs/composition-api'
 import useCustomer from '~/composables/useCustomer'
+import RootState from '~/store'
+import { FieldType } from '~/types/team'
 
 export default defineComponent({
   layout: 'dashboard',
   setup() {
+    // Context
+    const store = useStore<RootState>()
+
     // Data
     const { state, role, hasChanges, resetState, saveCustomer } = useCustomer()
 
+    // Computed
+    const team = computed(() => store.state.team.team!)
+
+    // Methods
     onMounted(resetState)
 
     return {
       ...state,
       hasChanges,
       saveCustomer,
+      team,
       role,
+      FieldType,
     }
   },
   head: {

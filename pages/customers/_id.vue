@@ -1,8 +1,7 @@
 <template>
   <form @submit.prevent="updateCustomer">
     <Header>
-      {{ customer.fullName }}
-      <span v-if="customer.society">@ {{ customer.society }}</span>
+      {{ customer[primaryValue.value] }}
 
       <template v-if="role > 0" #actions>
         <base-nav-button type="submit" :disabled="!hasChanges">
@@ -27,52 +26,10 @@
         </FormDescription>
       </template>
 
-      <div class="mt-2">
-        <base-label for="name">Nom complet</base-label>
-        <base-input
-          id="name"
-          v-model="customer.fullName"
-          required
-          minlength="1"
-          :disabled="role === 0"
-        />
-      </div>
-
-      <div class="mt-2">
-        <base-label for="society">Entreprise</base-label>
-        <base-input
-          id="society"
-          v-model="customer.society"
-          :disabled="role === 0"
-        />
-      </div>
-
-      <div class="mt-2">
-        <base-label for="email">Email</base-label>
-        <base-input
-          id="email"
-          v-model="customer.email"
-          :disabled="role === 0"
-        />
-      </div>
-
-      <div class="mt-2">
-        <base-label for="phone">Téléphone</base-label>
-        <base-input
-          id="phone"
-          v-model="customer.phone"
-          :disabled="role === 0"
-        />
-      </div>
-
-      <div class="mt-2">
-        <base-label for="notes">Notes</base-label>
-        <base-textarea
-          id="notes"
-          v-model="customer.notes"
-          :disabled="role === 0"
-        ></base-textarea>
-      </div>
+      <customers-inputs
+        :fields="team.extensions.customers"
+        :customer-state.sync="customer"
+      />
     </FormBox>
 
     <customers-addresses
@@ -89,6 +46,7 @@
 
 <script lang="ts">
 import {
+  computed,
   defineComponent,
   useContext,
   useFetch,
@@ -98,6 +56,8 @@ import {
 import { DialogType } from '~/types/dialog'
 import { NotificationType } from '~/types/notification'
 import useCustomer from '~/composables/useCustomer'
+import { FieldType } from '~/types/team'
+import useExtensibleField from '~/composables/useExtensibleField'
 
 export default defineComponent({
   layout: 'dashboard',
@@ -118,13 +78,19 @@ export default defineComponent({
       deleteCustomer,
     } = useCustomer()
 
+    // Computed
+    const { team, primary, getInputType } = useExtensibleField('customers')
+    const primaryValue = primary()
+
     // Fetch data
     useFetch(async () => {
       const id = route.value.params.id
       await loadCustomer(id)
       loadAddresses(id)
 
-      title.value = `${state.customer.value.fullName} — Fiche client`
+      title.value = `${
+        state.customer.value[primaryValue?.value]
+      } — Fiche client`
     })
 
     const askDelete = (): void => {
@@ -156,7 +122,11 @@ export default defineComponent({
       updateCustomer,
       hasChanges,
       askDelete,
+      primaryValue,
+      team,
+      FieldType,
       role,
+      getInputType,
     }
   },
   head: {

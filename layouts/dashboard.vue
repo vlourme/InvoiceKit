@@ -54,22 +54,33 @@
                     item.route
                   ),
                 }"
-                class="my-2 flex items-center w-full py-2 px-3 text-gray-500 cursor-pointer group hover:bg-white hover:bg-opacity-50 rounded-md transition-colors"
+                class="my-2 flex items-center justify-between w-full py-2 px-3 text-gray-500 cursor-pointer group hover:bg-white hover:bg-opacity-50 rounded-md transition-colors"
               >
-                <i
-                  :class="{
-                    [item.icon]: true,
-                    'text-indigo-600': $route.path.startsWith(item.route),
-                  }"
-                  class="bx text-xl mr-4"
-                ></i>
+                <div class="inline-flex items-center">
+                  <i
+                    :class="{
+                      [item.icon]: true,
+                      'text-indigo-600': $route.path.startsWith(item.route),
+                    }"
+                    class="bx text-xl mr-4"
+                  ></i>
 
-                <p
-                  :class="{ 'font-bold': $route.path.startsWith(item.route) }"
-                  class="font-medium"
+                  <p
+                    :class="{ 'font-bold': $route.path.startsWith(item.route) }"
+                    class="font-medium"
+                  >
+                    {{ item.name }}
+                  </p>
+                </div>
+
+                <div
+                  v-if="item.settings"
+                  class="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition inline-flex items-center"
                 >
-                  {{ item.name }}
-                </p>
+                  <nuxt-link title="Paramètres" :to="item.settings">
+                    <i class="bx bxs-customize text-lg"></i>
+                  </nuxt-link>
+                </div>
               </component>
             </div>
           </div>
@@ -123,6 +134,7 @@ export default defineComponent({
               route: '/customers',
               name: 'Clients',
               icon: 'bxs-user',
+              settings: '/customers/settings',
             },
             {
               route: '/invoices',

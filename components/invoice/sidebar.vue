@@ -5,34 +5,23 @@
     <!-- Customer -->
     <p class="px-4 mt-3 mb-1 font-semibold text-gray-500 text-sm">Client</p>
     <ul class="divide-y border-b">
-      <!-- Full name -->
-      <li v-if="customer.fullName" class="p-4 inline-flex items-center w-full">
-        <i class="bx text-xl bxs-user text-indigo-500"></i>
-        <p class="ml-3">
-          {{ customer.fullName }}
-        </p>
-      </li>
-      <!-- Society -->
-      <li v-if="customer.society" class="p-4 inline-flex items-center w-full">
-        <i class="bx text-xl bxs-briefcase text-indigo-500"></i>
-        <p class="ml-3">
-          {{ customer.society }}
-        </p>
-      </li>
-      <!-- Email -->
-      <li v-if="customer.email" class="p-4 inline-flex items-center w-full">
-        <i class="bx text-xl bxs-envelope text-indigo-500"></i>
-        <p class="ml-3">
-          {{ customer.email }}
-        </p>
-      </li>
-      <!-- Phone -->
-      <li v-if="customer.phone" class="p-4 inline-flex items-center w-full">
-        <i class="bx text-xl bxs-phone text-indigo-500"></i>
-        <p class="ml-3">
-          {{ customer.phone }}
-        </p>
-      </li>
+      <template v-if="featured.length > 0">
+        <li class="p-4 inline-flex items-center w-full">
+          <i class="bx text-xl bxs-user text-indigo-500"></i>
+          <div class="ml-3 inline-flex flex-col">
+            <p
+              v-for="(field, idx) in featured"
+              :key="idx"
+              :class="{
+                'font-semibold': field.primary,
+                'text-gray-500 text-sm': !field.primary,
+              }"
+            >
+              {{ customer[field.value] }}
+            </p>
+          </div>
+        </li>
+      </template>
       <!-- Address -->
       <li v-if="address" class="p-4 inline-flex items-center w-full">
         <i class="bx text-xl bxs-map text-indigo-500"></i>
@@ -158,6 +147,7 @@ import {
   useStore,
 } from '@nuxtjs/composition-api'
 import jsPDF from 'jspdf'
+import useExtensibleField from '~/composables/useExtensibleField'
 import useInvoice from '~/composables/useInvoice'
 import RootState from '~/store'
 import BasicInvoiceTemplate from '~/templates/basic'
@@ -180,13 +170,12 @@ export default defineComponent({
   setup() {
     // Context
     const ctx = useContext()
-    const store = useStore<RootState>()
 
     // Data
     const { state, user, role } = useInvoice()
 
     // Computed
-    const team = computed(() => store.state.team.team!)
+    const { team, featured } = useExtensibleField('customers')
 
     // Methods
     const render = async (): Promise<jsPDF> => {
@@ -239,6 +228,7 @@ export default defineComponent({
       save,
       printInvoice,
       role,
+      featured: featured(),
     }
   },
 })

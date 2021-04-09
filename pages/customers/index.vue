@@ -22,21 +22,15 @@
           <table class="relative w-full">
             <thead>
               <tr class="border-b">
-                <th
-                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
-                >
-                  Nom complet
-                </th>
-                <th
-                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
-                >
-                  Entreprise
-                </th>
-                <th
-                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
-                >
-                  Email
-                </th>
+                <template v-for="(field, idx) in team.extensions.customers">
+                  <th
+                    v-if="field.featured"
+                    :key="idx"
+                    class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                  >
+                    {{ field.name }}
+                  </th>
+                </template>
                 <th class="sticky top-0 bg-gray-50 text-right"></th>
               </tr>
             </thead>
@@ -47,13 +41,13 @@
                 class="even:bg-gray-50"
               >
                 <td class="px-6 py-4 text-left">
-                  {{ customer.fullName }}
+                  {{ customer[values[0]] }}
                 </td>
                 <td class="px-6 py-4 text-left">
-                  {{ customer.society }}
+                  {{ customer[values[1]] }}
                 </td>
                 <td class="px-6 py-4 text-left">
-                  {{ customer.email }}
+                  {{ customer[values[2]] }}
                 </td>
                 <td width="200" class="px-6 py-4 text-right">
                   <nuxt-link
@@ -88,6 +82,7 @@ import {
   useStore,
 } from '@nuxtjs/composition-api'
 import useSearch from '~/composables/useSearch'
+import useExtensibleField from '~/composables/useExtensibleField'
 import RootState from '~/store'
 import { Customer } from '~/types/customer'
 
@@ -101,14 +96,14 @@ export default defineComponent({
     // Computed
     const user = computed(() => store.state.auth.user)
     const role = computed(() => store.getters['team/role'])
-    const team = computed(() => store.state.team.team!)
     const canLoadMore = computed(() => {
       return team.value.counter.customers !== results.value.length
     })
+    const { team, primary, values } = useExtensibleField('customers')
 
     // Search
     const { search, getData, doSearch, results } = useSearch<Customer>(
-      'fullName',
+      primary()?.value!,
       `teams/${user.value?.team}/customers`
     )
 
@@ -122,7 +117,17 @@ export default defineComponent({
       await getData()
     })
 
-    return { role, getData, doSearch, search, results, canLoadMore }
+    return {
+      role,
+      team,
+      values: values(),
+      primary,
+      getData,
+      doSearch,
+      search,
+      results,
+      canLoadMore,
+    }
   },
   head: {
     title: 'Clients',

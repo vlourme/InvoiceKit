@@ -9,6 +9,7 @@ import {
   getTotalPrice,
   getTotalTaxes,
 } from '~/composables/useInvoicePricing'
+import useExtensibleField from '~/composables/useExtensibleField'
 
 export default class BasicInvoiceTemplate extends Template {
   /**
@@ -88,11 +89,9 @@ export default class BasicInvoiceTemplate extends Template {
       startY = 45
     }
 
-    let fullName = this.customer.fullName
-
-    if (this.customer.society) {
-      fullName += ` (${this.customer.society})`
-    }
+    const primary = this.team.extensions.customers.find(
+      (value) => value.primary
+    )
 
     this.doc
       .setFillColor(229, 231, 235)
@@ -100,7 +99,7 @@ export default class BasicInvoiceTemplate extends Template {
       .setFont('Helvetica', 'normal', 700)
       .setFontSize(12)
       .setTextColor(107, 114, 128)
-      .text(fullName, 15, startY + 10)
+      .text(this.customer[primary?.value!], 15, startY + 10)
       .setFont('Helvetica', 'normal')
       .setFontSize(11)
       .text(
