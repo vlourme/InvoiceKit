@@ -18,6 +18,7 @@
               <th class="text-left p-4 font-medium text-gray-600">ID</th>
               <th class="text-left p-4 font-medium text-gray-600">Type</th>
               <th class="text-left p-4 font-medium text-gray-600">Date</th>
+              <th class="text-left p-4"></th>
             </tr>
           </thead>
           <tbody class="divide-y even:bg-gray-100">
@@ -27,6 +28,13 @@
                 {{ item.type === 'QUOTE' ? 'Devis' : 'Facture' }}
               </td>
               <td class="p-3">{{ item.date }}</td>
+              <td class="p-3 text-right">
+                <nuxt-link
+                  class="text-blue-500 border-b border-blue-400 transition-colors hover:text-blue-600 hover:border-blue-500"
+                  :to="`/invoices/${customer.$key}/${item.$key}`"
+                  >Voir le document</nuxt-link
+                >
+              </td>
             </tr>
           </tbody>
         </table>
@@ -126,7 +134,6 @@ import {
 import useCustomer from '~/composables/useCustomer'
 import { importLegacy } from '~/helpers/legacyImport'
 import { defaultAddress } from '~/types/address'
-import { Invoice } from '~/types/invoice'
 
 export default defineComponent({
   setup() {
@@ -175,10 +182,6 @@ export default defineComponent({
       router.push(`/invoices/${state.customer.value.$key}/${docId}`)
     }
 
-    const navigateToInvoice = (invoice: Invoice) => {
-      router.push(`/invoices/${state.customer.value.$key!}/${invoice.$key}`)
-    }
-
     return {
       ...state,
       fileInput,
@@ -188,7 +191,6 @@ export default defineComponent({
       makeInvoice,
       startImport,
       importDone,
-      navigateToInvoice,
     }
   },
 })
