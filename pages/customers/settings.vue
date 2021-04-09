@@ -43,19 +43,22 @@
                 <th class="p-4 font-medium text-gray-600"></th>
               </tr>
             </thead>
-            <draggable v-model="state.extensions.customers" tag="tbody">
+            <draggable v-model="state.extensions.customers.fields" tag="tbody">
               <tr
-                v-for="(field, idx) in state.extensions.customers"
+                v-for="(field, idx) in state.extensions.customers.fields"
                 :key="idx"
                 class="cursor-move active:bg-blue-100"
               >
                 <td class="px-4 py-3">
-                  <div class="inline-flex items-center">
-                    <i
-                      v-if="field.primary"
-                      class="bx bx-key text-yellow-500 text-lg mr-2"
-                    ></i>
-                    {{ field.name }}
+                  <div class="inline-flex flex-col">
+                    <div class="inline-flex items-center">
+                      <i
+                        v-if="field.primary"
+                        class="bx bx-key text-yellow-500 text-lg mr-2"
+                      ></i>
+                      {{ field.name }}
+                    </div>
+                    <code class="text-xs text-gray-400">{{ field.value }}</code>
                   </div>
                 </td>
                 <td class="px-4 py-3">{{ getType(field.type) }}</td>
@@ -175,6 +178,28 @@
         </Modal>
       </form>
     </div>
+
+    <form-box>
+      <template #description>
+        <FormDescription>
+          <template #title>Formatage</template>
+          <template #description>
+            Le formatage correspond a l'affichage du client, si vous voulez
+            qu'il apparaisse toujours avec d'autres champs, indiquez-les ici.
+          </template>
+        </FormDescription>
+      </template>
+
+      <div class="mt-2">
+        <base-label for="format">Formatage du nom d'affichage</base-label>
+        <base-input
+          id="format"
+          v-model="state.extensions.customers.formatting"
+          type="text"
+          required
+        />
+      </div>
+    </form-box>
   </form>
 </template>
 
@@ -230,7 +255,7 @@ export default defineComponent({
     const team = computed(() => store.state.team.team!)
     const isAdmin = computed(() => store.getters['team/isAdmin'])
     const hasPrimaryKey = computed(() =>
-      state.value.extensions.customers.some((value) => value.primary)
+      state.value.extensions.customers.fields.some((value) => value.primary)
     )
 
     // On mount
@@ -268,9 +293,9 @@ export default defineComponent({
       field.value.value = slugify(field.value.name, '_')
 
       if (update.value > -1) {
-        state.value.extensions.customers[update.value] = field.value
+        state.value.extensions.customers.fields[update.value] = field.value
       } else {
-        state.value.extensions.customers.push(field.value)
+        state.value.extensions.customers.fields.push(field.value)
       }
 
       closeDialog()
@@ -278,13 +303,13 @@ export default defineComponent({
 
     const editField = (idx: number) => {
       update.value = idx
-      field.value = state.value.extensions.customers[update.value]
+      field.value = state.value.extensions.customers.fields[update.value]
       select.value = field.value.selects.map((value) => value.text).join(';')
       dialog.value = true
     }
 
     const deleteField = (idx: number) => {
-      state.value.extensions.customers.splice(idx, 1)
+      state.value.extensions.customers.fields.splice(idx, 1)
     }
 
     const closeDialog = () => {

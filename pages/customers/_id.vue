@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="updateCustomer">
     <Header>
-      {{ customer[primary.value] }}
+      {{ title }}
 
       <template v-if="role > 0" #actions>
         <base-nav-button type="submit" :disabled="!hasChanges">
@@ -59,14 +59,18 @@ import { NotificationType } from '~/types/notification'
 import useCustomer from '~/composables/useCustomer'
 import { FieldType } from '~/types/team'
 import RootState from '~/store'
-import { getPrimaryKey, getInputType } from '~/composables/useExtensibleField'
+import {
+  getPrimaryKey,
+  getInputType,
+  getFormattedField,
+} from '~/composables/useExtensibleField'
 
 export default defineComponent({
   layout: 'dashboard',
   setup() {
     // Context
     const ctx = useContext()
-    const { title } = useMeta()
+    const meta = useMeta()
     const route = useRoute()
     const store = useStore<RootState>()
 
@@ -84,6 +88,9 @@ export default defineComponent({
     // Computed
     const team = computed(() => store.state.team.team!)
     const primary = getPrimaryKey(team.value, 'customers')
+    const title = computed(() =>
+      getFormattedField(team.value, state.customer.value, 'customers')
+    )
 
     // Fetch data
     useFetch(async () => {
@@ -91,7 +98,7 @@ export default defineComponent({
       await loadCustomer(id)
       loadAddresses(id)
 
-      title.value = `${state.customer.value[primary.value]} — Fiche client`
+      meta.title.value = `${state.customer.value[primary.value]} — Fiche client`
     })
 
     const askDelete = (): void => {
@@ -128,6 +135,7 @@ export default defineComponent({
       FieldType,
       role,
       getInputType,
+      title,
     }
   },
   head: {

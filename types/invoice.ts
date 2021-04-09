@@ -1,6 +1,6 @@
 import firebase from 'firebase'
 import { Customer } from './customer'
-import Model from './model'
+import { Model } from './model'
 
 export enum InvoiceType {
   Invoice = 'INVOICE',

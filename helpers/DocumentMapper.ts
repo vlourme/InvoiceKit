@@ -1,5 +1,5 @@
 import firebase from 'firebase'
-import Model from '~/types/model'
+import { Model } from '~/types/model'
 
 /**
  * Transform a snapshot containing multiple documents into a Array of Model

@@ -1,4 +1,4 @@
-import Model from './model'
+import { Model } from './model'
 
 export default interface User extends Model {
   email: string

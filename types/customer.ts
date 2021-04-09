@@ -1,9 +1,6 @@
-import Model from './model'
+import { ExtensibleModel } from './model'
 
-export interface Customer extends Model {
-  // Extensible structure
-  [key: string]: any
-}
+export interface Customer extends ExtensibleModel {}
 
 export const defaultCustomer = (): Customer => ({
   $key: '',

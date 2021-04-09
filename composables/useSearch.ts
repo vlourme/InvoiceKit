@@ -1,6 +1,6 @@
 import { Ref, ref, useContext } from '@nuxtjs/composition-api'
 import { mapSnapshot } from '~/helpers/documentMapper'
-import Model from '~/types/model'
+import { Model } from '~/types/model'
 
 interface OptionalProperty extends Model {
   [$key: string]: any

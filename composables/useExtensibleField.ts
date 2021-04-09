@@ -1,3 +1,4 @@
+import { ExtensibleModel } from '~/types/model'
 import { ExtensibleField, FieldType, Team } from '~/types/team'
 
 /**
@@ -33,6 +34,29 @@ export const getFeaturedFields = (
   extension: string
 ): ExtensibleField[] =>
   team.extensions[extension].fields.filter((value) => value.featured)
+
+/**
+ * Get formatted field
+ * @param {Team} team
+ * @param {Customer} customer
+ * @param {string} extension
+ * @returns {string}
+ */
+export const getFormattedField = <T extends ExtensibleModel>(
+  team: Team,
+  customer: T,
+  extension: string
+): string => {
+  // Regex
+  const regex = /%{(\w+)}%/gim
+
+  // Replace
+  const format = team.extensions[extension].formatting
+
+  return format.replace(regex, (sub, arg) => {
+    return customer[arg] ?? sub
+  })
+}
 
 /**
  * Get input type correspond to an HTML Input
