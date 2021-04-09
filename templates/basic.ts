@@ -9,7 +9,6 @@ import {
   getTotalPrice,
   getTotalTaxes,
 } from '~/composables/useInvoicePricing'
-import useExtensibleField from '~/composables/useExtensibleField'
 
 export default class BasicInvoiceTemplate extends Template {
   /**

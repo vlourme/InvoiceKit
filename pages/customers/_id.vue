@@ -46,7 +46,6 @@
 
 <script lang="ts">
 import {
-  computed,
   defineComponent,
   useContext,
   useFetch,
@@ -80,7 +79,7 @@ export default defineComponent({
 
     // Computed
     const { team, primary, getInputType } = useExtensibleField('customers')
-    const primaryValue = primary()
+    const primaryValue = primary()!
 
     // Fetch data
     useFetch(async () => {

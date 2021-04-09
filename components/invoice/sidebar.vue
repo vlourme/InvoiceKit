@@ -140,16 +140,13 @@
 
 <script lang="ts">
 import {
-  computed,
   defineComponent,
   PropOptions,
   useContext,
-  useStore,
 } from '@nuxtjs/composition-api'
 import jsPDF from 'jspdf'
 import useExtensibleField from '~/composables/useExtensibleField'
 import useInvoice from '~/composables/useInvoice'
-import RootState from '~/store'
 import BasicInvoiceTemplate from '~/templates/basic'
 
 export default defineComponent({
