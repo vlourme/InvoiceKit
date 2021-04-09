@@ -1,42 +1,54 @@
-import { computed, useStore } from '@nuxtjs/composition-api'
-import RootState from '~/store'
-import { ExtensibleField, FieldType } from '~/types/team'
+import { ExtensibleField, FieldType, Team } from '~/types/team'
 
-export default (extension: string) => {
-  // Context
-  const store = useStore<RootState>()
+/**
+ * Get primary key
+ * Note: This function is force-casted
+ *
+ * @param {Team} team
+ * @param {string} extension
+ * @returns {ExtensibleField}
+ */
+export const getPrimaryKey = (team: Team, extension: string): ExtensibleField =>
+  team.extensions[extension].fields.find((value) => {
+    return value.primary
+  })!
 
-  // Get team
-  const team = computed(() => store.state.team.team!)
+/**
+ * Get every values from extension
+ * @param {Team} team
+ * @param {string} extension
+ * @returns {string[]}
+ */
+export const getValues = (team: Team, extension: string): string[] =>
+  team.extensions[extension].fields.map((value) => value.value)
 
-  // Get primary field
-  const primary = () =>
-    team.value.extensions[extension].find((value) => {
-      return value.primary
-    })
+/**
+ * Get featured fields
+ * @param {Team} team
+ * @param {string} extension
+ * @returns {ExtensibleField[]}
+ */
+export const getFeaturedFields = (
+  team: Team,
+  extension: string
+): ExtensibleField[] =>
+  team.extensions[extension].fields.filter((value) => value.featured)
 
-  // Get values keys
-  const values = () =>
-    team.value.extensions[extension].map((value) => value.value)
-
-  // Get featured keys
-  const featured = () =>
-    team.value.extensions[extension].filter((value) => value.featured)
-
-  // Get input type
-  const getInputType = (type: FieldType) => {
-    switch (type) {
-      case FieldType.Number:
-        return 'number'
-      case FieldType.Email:
-        return 'email'
-      case FieldType.Date:
-        return 'date'
-      case FieldType.Text:
-      default:
-        return 'text'
-    }
+/**
+ * Get input type correspond to an HTML Input
+ * @param {FieldType} type
+ * @returns {string}
+ */
+export const getInputType = (type: FieldType): string => {
+  switch (type) {
+    case FieldType.Number:
+      return 'number'
+    case FieldType.Email:
+      return 'email'
+    case FieldType.Date:
+      return 'date'
+    case FieldType.Text:
+    default:
+      return 'text'
   }
-
-  return { team, primary, values, featured, getInputType }
 }

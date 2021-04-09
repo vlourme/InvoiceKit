@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="updateCustomer">
     <Header>
-      {{ customer[primaryValue.value] }}
+      {{ customer[primary.value] }}
 
       <template v-if="role > 0" #actions>
         <base-nav-button type="submit" :disabled="!hasChanges">
@@ -27,7 +27,7 @@
       </template>
 
       <customers-inputs
-        :fields="team.extensions.customers"
+        :fields="team.extensions.customers.fields"
         :customer-state.sync="customer"
       />
     </FormBox>
@@ -46,17 +46,20 @@
 
 <script lang="ts">
 import {
+  computed,
   defineComponent,
   useContext,
   useFetch,
   useMeta,
   useRoute,
+  useStore,
 } from '@nuxtjs/composition-api'
 import { DialogType } from '~/types/dialog'
 import { NotificationType } from '~/types/notification'
 import useCustomer from '~/composables/useCustomer'
 import { FieldType } from '~/types/team'
-import useExtensibleField from '~/composables/useExtensibleField'
+import RootState from '~/store'
+import { getPrimaryKey, getInputType } from '~/composables/useExtensibleField'
 
 export default defineComponent({
   layout: 'dashboard',
@@ -65,6 +68,7 @@ export default defineComponent({
     const ctx = useContext()
     const { title } = useMeta()
     const route = useRoute()
+    const store = useStore<RootState>()
 
     // Data
     const {
@@ -78,8 +82,8 @@ export default defineComponent({
     } = useCustomer()
 
     // Computed
-    const { team, primary, getInputType } = useExtensibleField('customers')
-    const primaryValue = primary()!
+    const team = computed(() => store.state.team.team!)
+    const primary = getPrimaryKey(team.value, 'customers')
 
     // Fetch data
     useFetch(async () => {
@@ -87,9 +91,7 @@ export default defineComponent({
       await loadCustomer(id)
       loadAddresses(id)
 
-      title.value = `${
-        state.customer.value[primaryValue?.value]
-      } — Fiche client`
+      title.value = `${state.customer.value[primary.value]} — Fiche client`
     })
 
     const askDelete = (): void => {
@@ -121,7 +123,7 @@ export default defineComponent({
       updateCustomer,
       hasChanges,
       askDelete,
-      primaryValue,
+      primary,
       team,
       FieldType,
       role,

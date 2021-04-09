@@ -22,7 +22,7 @@
       </template>
 
       <customers-inputs
-        :fields="team.extensions.customers"
+        :fields="team.extensions.customers.fields"
         :customer-state.sync="customer"
       />
     </FormBox>

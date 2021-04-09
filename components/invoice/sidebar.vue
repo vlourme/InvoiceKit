@@ -140,13 +140,16 @@
 
 <script lang="ts">
 import {
+  computed,
   defineComponent,
   PropOptions,
   useContext,
+  useStore,
 } from '@nuxtjs/composition-api'
 import jsPDF from 'jspdf'
-import useExtensibleField from '~/composables/useExtensibleField'
+import { getFeaturedFields } from '~/composables/useExtensibleField'
 import useInvoice from '~/composables/useInvoice'
+import RootState from '~/store'
 import BasicInvoiceTemplate from '~/templates/basic'
 
 export default defineComponent({
@@ -167,12 +170,14 @@ export default defineComponent({
   setup() {
     // Context
     const ctx = useContext()
+    const store = useStore<RootState>()
 
     // Data
     const { state, user, role } = useInvoice()
 
     // Computed
-    const { team, featured } = useExtensibleField('customers')
+    const team = computed(() => store.state.team.team!)
+    const featured = getFeaturedFields(team.value, 'customers')
 
     // Methods
     const render = async (): Promise<jsPDF> => {
@@ -225,7 +230,7 @@ export default defineComponent({
       save,
       printInvoice,
       role,
-      featured: featured(),
+      featured,
     }
   },
 })

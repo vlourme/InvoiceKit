@@ -22,7 +22,9 @@
           <table class="relative w-full">
             <thead>
               <tr class="border-b">
-                <template v-for="(field, idx) in team.extensions.customers">
+                <template
+                  v-for="(field, idx) in team.extensions.customers.fields"
+                >
                   <th
                     v-if="field.featured"
                     :key="idx"
@@ -82,7 +84,7 @@ import {
   useStore,
 } from '@nuxtjs/composition-api'
 import useSearch from '~/composables/useSearch'
-import useExtensibleField from '~/composables/useExtensibleField'
+import { getPrimaryKey, getValues } from '~/composables/useExtensibleField'
 import RootState from '~/store'
 import { Customer } from '~/types/customer'
 
@@ -99,11 +101,15 @@ export default defineComponent({
     const canLoadMore = computed(() => {
       return team.value.counter.customers !== results.value.length
     })
-    const { team, primary, values } = useExtensibleField('customers')
+    const team = computed(() => store.state.team.team!)
+
+    // Data
+    const primary = getPrimaryKey(team.value, 'customers')
+    const values = getValues(team.value, 'customers')
 
     // Search
     const { search, getData, doSearch, results } = useSearch<Customer>(
-      primary()?.value!,
+      primary.value,
       `teams/${user.value?.team}/customers`
     )
 
@@ -120,7 +126,7 @@ export default defineComponent({
     return {
       role,
       team,
-      values: values(),
+      values,
       primary,
       getData,
       doSearch,

@@ -118,7 +118,7 @@ import {
   useRouter,
   useStore,
 } from '@nuxtjs/composition-api'
-import useExtensibleField from '~/composables/useExtensibleField'
+import { getPrimaryKey } from '~/composables/useExtensibleField'
 import useSearch from '~/composables/useSearch'
 import RootState from '~/store'
 import { InvoiceIndex, InvoiceStatus } from '~/types/invoice'
@@ -138,7 +138,10 @@ export default defineComponent({
         results.value.length
       )
     })
-    const { team, primary } = useExtensibleField('customers')
+    const team = computed(() => store.state.team.team!)
+
+    // Data
+    const primary = getPrimaryKey(team.value, 'customers')
 
     // Search
     const { search, getData, doSearch, results } = useSearch<InvoiceIndex>(
@@ -178,7 +181,7 @@ export default defineComponent({
       search,
       results,
       canLoadMore,
-      primary: primary()!,
+      primary,
       InvoiceStatus,
     }
   },

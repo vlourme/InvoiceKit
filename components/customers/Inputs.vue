@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-for="(field, idx) in fields" :key="idx" class="mt-2">
+    <div v-for="(field, idx) in inputs" :key="idx" class="mt-2">
       <!-- Label -->
       <base-label :for="field.value">{{ field.name }}</base-label>
 
@@ -45,9 +45,9 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropOptions } from '@nuxtjs/composition-api'
-import useExtensibleField from '~/composables/useExtensibleField'
 import { Customer } from '~/types/customer'
 import { ExtensibleField, FieldType } from '~/types/team'
+import { getInputType } from '~/composables/useExtensibleField'
 
 export default defineComponent({
   props: {
@@ -62,6 +62,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     // Computed
+    const inputs = computed(() => props.fields ?? [])
     const customer = computed({
       get(): Customer {
         return props.customerState!
@@ -71,10 +72,7 @@ export default defineComponent({
       },
     })
 
-    // Methods
-    const { getInputType } = useExtensibleField('customers')
-
-    return { customer, FieldType, getInputType }
+    return { inputs, customer, FieldType, getInputType }
   },
 })
 </script>
