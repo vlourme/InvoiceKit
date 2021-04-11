@@ -1,5 +1,5 @@
 export interface Model {
-  $key: string | null
+  $key?: string
 }
 
 export interface ExtensibleModel extends Model {

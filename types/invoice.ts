@@ -53,7 +53,6 @@ export const defaultField = (): Field => ({
 })
 
 export const defaultInvoice = (): Invoice => ({
-  $key: null,
   id: '',
   date: new Date().toISOString().substr(0, 10),
   status: InvoiceStatus.None,

@@ -122,7 +122,6 @@ export const defaultExtensionField = (): ExtensibleField => ({
 })
 
 export const defaultTeam = (): Team => ({
-  $key: null,
   name: '',
   owner: '',
   members: {},

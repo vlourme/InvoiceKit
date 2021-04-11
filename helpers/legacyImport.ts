@@ -26,7 +26,6 @@ export const importLegacy = async (
 
   // Create invoice
   const invoice: Invoice = {
-    $key: null,
     id: json.number.trim(),
     address: addressId,
     createdAt: firebase.firestore.Timestamp.fromDate(date),

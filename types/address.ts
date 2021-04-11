@@ -8,7 +8,6 @@ export interface Address extends Model {
 }
 
 export const defaultAddress = (): Address => ({
-  $key: '',
   street: '',
   zip: '',
   city: '',
