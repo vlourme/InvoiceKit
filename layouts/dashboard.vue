@@ -2,91 +2,105 @@
   <div
     class="font-body subpixel-antialiased flex w-full h-screen bg-white divide-x"
   >
-    <nav class="flex flex-col h-screen max-w-xs w-full bg-gray-100">
-      <div class="flex-1">
-        <div class="p-6 flex justify-between items-center">
-          <div class="text-3xl">
-            <p class="font-medium text-gray-500">
-              Invoice<span class="font-semibold text-gray-600">Kit</span>
-            </p>
-          </div>
-          <Dropdown v-if="user">
-            <img
-              class="rounded-full h-11 w-11 cursor-pointer"
-              :src="user.image"
-              @click="open = !open"
-            />
-
-            <template #content>
-              <div class="py-1" role="none">
-                <nuxt-link
-                  to="/account/settings"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                  role="menuitem"
-                  >Paramètres du compte</nuxt-link
-                >
-                <a
-                  class="block cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                  role="menuitem"
-                  @click="logout"
-                  >Se deconnecter</a
-                >
-              </div>
-            </template>
-          </Dropdown>
-        </div>
-
-        <aside class="px-6">
-          <div v-for="link in links" :key="link.name" class="my-2">
-            <p class="font-semibold text-xs uppercase text-gray-400">
-              {{ link.name }}
-            </p>
-            <div class="py-1">
-              <component
-                :is="item.absolute ? 'a' : 'nuxt-link'"
-                v-for="item in link.routes"
-                :key="item.route"
-                :target="item.absolute ? '_blank' : null"
-                :to="item.absolute ? null : item.route"
-                :href="item.absolute ? item.route : null"
-                :class="{
-                  'bg-white rounded-md shadow': $route.path.startsWith(
-                    item.route
-                  ),
-                }"
-                class="my-2 flex items-center justify-between w-full py-2 px-3 text-gray-500 cursor-pointer group hover:bg-white hover:bg-opacity-50 rounded-md transition-colors"
-              >
-                <div class="inline-flex items-center">
-                  <i
-                    :class="{
-                      [item.icon]: true,
-                      'text-indigo-600': $route.path.startsWith(item.route),
-                    }"
-                    class="bx text-xl mr-4"
-                  ></i>
-
-                  <p
-                    :class="{ 'font-bold': $route.path.startsWith(item.route) }"
-                    class="font-medium"
-                  >
-                    {{ item.name }}
-                  </p>
-                </div>
-
-                <div
-                  v-if="item.settings"
-                  class="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition inline-flex items-center"
-                >
-                  <nuxt-link title="Paramètres" :to="item.settings">
-                    <i class="bx bxs-customize text-lg"></i>
-                  </nuxt-link>
-                </div>
-              </component>
+    <transition
+      enter-class="-translate-x-full"
+      enter-to-class="translate-x-0"
+      enter-active-class="transform transition ease-in-out duration-500"
+      leave-active-class="transform transition ease-in-out duration-500"
+      leave-class="translate-x-0 w-0"
+      leave-to-class="-translate-x-full"
+    >
+      <nav
+        v-show="drawer"
+        class="flex flex-col h-screen max-w-xs w-full bg-gray-100"
+      >
+        <div class="flex-1">
+          <div class="p-6 flex justify-between items-center">
+            <div class="text-3xl">
+              <p class="font-medium text-gray-500">
+                Invoice<span class="font-semibold text-gray-600">Kit</span>
+              </p>
             </div>
+            <Dropdown v-if="user">
+              <img
+                class="rounded-full h-11 w-11 cursor-pointer"
+                :src="user.image"
+                @click="open = !open"
+              />
+
+              <template #content>
+                <div class="py-1" role="none">
+                  <nuxt-link
+                    to="/account/settings"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    role="menuitem"
+                    >Paramètres du compte</nuxt-link
+                  >
+                  <a
+                    class="block cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    role="menuitem"
+                    @click="logout"
+                    >Se deconnecter</a
+                  >
+                </div>
+              </template>
+            </Dropdown>
           </div>
-        </aside>
-      </div>
-    </nav>
+
+          <aside class="px-6">
+            <div v-for="link in links" :key="link.name" class="my-2">
+              <p class="font-semibold text-xs uppercase text-gray-400">
+                {{ link.name }}
+              </p>
+              <div class="py-1">
+                <component
+                  :is="item.absolute ? 'a' : 'nuxt-link'"
+                  v-for="item in link.routes"
+                  :key="item.route"
+                  :target="item.absolute ? '_blank' : null"
+                  :to="item.absolute ? null : item.route"
+                  :href="item.absolute ? item.route : null"
+                  :class="{
+                    'bg-white rounded-md shadow': $route.path.startsWith(
+                      item.route
+                    ),
+                  }"
+                  class="my-2 flex items-center justify-between w-full py-2 px-3 text-gray-500 cursor-pointer group hover:bg-white hover:bg-opacity-50 rounded-md transition-colors"
+                >
+                  <div class="inline-flex items-center">
+                    <i
+                      :class="{
+                        [item.icon]: true,
+                        'text-indigo-600': $route.path.startsWith(item.route),
+                      }"
+                      class="bx text-xl mr-4"
+                    ></i>
+
+                    <p
+                      :class="{
+                        'font-bold': $route.path.startsWith(item.route),
+                      }"
+                      class="font-medium"
+                    >
+                      {{ item.name }}
+                    </p>
+                  </div>
+
+                  <div
+                    v-if="item.settings"
+                    class="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition inline-flex items-center"
+                  >
+                    <nuxt-link title="Paramètres" :to="item.settings">
+                      <i class="bx bxs-customize text-lg"></i>
+                    </nuxt-link>
+                  </div>
+                </component>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </nav>
+    </transition>
 
     <main class="max-h-screen w-full overflow-y-auto">
       <nuxt></nuxt>
@@ -163,6 +177,7 @@ export default defineComponent({
     })
 
     // Computed
+    const drawer = computed(() => store.state.drawer.drawer)
     const user = computed(() => store.state.auth.user)
 
     // Methods
@@ -172,7 +187,7 @@ export default defineComponent({
       await router.push({ path: '/' })
     }
 
-    return { ...toRefs(data), user, logout }
+    return { ...toRefs(data), user, logout, drawer }
   },
 })
 </script>

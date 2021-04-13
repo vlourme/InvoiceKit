@@ -2,7 +2,7 @@
   <input
     v-bind="$attrs"
     type="text"
-    class="bg-gray-200 bg-opacity-50 hover:bg-opacity-100 focus:bg-opacity-100 focus:outline-none transition-colors px-4 h-full"
+    class="px-4 py-2 mr-2 rounded-md bg-gray-200 text-gray-800 border-2 border-transparent inline-flex font-medium items-center hover:bg-gray-300 focus:outline-none focus:border-gray-200"
     @input="$emit('input', $event.target.value)"
   />
 </template>
