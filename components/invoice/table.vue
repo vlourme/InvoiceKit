@@ -64,50 +64,47 @@
         </draggable>
       </table>
 
-      <Modal :activator.sync="dialog" extended>
-        <template #icon>
-          <base-modal-icon icon="package" />
-        </template>
-        <template #title>
-          {{ update > -1 ? 'Modifier un objet' : 'Ajouter un objet' }}
-        </template>
-        <template #content>
-          <div class="mt-2">
+      <form @submit.prevent="addField">
+        <BaseSlideover :activator.sync="dialog">
+          <template #title>
+            {{ update > -1 ? 'Modifier un objet' : 'Ajouter un objet' }}
+          </template>
+
+          <div>
             <base-label for="description">Description</base-label>
             <base-textarea
               id="description"
               v-model.trim="field.description"
+              spellcheck
+              required
+              rows="5"
             ></base-textarea>
           </div>
-          <div
-            class="grid mt-2 gap-2"
-            :class="{
-              'grid-cols-3': team.rendering.quantityEnabled,
-              'grid-cols-2': !team.rendering.quantityEnabled,
-            }"
-          >
-            <div v-if="team.rendering.quantityEnabled">
-              <base-label for="quantity">Quantité</base-label>
-              <base-input id="quantity" v-model.number="field.quantity" />
-            </div>
-
-            <div>
-              <base-label for="price"> Prix en Euro (€) </base-label>
-              <base-input id="price" v-model.number="field.price" />
-            </div>
-
-            <div>
-              <base-label for="taxes"> Taxes en pourcentage (%) </base-label>
-              <base-input id="taxes" v-model.number="field.tax" />
-            </div>
+          <div v-if="team.rendering.quantityEnabled" class="mt-2">
+            <base-label for="quantity">Quantité</base-label>
+            <base-input
+              id="quantity"
+              v-model.number="field.quantity"
+              min="0"
+              required
+            />
           </div>
-        </template>
-        <template #footer>
-          <div class="flex justify-between items-center w-full">
+
+          <div class="mt-2">
+            <base-label for="price"> Prix en Euro (€) </base-label>
+            <base-input id="price" v-model.number="field.price" min="0" />
+          </div>
+
+          <div class="mt-2">
+            <base-label for="taxes"> Taxes en pourcentage (%) </base-label>
+            <base-input id="taxes" v-model.number="field.tax" min="0" />
+          </div>
+          <div class="flex justify-between items-center w-full mt-4">
             <div>
               <base-button
                 v-if="update > -1"
                 danger
+                :margin="false"
                 @click.prevent="deleteField"
               >
                 Supprimer
@@ -115,17 +112,22 @@
             </div>
 
             <div>
-              <base-button base type="button" @click.prevent="closeField">
+              <base-button
+                base
+                :margin="false"
+                type="button"
+                @click.prevent="closeField"
+              >
                 Fermer
               </base-button>
 
-              <base-button info @click.prevent="addField">
+              <base-button info class="ml-2" :margin="false" type="submit">
                 {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
               </base-button>
             </div>
           </div>
-        </template>
-      </Modal>
+        </BaseSlideover>
+      </form>
     </div>
   </div>
 </template>

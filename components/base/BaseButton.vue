@@ -6,8 +6,9 @@
       'border-transparent bg-green-500 hover:bg-green-600 text-gray-100': success,
       'border-transparent bg-yellow-500 hover:bg-yellow-600 text-gray-100': warning,
       'border-transparent bg-red-500 hover:bg-red-600 text-gray-100': danger,
+      'sm:ml-3': margin,
     }"
-    class="mt-3 w-full inline-flex disabled:opacity-60 disabled:pointer-events-none justify-center rounded-md border shadow-sm px-4 py-2 text-base font-medium focus:outline-none focus:ring-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+    class="w-full inline-flex disabled:opacity-60 disabled:pointer-events-none justify-center rounded-md border shadow-sm px-4 py-2 text-base font-medium focus:outline-none focus:ring-2 sm:mt-0 sm:w-auto sm:text-sm"
     type="button"
     v-bind="$attrs"
     v-on="$listeners"
@@ -40,6 +41,10 @@ export default defineComponent({
     danger: {
       type: Boolean,
       default: false,
+    } as PropOptions<boolean>,
+    margin: {
+      type: Boolean,
+      default: true,
     } as PropOptions<boolean>,
   },
 })
