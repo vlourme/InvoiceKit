@@ -1,6 +1,7 @@
-import { Ref, ref, useContext } from '@nuxtjs/composition-api'
+import { Ref, ref, useContext, useStore } from '@nuxtjs/composition-api'
 import algolia from 'algoliasearch'
 import { mapSnapshot } from '~/helpers/documentMapper'
+import RootState from '~/store'
 import { Model } from '~/types/model'
 
 interface OptionalProperty extends Model {
@@ -15,6 +16,7 @@ export default <T extends OptionalProperty>(
 ) => {
   // Context
   const ctx = useContext()
+  const store = useStore<RootState>()
 
   // Algolia instance
   const client = algolia(ctx.env.algolia_app_id, ctx.env.algolia_search_key)
@@ -60,7 +62,9 @@ export default <T extends OptionalProperty>(
     // Query
     const index = client.initIndex(indice)
 
-    const query = await index.search(search.value)
+    const query = await index.search(search.value, {
+      filters: `teamID:${store.state.auth.user?.team}`,
+    })
 
     const hits: OptionalProperty[] = []
 
