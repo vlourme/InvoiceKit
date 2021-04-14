@@ -1,6 +1,7 @@
 import { NuxtConfig } from '@nuxt/types'
 
 const isDev = process.env.NODE_ENV === 'development'
+const useEmulator = true
 
 const config: NuxtConfig = {
   // Target: https://go.nuxtjs.dev/config-target
@@ -69,18 +70,18 @@ const config: NuxtConfig = {
             initialize: {
               onAuthStateChangedAction: 'auth/onAuthStateChanged',
             },
-            emulatorPort: isDev ? 9099 : undefined,
+            emulatorPort: useEmulator && isDev ? 9099 : undefined,
             emulatorHost: 'http://localhost',
             disableEmulatorWarnings: true,
           },
           firestore: {
             enablePersistence: true,
-            emulatorPort: isDev ? 8080 : undefined,
+            emulatorPort: useEmulator && isDev ? 8080 : undefined,
             emulatorHost: 'localhost',
           },
           functions: {
             location: 'europe-west1',
-            emulatorPort: isDev ? 5001 : undefined,
+            emulatorPort: useEmulator && isDev ? 5001 : undefined,
             emulatorHost: 'http://localhost',
           },
           storage: true,
