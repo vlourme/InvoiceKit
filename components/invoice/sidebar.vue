@@ -1,6 +1,6 @@
 <template>
   <div
-    class="max-w-xs w-full min-h-full bg-gray-50 pb-20 overflow-y-auto border-l"
+    class="max-w-xs w-full min-h-full pb-20 overflow-y-auto bg-gray-50 border-l fixed top-0 right-0"
   >
     <!-- Customer -->
     <p class="px-4 mt-3 mb-1 font-semibold text-gray-500 text-sm">Client</p>

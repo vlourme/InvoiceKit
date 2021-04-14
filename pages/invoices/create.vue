@@ -1,6 +1,6 @@
 <template>
   <form v-if="!$fetchState.pending" @submit.prevent="saveInvoice(false)">
-    <div class="flex flex-col h-screen overflow-y-hidden">
+    <div class="flex flex-col h-screen overflow-y-hidden pr-80">
       <Header>
         Créer un document
 

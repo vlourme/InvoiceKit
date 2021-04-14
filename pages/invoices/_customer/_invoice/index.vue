@@ -1,6 +1,6 @@
 <template>
   <form v-if="!$fetchState.pending" @submit.prevent="updateInvoice">
-    <div class="flex flex-col h-screen overflow-y-hidden">
+    <div class="flex flex-col h-screen overflow-y-hidden pr-80">
       <Header>
         {{ invoice.type === 'QUOTE' ? 'Devis' : 'Facture' }}
         #{{ invoice.id }}
