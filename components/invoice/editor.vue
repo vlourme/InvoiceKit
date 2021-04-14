@@ -8,7 +8,7 @@
           Les informations essentielles sur le document
         </template>
 
-        <template #actions>
+        <template v-if="canDelete" #actions>
           <base-button-inline danger icon="minus" @click.prevent="askDelete">
             Supprimer le document
           </base-button-inline>
@@ -95,7 +95,7 @@ export default defineComponent({
     const askDelete = (): void => {
       ctx.$dialog({
         title: 'Supprimer la facture',
-        message: 'Une fois supprimée, celle-ci sera irrecupérable.',
+        message: 'Une fois supprimée, celle-ci sera irrécupérable.',
         type: DialogType.Error,
         showCancel: true,
         actionMessage: 'Supprimer',

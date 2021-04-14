@@ -27,7 +27,7 @@ export default () => {
   const user = computed(() => store.state.auth.user!)
   const role = computed(() => store.getters['team/role'])
   const hasChanges = computed(() => !_.isEqual(state.invoice, state.oldState))
-  const canDelete = computed(() => !state.invoice.$key)
+  const canDelete = computed(() => state.invoice.$key != null)
 
   // Watchers
   watch(
