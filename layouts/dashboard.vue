@@ -59,6 +59,8 @@
                   :to="item.absolute ? null : item.route"
                   :href="item.absolute ? item.route : null"
                   :class="{
+                    'bg-gray-200 opacity-60 pointer-events-none':
+                      item.team && user.team === null,
                     'bg-white rounded-md shadow': $route.path.startsWith(
                       item.route
                     ),
@@ -144,17 +146,20 @@ export default defineComponent({
               route: '/dashboard',
               name: 'Tableau de bord',
               icon: 'bxs-home',
+              team: false,
             },
             {
               route: '/customers',
               name: 'Clients',
               icon: 'bxs-user',
               settings: '/customers/settings',
+              team: true,
             },
             {
               route: '/invoices',
               name: 'Factures',
               icon: 'bxs-cabinet',
+              team: true,
             },
           ],
         },
@@ -165,12 +170,14 @@ export default defineComponent({
               route: '/support',
               name: 'Aide & Support',
               icon: 'bxs-message',
+              team: false,
             },
             {
               route: 'https://github.com/vlourme/invoicekit',
               absolute: true,
               name: 'Signaler un bug',
               icon: 'bxs-bug',
+              team: false,
             },
           ],
         },
