@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="font-body subpixel-antialiased flex w-full h-screen bg-white divide-x"
-  >
+  <div class="font-body subpixel-antialiased w-full h-screen bg-white">
     <transition
       enter-class="-translate-x-full"
       enter-to-class="translate-x-0"
@@ -12,7 +10,7 @@
     >
       <nav
         v-show="drawer"
-        class="flex flex-col h-screen max-w-xs w-full bg-gray-100"
+        class="fixed top-0 left-0 z-10 flex flex-col h-screen max-w-xs w-full bg-gray-100 border-r"
       >
         <div class="flex-1">
           <div class="p-6 flex justify-between items-center">
@@ -102,7 +100,10 @@
       </nav>
     </transition>
 
-    <main class="max-h-screen w-full overflow-y-auto">
+    <main
+      :class="{ 'pl-80': drawer, 'pl-0': !drawer }"
+      class="max-h-screen w-full overflow-y-auto transition-all duration-500"
+    >
       <nuxt></nuxt>
     </main>
 
