@@ -7,7 +7,7 @@
         <base-nav-input
           v-model="search"
           placeholder="Chercher un client"
-          @input="doSearch"
+          @input="fetchData"
         />
 
         <base-nav-button v-if="role > 0" @click.prevent="modal = true">
@@ -68,7 +68,7 @@
       v-if="results.length >= 15"
       class="flex h-1/9 items-center justify-end px-4 py-2 bg-gray-50 border-t"
     >
-      <BaseButton base :disabled="!canLoadMore" @click.prevent="getData">
+      <BaseButton base :disabled="!canLoadMore" @click.prevent="fetchData">
         Charger plus de résultats
       </BaseButton>
     </div>
@@ -127,9 +127,10 @@ export default defineComponent({
     const values = getValues(team.value, 'customers')
 
     // Search
-    const { search, getData, doSearch, results } = useSearch<Customer>(
-      primary.value,
-      `teams/${user.value?.team}/customers`
+    const { search, results, fetchData } = useSearch<Customer>(
+      'customers',
+      `/teams/${team.value.$key}/customers`,
+      primary.value
     )
 
     // Methods
@@ -142,7 +143,7 @@ export default defineComponent({
         return
       }
 
-      await getData()
+      await fetchData()
     })
 
     return {
@@ -155,10 +156,9 @@ export default defineComponent({
       team,
       values,
       primary,
-      getData,
-      doSearch,
       search,
       results,
+      fetchData,
       canLoadMore,
     }
   },

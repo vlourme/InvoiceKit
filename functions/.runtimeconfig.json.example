@@ -1,0 +1,9 @@
+{
+  "algolia": {
+    "api_key": "ALGOLIA API KEY",
+    "app_id": "ALGOLIA APP ID"
+  },
+  "runtime": {
+    "env": "development"
+  }
+}

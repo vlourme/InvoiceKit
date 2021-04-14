@@ -7,7 +7,7 @@
         <base-nav-input
           v-model="search"
           placeholder="Chercher une facture"
-          @input="doSearch"
+          @input="fetchData"
         />
       </template>
     </Header>
@@ -82,7 +82,7 @@
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  {{ invoice.updatedAt.toDate().toLocaleString() }}
+                  {{ getDate(invoice) }}
                 </td>
                 <td width="200" class="px-6 py-4 text-right">
                   <nuxt-link
@@ -103,7 +103,7 @@
       v-if="results.length >= 15"
       class="flex h-1/9 items-center justify-end px-4 py-2 bg-gray-50 border-t"
     >
-      <BaseButton base :disabled="!canLoadMore" @click.prevent="getData">
+      <BaseButton base :disabled="!canLoadMore" @click.prevent="fetchData">
         Charger plus de résultats
       </BaseButton>
     </div>
@@ -118,6 +118,7 @@ import {
   useRouter,
   useStore,
 } from '@nuxtjs/composition-api'
+import firebase from 'firebase'
 import { getPrimaryKey } from '~/composables/useExtensibleField'
 import useSearch from '~/composables/useSearch'
 import RootState from '~/store'
@@ -144,9 +145,10 @@ export default defineComponent({
     const primary = getPrimaryKey(team.value, 'customers')
 
     // Search
-    const { search, getData, doSearch, results } = useSearch<InvoiceIndex>(
-      'id',
-      `teams/${user.value?.team}/invoices`
+    const { search, results, fetchData } = useSearch<InvoiceIndex>(
+      'invoices',
+      `/teams/${team.value.$key}/invoices`,
+      'id'
     )
 
     // Mounted
@@ -156,7 +158,7 @@ export default defineComponent({
         return
       }
 
-      await getData()
+      await fetchData()
     })
 
     // Methods
@@ -174,9 +176,17 @@ export default defineComponent({
       }
     }
 
+    const getDate = (invoice: InvoiceIndex): string => {
+      if (invoice.updatedAt instanceof firebase.firestore.Timestamp) {
+        return invoice.updatedAt.toDate().toLocaleString()
+      } else {
+        return new Date(invoice.updatedAt).toLocaleString()
+      }
+    }
+
     return {
-      doSearch,
-      getData,
+      fetchData,
+      getDate,
       getStatus,
       search,
       results,

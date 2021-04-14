@@ -1,4 +1,5 @@
 import { Ref, ref, useContext } from '@nuxtjs/composition-api'
+import algolia from 'algoliasearch'
 import { mapSnapshot } from '~/helpers/documentMapper'
 import { Model } from '~/types/model'
 
@@ -7,49 +8,72 @@ interface OptionalProperty extends Model {
 }
 
 export default <T extends OptionalProperty>(
-  id: string,
+  indexName: string,
   path: string,
+  primaryKey: string,
   value: T[] = []
 ) => {
   // Context
   const ctx = useContext()
 
+  // Algolia instance
+  const client = algolia(ctx.env.algolia_app_id, ctx.env.algolia_search_key)
+
+  // Parse index name
+  let indice = 'DEV_' + indexName
+  if (!ctx.isDev) {
+    indice = 'PROD_' + indexName
+  }
+
   // Data
+  const mode = ref('base')
   const search = ref('')
-  const results = ref(value) as Ref<T[]>
+  const results = ref(value) as Ref<OptionalProperty[]>
 
   // Methods
-  const doSearch = async (): Promise<void> => {
-    if (search.value.length >= 2 || search.value.length === 0) {
-      results.value = []
-      await getData()
+  const fetchData = async (): Promise<void> => {
+    if (search.value.length > 0) {
+      mode.value = 'search'
+      await executeSearch()
+    } else {
+      if (mode.value === 'search') {
+        results.value = []
+      }
+      mode.value = 'base'
+
+      await getBaseData()
     }
   }
 
-  const getData = async (): Promise<void> => {
-    // Query
-    let query = ctx.$fire.firestore
+  const getBaseData = async (): Promise<void> => {
+    const query = ctx.$fire.firestore
       .collection(path)
-      .orderBy(id)
-      .startAfter(
-        results.value.length > 0
-          ? results.value[results.value.length - 1][id] ?? null
-          : null
-      )
+      .orderBy(primaryKey)
+      .startAfter(results.value.length)
       .limit(15)
 
-    // On search
-    if (search.value.length >= 3) {
-      results.value = []
-      query = query.startAt(search.value).endAt(search.value + '\uF8FF')
-    }
-
-    // Get ref
-    const ref = await query.get()
-
-    // Push customers
-    results.value.push(...mapSnapshot<T>(ref))
+    const data = await query.get()
+    results.value.push(...mapSnapshot<T>(data))
   }
 
-  return { search, results, doSearch, getData }
+  const executeSearch = async (): Promise<void> => {
+    // Query
+    const index = client.initIndex(indice)
+
+    const query = await index.search(search.value)
+
+    const hits: OptionalProperty[] = []
+
+    for (const hit of query.hits) {
+      const obj: OptionalProperty = {
+        ...hit,
+      }
+      obj.$key = hit.objectID
+      hits.push(obj)
+    }
+
+    results.value = hits
+  }
+
+  return { search, results, fetchData }
 }

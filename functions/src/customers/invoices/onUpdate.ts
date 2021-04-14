@@ -1,6 +1,7 @@
 import * as admin from 'firebase-admin'
 import { firestore } from 'firebase-admin'
 import * as functions from 'firebase-functions'
+import { client, getIndexName } from '../../algolia'
 
 const db = admin.firestore()
 const FieldValue = firestore.FieldValue
@@ -8,6 +9,9 @@ const FieldValue = firestore.FieldValue
 export const onTeamInvoiceUpdate = functions.firestore
   .document('/teams/{teamId}/customers/{customerId}/invoices/{docId}')
   .onUpdate(async (handler, context) => {
+    // Update in algolia
+    const index = client.initIndex(getIndexName('invoices'))
+
     // Check for status change
     const before = handler.before.data()
     const after = handler.after.data()
@@ -39,12 +43,20 @@ export const onTeamInvoiceUpdate = functions.firestore
     if (ref.docs[0]) {
       const doc = ref.docs[0]
 
-      await doc.ref.update({
+      const data = {
         ...doc.data(),
         id: after.id,
         updatedAt: new Date(),
         status: after.status,
         type: after.type,
+      }
+
+      await doc.ref.update(data)
+
+      await index.saveObject({
+        ...data,
+        objectID: handler.before.id,
+        teamID: context.params.teamId,
       })
     }
 

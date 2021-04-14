@@ -10,6 +10,12 @@ const config: NuxtConfig = {
   // Disable server rendering
   ssr: false,
 
+  // Environment variables
+  env: {
+    algolia_app_id: 'DO7CXBGUG7',
+    algolia_search_key: '6ba32a3f8334ba9f73a3a6b7390cca1b',
+  },
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'InvoiceKit',
