@@ -10,9 +10,9 @@
           @input="doSearch"
         />
 
-        <base-nav-link v-if="role > 0" to="/customers/create">
+        <base-nav-button v-if="role > 0" @click.prevent="modal = true">
           Créer un client
-        </base-nav-link>
+        </base-nav-button>
       </template>
     </Header>
 
@@ -72,6 +72,20 @@
         Charger plus de résultats
       </BaseButton>
     </div>
+    <base-slideover :activator.sync="modal">
+      <template #title>Créer un client</template>
+
+      <form @submit.prevent="saveCustomer(false)">
+        <customers-inputs
+          :fields="team.extensions.customers.fields"
+          :customer-state.sync="customer"
+        />
+
+        <div class="flex w-full justify-end items-center mt-2">
+          <base-button info type="submit">Sauvegarder</base-button>
+        </div>
+      </form>
+    </base-slideover>
   </div>
 </template>
 
@@ -79,6 +93,8 @@
 import {
   computed,
   defineComponent,
+  onMounted,
+  ref,
   useFetch,
   useRouter,
   useStore,
@@ -87,6 +103,7 @@ import useSearch from '~/composables/useSearch'
 import { getPrimaryKey, getValues } from '~/composables/useExtensibleField'
 import RootState from '~/store'
 import { Customer } from '~/types/customer'
+import useCustomer from '~/composables/useCustomer'
 
 export default defineComponent({
   layout: 'dashboard',
@@ -104,6 +121,8 @@ export default defineComponent({
     const team = computed(() => store.state.team.team!)
 
     // Data
+    const { state, hasChanges, resetState, saveCustomer } = useCustomer()
+    const modal = ref(false)
     const primary = getPrimaryKey(team.value, 'customers')
     const values = getValues(team.value, 'customers')
 
@@ -112,6 +131,9 @@ export default defineComponent({
       primary.value,
       `teams/${user.value?.team}/customers`
     )
+
+    // Methods
+    onMounted(resetState)
 
     // Mounted
     useFetch(async () => {
@@ -124,6 +146,11 @@ export default defineComponent({
     })
 
     return {
+      ...state,
+      hasChanges,
+      resetState,
+      saveCustomer,
+      modal,
       role,
       team,
       values,
