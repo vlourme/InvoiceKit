@@ -32,7 +32,12 @@
           </thead>
           <tbody>
             <tr v-for="(member, idx) in members" :key="idx">
-              <td class="px-4 py-3 font-semibold">{{ member.name }}</td>
+              <td class="px-4 py-3 font-semibold">
+                <div class="inline-flex items-center">
+                  <img :src="member.image" class="h-8 w-8 rounded-full mr-2" />
+                  {{ member.name }}
+                </div>
+              </td>
               <td class="px-4 py-3">{{ member.email }}</td>
               <td class="px-4 py-3">
                 {{ getRole(team.members[member.$key]) }}
