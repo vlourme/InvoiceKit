@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col h-screen overflow-y-hidden">
-    <Header>
+    <Header class="bg-gray-50">
       Factures
 
       <template #actions>

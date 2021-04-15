@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col h-full max-h-screen overflow-y-hidden">
-    <Header>
+    <Header class="bg-gray-50">
       Clients
 
       <template #actions>
