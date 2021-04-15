@@ -43,8 +43,8 @@
                 {{ getRole(team.members[member.$key]) }}
               </td>
               <td class="px-4 py-3 text-right">
+                <div v-if="isAdmin && member.$key !== team.owner">
                 <button
-                  v-if="isAdmin"
                   type="button"
                   class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
                   @click.prevent="editUser(member, idx)"
@@ -53,13 +53,13 @@
                 </button>
 
                 <button
-                  v-if="isAdmin"
                   type="button"
                   class="ml-4 text-sm font-semibold text-red-400 hover:text-red-500 inline-flex items-center focus:outline-none"
                   @click.prevent="kickUser(member, idx)"
                 >
                   Supprimer
                 </button>
+                </div>
               </td>
             </tr>
           </tbody>
