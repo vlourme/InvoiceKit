@@ -14,7 +14,7 @@
 
           <template #content>
             <div class="divide-y">
-              <div v-if="teams" class="py-1">
+              <div v-if="teams && Object.keys(teams).length > 0" class="py-1">
                 <button
                   v-for="(team, id, idx) in teams"
                   :key="idx"
@@ -42,6 +42,7 @@
                   Invitations
                 </nuxt-link>
                 <nuxt-link
+                  v-if="team"
                   to="/teams/settings"
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                   role="menuitem"
