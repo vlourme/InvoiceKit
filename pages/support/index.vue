@@ -26,10 +26,10 @@
                 type="button"
                 @click="show(article.path)"
               >
-                <p class="font-medium text-gray-700">
+                <p class="font-medium text-gray-700 text-left">
                   {{ article.title }}
                 </p>
-                <p class="font-light text-gray-500 text-sm">
+                <p class="font-light text-gray-500 text-sm text-right">
                   {{ article.category }}
                 </p>
               </button>
