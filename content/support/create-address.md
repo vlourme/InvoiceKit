@@ -1,6 +1,7 @@
 ---
 title: Associer une adresse à un client
 category: Bases
+cat_order: 1
 order: 2
 ---
 

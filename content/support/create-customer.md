@@ -1,6 +1,7 @@
 ---
 title: Créer une fiche client
 category: Bases
+cat_order: 1
 order: 1
 ---
 

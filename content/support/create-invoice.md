@@ -1,6 +1,7 @@
 ---
 title: Créer un devis ou une facture
 category: Bases
+cat_order: 1
 order: 3
 ---
 

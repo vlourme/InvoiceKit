@@ -71,7 +71,7 @@ export default defineComponent({
       articles.value = (await ctx
         .$content('support')
         .only(['title', 'description', 'category'])
-        .sortBy('category')
+        .sortBy('cat_order')
         .sortBy('order')
         .fetch()) as IContentDocument[]
     })
