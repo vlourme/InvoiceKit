@@ -34,7 +34,9 @@
             <tr v-for="(member, idx) in members" :key="idx">
               <td class="px-4 py-3 font-semibold">{{ member.name }}</td>
               <td class="px-4 py-3">{{ member.email }}</td>
-              <td class="px-4 py-3">{{ getRole(member) }}</td>
+              <td class="px-4 py-3">
+                {{ getRole(team.members[member.$key]) }}
+              </td>
               <td class="px-4 py-3 text-right">
                 <button
                   v-if="isAdmin"
@@ -129,6 +131,7 @@ import User from '~/types/user'
 import { SelectItem } from '~/types/UI'
 import { mapDocument } from '~/helpers/documentMapper'
 import { DialogType } from '~/types/dialog'
+import getRole from '~/composables/useMemberPermission'
 
 export default defineComponent({
   props: {
@@ -184,18 +187,6 @@ export default defineComponent({
     })
 
     // Methods
-    const getRole = (user: User): string => {
-      switch (team.value.members[user.$key!]) {
-        case MemberPermission.Editor:
-          return 'Editeur'
-        case MemberPermission.Admin:
-          return 'Administrateur'
-        case MemberPermission.Viewer:
-        default:
-          return 'Lecteur'
-      }
-    }
-
     const addMember = async (): Promise<void> => {
       // Check for update
       if (update.value > -1) {
