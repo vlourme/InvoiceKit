@@ -19,7 +19,14 @@ export default <T extends OptionalProperty>(
   const store = useStore<RootState>()
 
   // Algolia instance
-  const client = algolia(ctx.env.algolia_app_id, ctx.env.algolia_search_key)
+  if (!store.state.team.team?.algoliaKey) {
+    throw new Error('no algolia key')
+  }
+
+  const client = algolia(
+    ctx.env.algolia_app_id,
+    store.state.team.team.algoliaKey
+  )
 
   // Parse index name
   let indice = 'DEV_' + indexName
@@ -62,9 +69,7 @@ export default <T extends OptionalProperty>(
     // Query
     const index = client.initIndex(indice)
 
-    const query = await index.search(search.value, {
-      filters: `teamID:${store.state.auth.user?.team}`,
-    })
+    const query = await index.search(search.value)
 
     const hits: OptionalProperty[] = []
 

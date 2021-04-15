@@ -69,6 +69,9 @@ export interface Team extends Model {
     [key: string]: MemberPermission
   }
 
+  // Search
+  algoliaKey: string
+
   // Society Identity
   identity: Identity
 
@@ -125,6 +128,7 @@ export const defaultTeam = (): Team => ({
   name: '',
   owner: '',
   members: {},
+  algoliaKey: '',
   identity: defaultIdentity(),
   localization: defaultLocalization(),
   rendering: defaultRendering(),
