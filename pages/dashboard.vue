@@ -111,7 +111,6 @@
 import {
   computed,
   defineComponent,
-  onMounted,
   ref,
   useStore,
 } from '@nuxtjs/composition-api'
