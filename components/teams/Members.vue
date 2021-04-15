@@ -44,21 +44,21 @@
               </td>
               <td class="px-4 py-3 text-right">
                 <div v-if="isAdmin && member.$key !== team.owner">
-                <button
-                  type="button"
-                  class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
-                  @click.prevent="editUser(member, idx)"
-                >
-                  Modifier
-                </button>
+                  <button
+                    type="button"
+                    class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
+                    @click.prevent="editUser(member, idx)"
+                  >
+                    Modifier
+                  </button>
 
-                <button
-                  type="button"
-                  class="ml-4 text-sm font-semibold text-red-400 hover:text-red-500 inline-flex items-center focus:outline-none"
-                  @click.prevent="kickUser(member, idx)"
-                >
-                  Supprimer
-                </button>
+                  <button
+                    type="button"
+                    class="ml-4 text-sm font-semibold text-red-400 hover:text-red-500 inline-flex items-center focus:outline-none"
+                    @click.prevent="kickUser(member, idx)"
+                  >
+                    Supprimer
+                  </button>
                 </div>
               </td>
             </tr>
@@ -76,12 +76,6 @@
           <base-modal-icon icon="user" />
         </template>
         <template #content>
-          <div
-            v-if="error"
-            class="mt-2 bg-red-400 bg-opacity-30 rounded-md px-4 py-2"
-          >
-            {{ error }}
-          </div>
           <div class="mt-2">
             <base-label for="email">Email</base-label>
             <base-input
@@ -137,6 +131,7 @@ import { SelectItem } from '~/types/UI'
 import { mapDocument } from '~/helpers/documentMapper'
 import { DialogType } from '~/types/dialog'
 import getRole from '~/composables/useMemberPermission'
+import { NotificationType } from '~/types/notification'
 
 export default defineComponent({
   props: {
@@ -155,7 +150,6 @@ export default defineComponent({
     const dialog = ref(false)
     const email = ref('')
     const update = ref(-1)
-    const error = ref('')
     const role = ref(MemberPermission.Editor)
     const roles: SelectItem[] = [
       {
@@ -192,6 +186,8 @@ export default defineComponent({
     })
 
     // Methods
+    const invite = ctx.$fire.functions.httpsCallable('inviteUser')
+
     const addMember = async (): Promise<void> => {
       // Check for update
       if (update.value > -1) {
@@ -200,28 +196,21 @@ export default defineComponent({
 
         team.value.members[member.$key!] = role.value
       } else {
-        // Search for user
-        const doc = await ctx.$fire.firestore
-          .collection('users')
-          .where('email', '==', email.value)
-          .limit(1)
-          .get()
-
-        // Check if empty
-        if (doc.empty) {
-          error.value = "Aucun membre n'a été trouvé pour cet email."
-          return
-        }
-
-        // Check if already in team
-        if (team.value.members[doc.docs[0].id]) {
-          error.value = 'Ce membre est déjà dans la team.'
-          return
-        }
-
         // Add user
-        team.value.members[doc.docs[0].id] = role.value
-        members.value.push(mapDocument<User>(doc.docs[0]))
+        const response = await invite({
+          email: email.value,
+          teamId: team.value.$key,
+          role: role.value,
+        })
+
+        if (!response.data.success) {
+          ctx.$notify(
+            "Impossible d'inviter cet utilisateur",
+            NotificationType.ERROR
+          )
+        } else {
+          ctx.$notify('Le membre à été invité.', NotificationType.SUCCESS)
+        }
       }
 
       // Close dialog
@@ -236,7 +225,6 @@ export default defineComponent({
     }
 
     const closeDialog = (): void => {
-      error.value = ''
       email.value = ''
       role.value = MemberPermission.Editor
       update.value = -1
@@ -263,7 +251,6 @@ export default defineComponent({
       dialog,
       email,
       update,
-      error,
       role,
       roles,
       team,
