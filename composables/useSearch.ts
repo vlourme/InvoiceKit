@@ -33,6 +33,7 @@ export default <T extends OptionalProperty>(
   if (!ctx.isDev) {
     indice = 'PROD_' + indexName
   }
+  const index = client.initIndex(indice)
 
   // Data
   const mode = ref('base')
@@ -67,8 +68,8 @@ export default <T extends OptionalProperty>(
 
   const executeSearch = async (): Promise<void> => {
     // Query
-    const index = client.initIndex(indice)
-
+    console.log(search.value)
+    console.log(mode.value)
     const query = await index.search(search.value)
 
     const hits: OptionalProperty[] = []
@@ -80,6 +81,9 @@ export default <T extends OptionalProperty>(
       obj.$key = hit.objectID
       hits.push(obj)
     }
+
+    console.log(query)
+    console.log(hits)
 
     results.value = hits
   }
