@@ -22,7 +22,7 @@ export const teamCharts = functions.pubsub
       const team = doc.data()
 
       // Delete old charts
-      if (team.charts[oldFormat]) {
+      if (oldFormat in team.charts) {
         delete team.charts[oldFormat]
       }
 
