@@ -47,15 +47,23 @@ export const getFormattedField = <T extends ExtensibleModel>(
   customer: T,
   extension: string
 ): string => {
-  // Regex
-  const regex = /%{(\w+)}%/gim
-
-  // Replace
+  const regex = /%{(.*?)=(\w+)=(.*?)}%/gim
   const format = team.extensions[extension].formatting
+  let response = format
 
-  return format.replace(regex, (sub, arg) => {
-    return customer[arg] ?? sub
-  })
+  // Match all
+  for (const match of format.matchAll(regex)) {
+    const value = customer[match[2]]
+
+    if (value && match.input) {
+      const result = `${match[1]}${value}${match[3]}`
+      response = response.replace(match[0], result)
+    } else {
+      response = response.replace(match[0], '')
+    }
+  }
+
+  return response
 }
 
 /**

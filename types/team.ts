@@ -132,7 +132,7 @@ export const defaultTeam = (): Team => ({
   fields: [],
   extensions: {
     customers: {
-      formatting: '%{fullName}% (%{society}%)',
+      formatting: '%{=fullName=}% %{(=society=)}%',
       fields: [
         {
           name: 'Nom complet',
