@@ -9,7 +9,7 @@ Certaines fonctionnalités sont complètement modifiables de manière dynamique.
 
 Comment modifier les formulaires :
 
-1. Survolez le bouton pour accéder à la fonctionnalité (ex: Clients), vous verrez cette icône apparaître: <i class="bx bxs-customize text-xl"></i>. Cliquez dessus pour acceder au paramètres.
+1. Allez sur [la page de paramétrage des clients](/customers/settings). (Également accessible en cliquant sur l'icône qui apparaît au survol du menu _Client_).
 2. Faites **+ ajouter un champ**
 3. Vous aurez ici plusieurs options à remplir :
 
