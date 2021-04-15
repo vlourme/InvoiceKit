@@ -35,13 +35,13 @@
                 <td class="px-4 py-3">{{ invite.owner }}</td>
                 <td class="px-4 py-3 text-right">
                   <button
-                    class="text-blue-500 hover:text-blue-600 transition-colors mr-2"
+                    class="text-blue-500 hover:text-blue-600 transition-colors focus:outline-none mr-2"
                     @click.prevent="join(invite)"
                   >
                     Rejoindre la team
                   </button>
                   <button
-                    class="text-red-500 hover:text-red-600 transition-colors"
+                    class="text-red-500 hover:text-red-600 transition-colors focus:outline-none"
                     @click.prevent="reject(invite)"
                   >
                     Rejeter
