@@ -1,42 +1,34 @@
 <template>
-  <div>
-    <Header> Aide et support </Header>
-
-    <div class="p-4 grid grid-cols-4">
-      <div class="col-span-3">
-        <div v-if="page">
-          <h2 class="text-3xl font-semibold text-gray-600">{{ page.title }}</h2>
-          <nuxt-content class="prose" :document="page"> </nuxt-content>
-        </div>
-        <div v-else>
-          <p>Vous pouvez voir les fiches d'aides disponibles sur la droite.</p>
-        </div>
+  <div class="flex h-screen">
+    <div class="max-w-xs w-full bg-gray-50 h-full border-r p-4">
+      <div
+        v-for="(category, idx) in categories"
+        :key="idx"
+        class="mt-2 first:mt-0"
+      >
+        <p class="uppercase text-gray-500 font-semibold text-sm">
+          {{ category.title }}
+        </p>
+        <ul class="mt-1">
+          <li v-for="item in category.articles" :key="item.slug">
+            <button
+              :class="{ 'bg-blue-200 pointer-events-none': path == item.path }"
+              class="px-2 py-1.5 rounded-md bg-gray-200 hover:bg-blue-100 text-gray-800 focus:outline-none w-full text-left my-1"
+              type="button"
+              @click.prevent="show(item.path)"
+            >
+              {{ item.title }}
+            </button>
+          </li>
+        </ul>
       </div>
-      <div>
-        <div class="w-full px-2 py-3 bg-gray-50 rounded-md">
-          <h1 class="text-2xl my-2 mx-3">Articles</h1>
-          <ul>
-            <li v-for="article in articles" :key="article.path">
-              <button
-                :class="{
-                  'bg-blue-100 hover:bg-current pointer-events-none':
-                    article.path === path,
-                }"
-                class="flex justify-between w-full px-3 rounded-md hover:bg-gray-100 transition-colors focus:outline-none items-center py-2"
-                type="button"
-                @click="show(article.path)"
-              >
-                <p class="font-medium text-gray-700 text-left">
-                  {{ article.title }}
-                </p>
-                <p class="font-light text-gray-500 text-sm text-right">
-                  {{ article.category }}
-                </p>
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
+    </div>
+    <div class="flex-1 overflow-y-auto">
+      <Header>{{ page ? page.title : 'Aide et support' }}</Header>
+      <nuxt-content
+        :document="page"
+        class="prose prose-sm sm:prose lg:prose-lg xl:prose-xl prose-indigo max-w-xl py-2 px-4"
+      />
     </div>
   </div>
 </template>
@@ -58,7 +50,16 @@ export default defineComponent({
     const ctx = useContext()
 
     // Data
-    const articles = ref<IContentDocument[]>([])
+    const categories = ref([
+      {
+        title: 'Bases',
+        articles: [] as IContentDocument[],
+      },
+      {
+        title: 'Avancé',
+        articles: [] as IContentDocument[],
+      },
+    ])
     const page = ref<IContentDocument | null>()
 
     // Computed
@@ -68,12 +69,17 @@ export default defineComponent({
 
     // Fetch
     useFetch(async () => {
-      articles.value = (await ctx
-        .$content('support')
-        .only(['title', 'description', 'category'])
-        .sortBy('cat_order')
-        .sortBy('order')
-        .fetch()) as IContentDocument[]
+      for (const cat of categories.value) {
+        cat.articles = (await ctx
+          .$content('support')
+          .only(['title', 'description', 'category'])
+          .where({ category: cat.title })
+          .sortBy('order')
+          .fetch()) as IContentDocument[]
+      }
+
+      // Load first article by default
+      await show(categories.value[0].articles[0].path)
     })
 
     // Methods
@@ -81,7 +87,7 @@ export default defineComponent({
       page.value = (await ctx.$content(path).fetch()) as IContentDocument
     }
 
-    return { page, articles, show, path }
+    return { page, categories, show, path }
   },
 })
 </script>
