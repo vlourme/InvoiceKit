@@ -84,6 +84,13 @@ export interface Team extends Model {
   // Distributed counter
   counter: { [key: string]: number }
 
+  // Charts
+  charts: {
+    [key: string]: {
+      [key: string]: number
+    }
+  }
+
   // Society fields
   fields: Array<string>
 
@@ -133,6 +140,7 @@ export const defaultTeam = (): Team => ({
   localization: defaultLocalization(),
   rendering: defaultRendering(),
   counter: {},
+  charts: {},
   fields: [],
   extensions: {
     customers: {
