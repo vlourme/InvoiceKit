@@ -57,60 +57,9 @@
     </Header>
 
     <div v-if="team" class="p-4 grid grid-cols-3 gap-4">
-      <div class="grid grid-cols-2 border rounded-lg bg-gray-100">
-        <charts-line :height="130" :data="customers" class="py-4 bg-gray-700" />
-        <div class="p-4">
-          <p class="text-lg font-semibold text-gray-700">Clients</p>
-          <div class="flex items-end">
-            <p class="text-3xl text-gray-800">{{ getLast(customers) }}</p>
-            <p
-              :class="{
-                'text-green-500': customersDiff > 0,
-                'text-red-500': customersDiff < 0,
-              }"
-              class="ml-2 mb-1 font-light text-sm"
-            >
-              {{ customersDiff > 0 ? '▲' : '▲' }} {{ customersDiff || 0 }}%
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="grid grid-cols-2 border rounded-lg bg-gray-100">
-        <charts-line :height="130" :data="invoices" class="py-4 bg-gray-700" />
-        <div class="p-4">
-          <p class="text-lg font-semibold text-gray-700">Devis et factures</p>
-          <div class="flex items-end">
-            <p class="text-3xl text-gray-800">{{ getLast(invoices) }}</p>
-            <p
-              :class="{
-                'text-green-500': invoicesDiff > 0,
-                'text-red-500': invoicesDiff < 0,
-              }"
-              class="ml-2 mb-1 font-light text-sm"
-            >
-              {{ invoicesDiff > 0 ? '▲' : '▲' }} {{ invoicesDiff || 0 }}%
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="grid grid-cols-2 border rounded-lg bg-gray-100">
-        <charts-line :height="130" :data="paid" class="py-4 bg-gray-700" />
-        <div class="p-4">
-          <p class="text-lg font-semibold text-gray-700">Factures payées</p>
-          <div class="flex items-end">
-            <p class="text-3xl text-gray-800">{{ getLast(paid) }}</p>
-            <p
-              :class="{
-                'text-green-500': paidDiff > 0,
-                'text-red-500': paidDiff < 0,
-              }"
-              class="ml-2 mb-1 font-light text-sm"
-            >
-              {{ paidDiff > 0 ? '▲' : '▲' }} {{ paidDiff || 0 }}%
-            </p>
-          </div>
-        </div>
-      </div>
+      <charts-graph :data="customers"> Clients </charts-graph>
+      <charts-graph :data="invoices"> Devis et factures </charts-graph>
+      <charts-graph :data="paid"> Factures payées </charts-graph>
     </div>
 
     <p v-else class="p-2 max-w-3xl">
@@ -165,7 +114,6 @@
 import {
   computed,
   defineComponent,
-  onMounted,
   reactive,
   toRefs,
   useFetch,
@@ -190,9 +138,6 @@ export default defineComponent({
       customers: [] as number[],
       invoices: [] as number[],
       paid: [] as number[],
-      customersDiff: 0,
-      invoicesDiff: 0,
-      paidDiff: 0,
     })
 
     useFetch(() => {
@@ -207,35 +152,12 @@ export default defineComponent({
         })
     })
 
-    const getDiff = (stats: number[]): number => {
-      const elements = stats.slice(Math.max(stats.length - 2, 0))
-
-      const first = elements[0] || 0
-      const last = elements[elements.length - 1] - first
-
-      if (first === 0) {
-        return 0
-      }
-
-      return Math.round((last / first) * 100)
-    }
-
-    onMounted(() => {
-      data.customersDiff = getDiff(data.customers)
-      data.invoicesDiff = getDiff(data.invoices)
-      data.paidDiff = getDiff(data.paid)
-    })
-
     // Methods
     const switchTeam = async (id: string | null) => {
       await store.dispatch('team/switchTeam', id)
     }
 
-    const getLast = (stats: number[]): number => {
-      return stats[stats.length - 1] ?? 0
-    }
-
-    return { ...toRefs(data), user, teams, team, switchTeam, getLast }
+    return { ...toRefs(data), user, teams, team, switchTeam }
   },
   head: {
     title: 'Tableau de bord',
