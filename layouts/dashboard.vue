@@ -10,7 +10,7 @@
     >
       <nav
         v-show="drawer"
-        class="fixed top-0 left-0 z-10 flex flex-col h-screen max-w-xs w-full bg-gray-100 border-r"
+        class="fixed top-0 left-0 z-10 flex flex-col h-screen w-screen md:max-w-xs md:w-full bg-gray-100 border-r"
       >
         <div class="flex-1">
           <div class="p-6 flex justify-between items-center">
@@ -98,6 +98,15 @@
               </div>
             </div>
           </aside>
+        </div>
+        <!-- Nav footer -->
+        <div class="md:hidden">
+          <button
+            class="w-full py-4 bg-gray-100 hover:bg-blue-400 focus:outline-none"
+            @click="toggleDrawer"
+          >
+            Cacher le menu
+          </button>
         </div>
       </nav>
     </transition>
@@ -195,7 +204,11 @@ export default defineComponent({
       await router.push({ path: '/' })
     }
 
-    return { ...toRefs(data), user, logout, drawer }
+    const toggleDrawer = (): void => {
+      store.dispatch('drawer/toggle')
+    }
+
+    return { ...toRefs(data), user, logout, drawer, toggleDrawer }
   },
 })
 </script>

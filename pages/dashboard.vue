@@ -56,7 +56,7 @@
       </template>
     </Header>
 
-    <div v-if="team" class="p-4 grid grid-cols-3 gap-4">
+    <div v-if="team" class="p-4 md:grid grid-cols-3 gap-4">
       <charts-graph :data="customers"> Clients </charts-graph>
       <charts-graph :data="invoices"> Devis et factures </charts-graph>
       <charts-graph :data="paid"> Factures payées </charts-graph>
