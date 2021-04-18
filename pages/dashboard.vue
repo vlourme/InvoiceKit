@@ -57,13 +57,59 @@
     </Header>
 
     <div v-if="team" class="p-4 grid grid-cols-3 gap-4">
-      <div
-        v-for="item in analytics"
-        :key="item.value"
-        class="bg-gray-100 rounded-lg px-4 py-2"
-      >
-        <p class="text-2xl font-bold">{{ getCounter(item.value) }}</p>
-        <p class="font-light">{{ item.name }}</p>
+      <div class="grid grid-cols-2 border rounded-lg bg-gray-100">
+        <charts-line :height="130" :data="customers" class="py-4 bg-gray-700" />
+        <div class="p-4">
+          <p class="text-lg font-semibold text-gray-700">Clients</p>
+          <div class="flex items-end">
+            <p class="text-3xl text-gray-800">{{ getLast(customers) }}</p>
+            <p
+              :class="{
+                'text-green-500': customersDiff > 0,
+                'text-red-500': customersDiff < 0,
+              }"
+              class="ml-2 mb-1 font-light text-sm"
+            >
+              {{ customersDiff > 0 ? '▲' : '▲' }} {{ customersDiff || 0 }}%
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 border rounded-lg bg-gray-100">
+        <charts-line :height="130" :data="invoices" class="py-4 bg-gray-700" />
+        <div class="p-4">
+          <p class="text-lg font-semibold text-gray-700">Devis et factures</p>
+          <div class="flex items-end">
+            <p class="text-3xl text-gray-800">{{ getLast(invoices) }}</p>
+            <p
+              :class="{
+                'text-green-500': invoicesDiff > 0,
+                'text-red-500': invoicesDiff < 0,
+              }"
+              class="ml-2 mb-1 font-light text-sm"
+            >
+              {{ invoicesDiff > 0 ? '▲' : '▲' }} {{ invoicesDiff || 0 }}%
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 border rounded-lg bg-gray-100">
+        <charts-line :height="130" :data="paid" class="py-4 bg-gray-700" />
+        <div class="p-4">
+          <p class="text-lg font-semibold text-gray-700">Factures payées</p>
+          <div class="flex items-end">
+            <p class="text-3xl text-gray-800">{{ getLast(paid) }}</p>
+            <p
+              :class="{
+                'text-green-500': paidDiff > 0,
+                'text-red-500': paidDiff < 0,
+              }"
+              class="ml-2 mb-1 font-light text-sm"
+            >
+              {{ paidDiff > 0 ? '▲' : '▲' }} {{ paidDiff || 0 }}%
+            </p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -119,7 +165,10 @@
 import {
   computed,
   defineComponent,
-  ref,
+  onMounted,
+  reactive,
+  toRefs,
+  useFetch,
   useStore,
 } from '@nuxtjs/composition-api'
 import RootState from '~/store'
@@ -131,41 +180,62 @@ export default defineComponent({
     // Context
     const store = useStore<RootState>()
 
-    // Data
-    const analytics = ref([
-      {
-        value: 'INVOICE',
-        name: 'Factures',
-      },
-      {
-        value: 'QUOTE',
-        name: 'Devis',
-      },
-      {
-        value: 'customers',
-        name: 'Clients',
-      },
-    ])
-
     // Computed
     const user = computed(() => store.state.auth.user)
     const teams = computed(() => store.state.team.teams)
     const team = computed(() => store.state.team.team)
+
+    // Get data
+    const data = reactive({
+      customers: [] as number[],
+      invoices: [] as number[],
+      paid: [] as number[],
+      customersDiff: 0,
+      invoicesDiff: 0,
+      paidDiff: 0,
+    })
+
+    useFetch(() => {
+      Object.keys(team.value?.charts)
+        .sort()
+        .forEach((v) => {
+          const day = team.value?.charts[v]
+
+          data.customers.push(day.customers ?? 0)
+          data.invoices.push(day.INVOICE ?? 0 + day.QUOTE ?? 0)
+          data.paid.push(day.PAID ?? 0)
+        })
+    })
+
+    const getDiff = (stats: number[]): number => {
+      const elements = stats.slice(Math.max(stats.length - 2, 0))
+
+      const first = elements[0] || 0
+      const last = elements[elements.length - 1] - first
+
+      if (first === 0) {
+        return 0
+      }
+
+      return Math.round((last / first) * 100)
+    }
+
+    onMounted(() => {
+      data.customersDiff = getDiff(data.customers)
+      data.invoicesDiff = getDiff(data.invoices)
+      data.paidDiff = getDiff(data.paid)
+    })
 
     // Methods
     const switchTeam = async (id: string | null) => {
       await store.dispatch('team/switchTeam', id)
     }
 
-    const getCounter = (value: string): number => {
-      if (!team.value?.counter) {
-        return 0
-      }
-
-      return team.value?.counter[value] ?? 0
+    const getLast = (stats: number[]): number => {
+      return stats[stats.length - 1] ?? 0
     }
 
-    return { analytics, user, teams, team, switchTeam, getCounter }
+    return { ...toRefs(data), user, teams, team, switchTeam, getLast }
   },
   head: {
     title: 'Tableau de bord',
