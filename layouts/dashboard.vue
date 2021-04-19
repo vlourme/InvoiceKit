@@ -195,7 +195,7 @@ export default defineComponent({
 
     // Computed
     const drawer = computed(() => store.state.drawer.drawer)
-    const user = computed(() => store.state.auth.user)
+    const user = computed(() => store.state.auth.user!)
 
     // Methods
     const logout = async (): Promise<void> => {

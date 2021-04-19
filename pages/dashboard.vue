@@ -129,7 +129,7 @@ export default defineComponent({
     const store = useStore<RootState>()
 
     // Computed
-    const user = computed(() => store.state.auth.user)
+    const user = computed(() => store.state.auth.user!)
     const teams = computed(() => store.state.team.teams)
     const team = computed(() => store.state.team.team)
 
@@ -141,14 +141,18 @@ export default defineComponent({
     })
 
     useFetch(() => {
-      Object.keys(team.value?.charts)
+      if (!team.value?.charts) {
+        return
+      }
+
+      Object.keys(team.value.charts)
         .sort()
         .forEach((v) => {
           const day = team.value?.charts[v]
 
-          data.customers.push(day.customers ?? 0)
-          data.invoices.push(day.INVOICE ?? 0 + day.QUOTE ?? 0)
-          data.paid.push(day.PAID ?? 0)
+          data.customers.push(day?.customers ?? 0)
+          data.invoices.push((day?.INVOICE ?? 0) + (day?.QUOTE ?? 0))
+          data.paid.push(day?.PAID ?? 0)
         })
     })
 
