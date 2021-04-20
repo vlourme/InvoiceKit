@@ -34,12 +34,7 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  reactive,
-  useFetch,
-  useRoute,
-} from '@nuxtjs/composition-api'
+import { defineComponent, useFetch, useRoute } from '@nuxtjs/composition-api'
 import useInvoice from '~/composables/useInvoice'
 
 export default defineComponent({

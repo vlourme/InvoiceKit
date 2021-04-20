@@ -34,7 +34,6 @@
 <script lang="ts">
 import {
   defineComponent,
-  reactive,
   useContext,
   useFetch,
   useRoute,
