@@ -15,6 +15,9 @@ const state = reactive({
   address: defaultAddress(),
   taxes: 0,
   total: 0,
+  promotionDialog: false,
+  depositDialog: false,
+  noteDialog: false,
 })
 
 export default () => {

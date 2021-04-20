@@ -59,7 +59,7 @@
         <button
           type="button"
           class="flex items-center justify-center focus:outline-none text-gray-700 hover:text-gray-400"
-          @click.prevent="$emit('update:promotion-dialog', true)"
+          @click.prevent="promotionDialog = true"
         >
           <i class="bx bx-dots-horizontal-rounded text-2xl"></i>
         </button>
@@ -79,7 +79,7 @@
         <button
           type="button"
           class="flex items-center justify-center focus:outline-none text-gray-700 hover:text-gray-400"
-          @click.prevent="$emit('update:deposit-dialog', true)"
+          @click.prevent="depositDialog = true"
         >
           <i class="bx bx-dots-horizontal-rounded text-2xl"></i>
         </button>
@@ -129,7 +129,7 @@
       <button
         type="button"
         class="p-4 inline-flex items-center hover:bg-gray-100 transition-colors focus:outline-none w-full"
-        @click.prevent="$emit('update:note-dialog', true)"
+        @click.prevent="noteDialog = true"
       >
         <i class="bx text-xl bxs-note text-green-500"></i>
         <p class="ml-3 text-gray-500">Ajouter une note</p>
@@ -142,7 +142,6 @@
 import {
   computed,
   defineComponent,
-  PropOptions,
   useContext,
   useStore,
 } from '@nuxtjs/composition-api'
@@ -153,20 +152,6 @@ import RootState from '~/store'
 import BasicInvoiceTemplate from '~/templates/basic'
 
 export default defineComponent({
-  props: {
-    promotionDialog: {
-      type: Boolean,
-      required: true,
-    } as PropOptions<boolean>,
-    depositDialog: {
-      type: Boolean,
-      required: true,
-    } as PropOptions<boolean>,
-    noteDialog: {
-      type: Boolean,
-      required: true,
-    } as PropOptions<boolean>,
-  },
   setup() {
     // Context
     const ctx = useContext()

@@ -19,23 +19,15 @@
           <invoice-table></invoice-table>
         </div>
 
-        <invoice-sidebar
-          :promotion-dialog.sync="promotionDialog"
-          :deposit-dialog.sync="depositDialog"
-          :note-dialog.sync="noteDialog"
-        ></invoice-sidebar>
+        <invoice-sidebar></invoice-sidebar>
       </div>
     </div>
 
-    <invoice-dialog-deposit
-      :dialog.sync="depositDialog"
-    ></invoice-dialog-deposit>
+    <invoice-dialog-deposit></invoice-dialog-deposit>
 
-    <invoice-dialog-promotion
-      :dialog.sync="promotionDialog"
-    ></invoice-dialog-promotion>
+    <invoice-dialog-promotion></invoice-dialog-promotion>
 
-    <invoice-dialog-note :dialog.sync="noteDialog"></invoice-dialog-note>
+    <invoice-dialog-note></invoice-dialog-note>
   </form>
 </template>
 
