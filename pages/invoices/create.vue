@@ -55,11 +55,6 @@ export default defineComponent({
       loadAddress,
       saveInvoice,
     } = useInvoice()
-    const data = reactive({
-      promotionDialog: false,
-      depositDialog: false,
-      noteDialog: false,
-    })
 
     // Fetch
     useFetch(async () => {
@@ -70,7 +65,7 @@ export default defineComponent({
       await loadAddress(query.customer, query.address)
     })
 
-    return { ...state, ...data, hasChanges, saveInvoice }
+    return { ...state, hasChanges, saveInvoice }
   },
   head: {
     title: 'Créer une facture',
