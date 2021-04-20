@@ -63,7 +63,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, useContext } from '@nuxtjs/composition-api'
+import {
+  defineComponent,
+  reactive,
+  toRefs,
+  useContext,
+} from '@nuxtjs/composition-api'
 
 export default defineComponent({
   layout: 'auth',
@@ -72,25 +77,27 @@ export default defineComponent({
     const ctx = useContext()
 
     // Data
-    const email = ref('')
-    const password = ref('')
-    const error = ref('')
+    const data = reactive({
+      email: '',
+      password: '',
+      error: '',
+    })
 
     // Methods
     const login = async () => {
       try {
         await ctx.$fire.auth.signInWithEmailAndPassword(
-          email.value,
-          password.value
+          data.email,
+          data.password
         )
 
         window.location.href = '/dashboard'
       } catch (err) {
-        error.value = err
+        data.error = err
       }
     }
 
-    return { email, password, error, login }
+    return { ...toRefs(data), login }
   },
   head: {
     title: 'Connectez-vous',

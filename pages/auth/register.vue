@@ -81,7 +81,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, useContext } from '@nuxtjs/composition-api'
+import {
+  defineComponent,
+  reactive,
+  toRefs,
+  useContext,
+} from '@nuxtjs/composition-api'
 
 export default defineComponent({
   layout: 'auth',
@@ -90,35 +95,37 @@ export default defineComponent({
     const ctx = useContext()
 
     // Data
-    const name = ref('')
-    const email = ref('')
-    const password = ref('')
-    const error = ref('')
+    const data = reactive({
+      name: '',
+      email: '',
+      password: '',
+      error: '',
+    })
 
     // Methods
     const register = () => {
       ctx.$fire.auth
-        .createUserWithEmailAndPassword(email.value, password.value)
+        .createUserWithEmailAndPassword(data.email, data.password)
         .then(async (auth) => {
           // Write a reference
           await ctx.$fire.firestore
             .collection('users')
             .doc(auth.user?.uid)
             .set({
-              email: email.value,
-              name: name.value,
-              image: 'https://eu.ui-avatars.com/api/?name=' + name.value,
+              email: data.email,
+              name: data.name,
+              image: 'https://eu.ui-avatars.com/api/?name=' + data.name,
               team: null,
             })
 
           window.location.href = '/dashboard'
         })
         .catch((err) => {
-          error.value = err
+          data.error = err
         })
     }
 
-    return { name, email, password, error, register }
+    return { ...toRefs(data), register }
   },
   head: {
     title: 'Inscrivez-vous',
