@@ -65,18 +65,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropOptions, reactive } from '@nuxtjs/composition-api'
-import useTeam from './useTeam'
-import { RenderingSignature, Team } from '~/types/team'
+import { defineComponent, reactive } from '@nuxtjs/composition-api'
+import useTeam from '~/composables/useTeam'
+import { RenderingSignature } from '~/types/team'
 
 export default defineComponent({
-  props: {
-    teamState: {
-      type: Object,
-      required: true,
-    } as PropOptions<Team>,
-  },
-  setup(props, { emit }) {
+  setup() {
     // Data
     const refs = reactive({
       signature: [
@@ -96,9 +90,9 @@ export default defineComponent({
     })
 
     // Computed
-    const { team, isAdmin } = useTeam(props, emit)
+    const { state, isAdmin } = useTeam()
 
-    return { team, isAdmin, ...refs }
+    return { ...state, isAdmin, ...refs }
   },
 })
 </script>

@@ -49,31 +49,27 @@
       />
     </FormBox>
 
-    <teams-members :team-state.sync="team" class="my-4"></teams-members>
+    <teams-members class="my-4"></teams-members>
 
-    <teams-identity :team-state.sync="team" class="my-4"></teams-identity>
+    <teams-identity class="my-4"></teams-identity>
 
-    <teams-localization
-      :team-state.sync="team"
-      class="my-4"
-    ></teams-localization>
+    <teams-localization class="my-4"></teams-localization>
 
-    <teams-rendering :team-state.sync="team" class="my-4"></teams-rendering>
+    <teams-rendering class="my-4"></teams-rendering>
 
-    <teams-fields :team-state.sync="team" class="my-4"></teams-fields>
+    <teams-fields class="my-4"></teams-fields>
   </form>
 </template>
 
 <script lang="ts">
 import {
-  computed,
   defineComponent,
-  ref,
   useContext,
+  useFetch,
   useRouter,
   useStore,
 } from '@nuxtjs/composition-api'
-import _ from 'lodash'
+import useTeam from '~/composables/useTeam'
 import RootState from '~/store'
 import { DialogType } from '~/types/dialog'
 import { NotificationType } from '~/types/notification'
@@ -88,53 +84,30 @@ export default defineComponent({
   },
   setup() {
     // Context
-    const store = useStore<RootState>()
     const ctx = useContext()
+    const store = useStore<RootState>()
     const router = useRouter()
 
-    // Data
-    const user = store.state.auth.user!
-    const teamState = store.state.team.team!
-    const team = ref(_.cloneDeep(teamState))
+    // Service
+    const { state, isAdmin, isOwner, load, save, remove, leave } = useTeam()
 
-    // Computed
-    const isOwner = computed(() => store.getters['team/isOwner'])
-    const isAdmin = computed(() => store.getters['team/isAdmin'])
-    const hasChanges = computed((): boolean => {
-      return !_.isEqual(team.value, teamState)
+    // Fetch
+    useFetch(async () => {
+      await load()
     })
 
     // Methods
-    const deleteTeam = (): void => {
-      ctx.$dialog({
-        type: DialogType.Error,
-        title: 'Êtes-vous sur de supprimer la team ?',
-        message:
-          'Toutes les données associées seront supprimées et irrécupérables.',
-        showCancel: true,
-        actionMessage: 'Supprimer',
-        callback: async () => await deleteTeamCallback(),
-      })
-    }
-
-    const deleteTeamCallback = async () => {
-      const fn = ctx.$fire.functions.httpsCallable('deleteTeam', {
-        timeout: 2000,
-      })
-
-      try {
-        const res = await fn({ teamId: user.team })
-
-        if (res.data.success) {
-          ctx.$notify('La team à été supprimée', NotificationType.SUCCESS)
-
-          await changeTeam()
-        } else {
-          throw new Error('team was not deleted')
-        }
-      } catch (e) {
-        console.error(e)
-        ctx.$notify('Impossible de supprimer la team', NotificationType.ERROR)
+    const updateTeam = async () => {
+      if (await save()) {
+        ctx.$notify(
+          'Les paramètres ont étés sauvegardés.',
+          NotificationType.SUCCESS
+        )
+      } else {
+        ctx.$notify(
+          'Une erreur est survenue lors de la sauvegarde.',
+          NotificationType.WARNING
+        )
       }
     }
 
@@ -146,29 +119,37 @@ export default defineComponent({
           'Si vous voulez revenir dans cette team, le propriétaire devra vous inviter à nouveau.',
         showCancel: true,
         actionMessage: 'Quitter',
-        callback: async () => await leaveTeamCallback(),
+        callback: async () => await leaveCallback(),
       })
     }
 
-    const leaveTeamCallback = async (): Promise<void> => {
-      const fn = ctx.$fire.functions.httpsCallable('leaveTeam', {
-        timeout: 2000,
-      })
-
-      try {
-        const response = await fn({ teamId: user.team })
-
-        if (response.data.success) {
-          ctx.$notify('Vous avez quitté la team.', NotificationType.SUCCESS)
-
-          await changeTeam()
-        } else {
-          throw new Error('cannot leave team')
-        }
-      } catch (e) {
-        console.error(e)
-        ctx.$notify('Impossible de quitter la team', NotificationType.ERROR)
+    const leaveCallback = async () => {
+      if (!(await leave())) {
+        ctx.$notify('Impossible de quitter la team', NotificationType.WARNING)
       }
+
+      ctx.$notify('Vous avez quitté la team', NotificationType.SUCCESS)
+      await changeTeam()
+    }
+
+    const deleteTeam = () => {
+      ctx.$dialog({
+        type: DialogType.Error,
+        title: 'Êtes-vous sur de supprimer la team ?',
+        message:
+          'Toutes les données associées seront supprimées et irrécupérables.',
+        showCancel: true,
+        actionMessage: 'Supprimer',
+        callback: async () => await deleteCallback(),
+      })
+    }
+
+    const deleteCallback = async () => {
+      if (!(await remove())) {
+        ctx.$notify('Impossible de supprimer la team', NotificationType.ERROR)
+      }
+
+      await changeTeam()
     }
 
     const changeTeam = async () => {
@@ -182,38 +163,7 @@ export default defineComponent({
       router.push('/dashboard')
     }
 
-    const updateTeam = (): void => {
-      // Update
-      ctx.$fire.firestore
-        .collection('teams')
-        .doc(user.team!)
-        .update(team.value)
-        .then(() => {
-          ctx.$notify(
-            'Les paramètres ont étés sauvegardés.',
-            NotificationType.SUCCESS
-          )
-
-          // Reload team
-          store.commit('team/SET_TEAM', team.value)
-        })
-        .catch(() => {
-          ctx.$notify(
-            'Une erreur est survenue lors de la sauvegarde.',
-            NotificationType.WARNING
-          )
-        })
-    }
-
-    return {
-      team,
-      hasChanges,
-      isOwner,
-      isAdmin,
-      deleteTeam,
-      leaveTeam,
-      updateTeam,
-    }
+    return { ...state, isAdmin, isOwner, updateTeam, deleteTeam, leaveTeam }
   },
   head: {
     title: 'Paramètres de la team',

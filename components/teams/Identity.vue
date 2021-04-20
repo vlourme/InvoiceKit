@@ -81,7 +81,7 @@
           </div>
           <div class="mt-2">
             <input
-              ref="filebase-input"
+              ref="fileInput"
               type="file"
               accept="image/jpg,image/png,image/jpeg"
               hidden
@@ -114,36 +114,31 @@
 import {
   defineComponent,
   onMounted,
-  PropOptions,
-  ref,
+  reactive,
+  toRefs,
   useContext,
   useStore,
 } from '@nuxtjs/composition-api'
-import useTeam from './useTeam'
-import { Team } from '~/types/team'
+import useTeam from '~/composables/useTeam'
 import RootState from '~/store'
 
 export default defineComponent({
-  props: {
-    teamState: {
-      type: Object,
-      required: true,
-    } as PropOptions<Team>,
-  },
-  setup(props, { emit }) {
+  setup() {
     // Context
     const store = useStore<RootState>()
     const ctx = useContext()
 
     // Data
-    const image = ref('')
-    const file = ref<File>()
-    const dialog = ref(false)
-    const error = ref('')
+    const data = reactive({
+      image: '',
+      file: null as File | null,
+      dialog: false,
+      error: '',
+    })
 
     // Computed
     const user = store.state.auth.user
-    const { team, isAdmin } = useTeam(props, emit)
+    const { state, isAdmin } = useTeam()
 
     // On mount
     onMounted(() => {
@@ -151,7 +146,7 @@ export default defineComponent({
         .ref(user?.team!)
         .getDownloadURL()
         .then((url) => {
-          image.value = url
+          data.image = url
         })
         .catch(() => {})
     })
@@ -160,41 +155,38 @@ export default defineComponent({
     const onFileChange = (e: any) => {
       const files = e.target.files || e.dataTransfer.files
       if (!files.length) return
-      file.value = files[0]
+      data.file = files[0]
     }
 
     const uploadImage = async () => {
-      if (!file.value) {
-        error.value = "Aucune image n'a été séléctionnée."
+      if (!data.file) {
+        data.error = "Aucune image n'a été séléctionnée."
         return
       }
 
       // Upload file
       const task = await ctx.$fire.storage
         .ref(`/teams/${user?.team!}`)
-        .put(file.value)
+        .put(data.file)
 
       // Change image
-      image.value = await task.ref.getDownloadURL()
+      data.image = await task.ref.getDownloadURL()
 
-      dialog.value = false
+      data.dialog = false
     }
 
     const deleteImage = async () => {
       try {
         await ctx.$fire.storage.ref(`/teams/${user?.team!}`).delete()
 
-        image.value = ''
+        data.image = ''
       } catch {}
     }
 
     return {
-      team,
+      ...toRefs(data),
+      ...state,
       isAdmin,
-      image,
-      file,
-      dialog,
-      error,
       onFileChange,
       uploadImage,
       deleteImage,

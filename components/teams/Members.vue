@@ -115,92 +115,64 @@
 
 <script lang="ts">
 import {
-  computed,
   defineComponent,
-  PropOptions,
-  ref,
+  reactive,
+  toRefs,
   useContext,
-  useFetch,
-  useStore,
 } from '@nuxtjs/composition-api'
-import useTeam from './useTeam'
-import RootState from '~/store'
-import { MemberPermission, Team } from '~/types/team'
+import { MemberPermission } from '~/types/team'
 import User from '~/types/user'
-import { SelectItem } from '~/types/UI'
-import { mapDocument } from '~/helpers/documentMapper'
 import { DialogType } from '~/types/dialog'
 import getRole from '~/composables/useMemberPermission'
 import { NotificationType } from '~/types/notification'
+import useTeam from '~/composables/useTeam'
 
 export default defineComponent({
-  props: {
-    teamState: {
-      type: Object,
-      required: true,
-    } as PropOptions<Team>,
-  },
-  setup(props, { emit }) {
+  setup() {
     // Context
     const ctx = useContext()
-    const store = useStore<RootState>()
 
     // Data
-    const members = ref<User[]>([])
-    const dialog = ref(false)
-    const email = ref('')
-    const update = ref(-1)
-    const role = ref(MemberPermission.Editor)
-    const roles: SelectItem[] = [
-      {
-        text: 'Lecteur',
-        value: MemberPermission.Viewer,
-      },
-      {
-        text: 'Editeur',
-        value: MemberPermission.Editor,
-      },
-      {
-        text: 'Administrateur',
-        value: MemberPermission.Admin,
-      },
-    ]
+    const data = reactive({
+      dialog: false,
+      email: '',
+      update: -1,
+      role: MemberPermission.Editor,
+      roles: [
+        {
+          text: 'Lecteur',
+          value: MemberPermission.Viewer,
+        },
+        {
+          text: 'Éditeur',
+          value: MemberPermission.Editor,
+        },
+        {
+          text: 'Administrateur',
+          value: MemberPermission.Admin,
+        },
+      ],
+    })
 
     // Computed
-    const { team, isAdmin } = useTeam(props, emit)
-    const user = computed(() => store.state.auth.user)
-
-    // Fetch
-    useFetch(async () => {
-      // Load members
-      for (const uid in team.value.members) {
-        const doc = await ctx.$fire.firestore.collection('users').doc(uid).get()
-
-        members.value.push(mapDocument<User>(doc))
-      }
-
-      // Sort by permissions
-      members.value.sort(
-        (a, b) => team.value.members[b.$key!] - team.value.members[a.$key!]
-      )
-    })
+    const { state, user, isAdmin } = useTeam()
 
     // Methods
     const invite = ctx.$fire.functions.httpsCallable('inviteUser')
 
     const addMember = async (): Promise<void> => {
       // Check for update
-      if (update.value > -1) {
+      if (data.update > -1) {
         // Get member
-        const member = members.value[update.value]
+        const member = state.members.value[data.update]
 
-        team.value.members[member.$key!] = role.value
+        state.team.value.members[member.$key!] = data.role
       } else {
         // Add user
         const response = await invite({
-          email: email.value,
-          teamId: team.value.$key,
-          role: role.value,
+          email: data.email,
+          teamId: state.team.value.$key,
+          role: data.role,
         })
 
         if (!response.data.success) {
@@ -218,17 +190,17 @@ export default defineComponent({
     }
 
     const editUser = (user: User, idx: number): void => {
-      update.value = idx
-      email.value = user.email
-      role.value = team.value.members[user.$key!]
-      dialog.value = true
+      data.update = idx
+      data.email = user.email
+      data.role = state.team.value.members[user.$key!]
+      data.dialog = true
     }
 
     const closeDialog = (): void => {
-      email.value = ''
-      role.value = MemberPermission.Editor
-      update.value = -1
-      dialog.value = false
+      data.update = -1
+      data.email = ''
+      data.role = MemberPermission.Editor
+      data.dialog = false
     }
 
     const kickUser = (user: User, idx: number): void => {
@@ -240,22 +212,17 @@ export default defineComponent({
         showCancel: true,
         actionMessage: 'Supprimer',
         callback: () => {
-          delete team.value.members[user.$key!]
-          members.value.splice(idx, 1)
+          delete state.team.value.members[user.$key!]
+          state.members.value.splice(idx, 1)
         },
       })
     }
 
     return {
-      members,
-      dialog,
-      email,
-      update,
-      role,
-      roles,
-      team,
-      isAdmin,
+      ...state,
+      ...toRefs(data),
       user,
+      isAdmin,
       getRole,
       addMember,
       editUser,

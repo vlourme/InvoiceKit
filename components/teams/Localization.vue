@@ -51,19 +51,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropOptions } from '@nuxtjs/composition-api'
-import useTeam from './useTeam'
-import { Team } from '~/types/team'
+import { defineComponent } from '@nuxtjs/composition-api'
+import useTeam from '~/composables/useTeam'
 
 export default defineComponent({
-  props: {
-    teamState: {
-      type: Object,
-      required: true,
-    } as PropOptions<Team>,
-  },
-  setup(props, { emit }) {
-    return useTeam(props, emit)
+  setup() {
+    const { state, isAdmin } = useTeam()
+    return { ...state, isAdmin }
   },
 })
 </script>

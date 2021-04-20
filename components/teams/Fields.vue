@@ -90,33 +90,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropOptions, ref } from '@nuxtjs/composition-api'
+import { defineComponent, ref } from '@nuxtjs/composition-api'
 import _ from 'lodash'
-import useTeam from './useTeam'
-import { Team } from '~/types/team'
+import useTeam from '~/composables/useTeam'
 
 export default defineComponent({
-  props: {
-    teamState: {
-      type: Object,
-      required: true,
-    } as PropOptions<Team>,
-  },
-  setup(props, { emit }) {
+  setup() {
     // Data
     const dialog = ref(false)
     const update = ref(-1)
     const value = ref('')
 
     // Computed
-    const { team, isAdmin } = useTeam(props, emit)
+    const { state, isAdmin } = useTeam()
 
     // Methods
     const addField = () => {
       if (update.value > -1) {
-        team.value.fields[update.value] = value.value
+        state.team.value.fields[update.value] = value.value
       } else {
-        team.value.fields.push(value.value)
+        state.team.value.fields.push(value.value)
       }
 
       closeDialog()
@@ -124,12 +117,12 @@ export default defineComponent({
 
     const editField = (idx: number) => {
       update.value = idx
-      value.value = _.clone(team.value.fields[update.value])
+      value.value = _.clone(state.team.value.fields[update.value])
       dialog.value = true
     }
 
     const deleteField = (idx: number) => {
-      team.value.fields.splice(idx, 1)
+      state.team.value.fields.splice(idx, 1)
     }
 
     const closeDialog = () => {
@@ -139,10 +132,10 @@ export default defineComponent({
     }
 
     return {
+      ...state,
       dialog,
       update,
       value,
-      team,
       isAdmin,
       addField,
       editField,
