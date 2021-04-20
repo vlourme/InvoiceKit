@@ -50,8 +50,8 @@ export default defineComponent({
     }
 
     // Data
-    const diff = getDiff(props.data)
-    const last = getLast(props.data)
+    const diff = getDiff(props.data!)
+    const last = getLast(props.data!)
 
     return { diff, last }
   },

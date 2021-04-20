@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-end justify-center rounded-l-lg">
+  <div class="flex items-end justify-center">
     <div
       v-for="(n, idx) in getChartData()"
       :key="idx"
@@ -20,23 +20,22 @@ export default defineComponent({
   props: {
     height: {
       type: Number,
-      required: false,
       default: 100,
-    } as PropOptions<number>,
+    },
     data: {
       type: Array,
-      required: true,
+      default: [],
     } as PropOptions<number[]>,
-  },
-  setup(props) {
+  } as const,
+  setup({ height, data }) {
     const getChartData = (): number[] => {
       // Find hightest number
-      const hightest = Math.max(...props.data)
+      const hightest = Math.max(...data!)
 
       const result = []
 
-      for (const n of props.data) {
-        let value = (n * props.height) / hightest
+      for (const n of data!) {
+        let value = (n * height) / hightest
 
         if (value < 5) {
           value = 5
