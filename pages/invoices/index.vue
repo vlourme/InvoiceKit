@@ -84,7 +84,7 @@
                 <td class="px-6 py-4">
                   {{ getDate(invoice) }}
                 </td>
-                <td width="200" class="px-6 py-4 text-right">
+                <td class="px-6 py-4 text-right">
                   <nuxt-link
                     class="text-blue-500 hover:text-blue-700 transition-colors"
                     :to="`/invoices/${invoice.customer.$key}/${invoice.link}`"
@@ -115,7 +115,6 @@ import {
   computed,
   defineComponent,
   useFetch,
-  useRouter,
   useStore,
 } from '@nuxtjs/composition-api'
 import firebase from 'firebase'
@@ -129,35 +128,23 @@ export default defineComponent({
   setup() {
     // Context
     const store = useStore<RootState>()
-    const router = useRouter()
 
     // Computed
-    const user = computed(() => store.state.auth.user)
-    const canLoadMore = computed(() => {
-      return (
-        (team.value.counter.INVOICE ?? 0 + team.value.counter.QUOTE ?? 0) !==
-        results.value.length
-      )
-    })
     const team = computed(() => store.state.team.team!)
 
     // Data
     const primary = getPrimaryKey(team.value, 'customers')
 
     // Search
-    const { search, results, fetchData } = useSearch<InvoiceIndex>(
+    const { search, results, canLoadMore, fetchData } = useSearch<InvoiceIndex>(
       'invoices',
       `/teams/${team.value.$key}/invoices`,
-      'id'
+      'id',
+      ['INVOICE', 'QUOTE']
     )
 
     // Mounted
     useFetch(async () => {
-      if (!user.value?.team) {
-        await router.push('/dashboard')
-        return
-      }
-
       await fetchData()
     })
 

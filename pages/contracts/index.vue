@@ -1,18 +1,14 @@
 <template>
-  <div class="flex flex-col h-full max-h-screen overflow-y-hidden">
+  <div v-if="team" class="flex flex-col h-full max-h-screen overflow-y-hidden">
     <Header class="bg-gray-50">
-      Clients
+      Contrats
 
       <template #actions>
         <base-nav-input
           v-model="search"
-          placeholder="Chercher un client"
+          placeholder="Chercher un contrat"
           @input="fetchData"
         />
-
-        <base-nav-button v-if="role > 0" @click.prevent="modal = true">
-          Créer un client
-        </base-nav-button>
       </template>
     </Header>
 
@@ -51,7 +47,7 @@
                 <td class="px-6 py-4 text-left">
                   {{ customer[values[2]] }}
                 </td>
-                <td class="px-6 py-4 text-right">
+                <td width="200" class="px-6 py-4 text-right">
                   <nuxt-link
                     class="text-blue-500 hover:text-blue-700 transition-colors"
                     :to="`/customers/${customer.$key}`"
@@ -72,20 +68,6 @@
         Charger plus de résultats
       </BaseButton>
     </div>
-    <base-slideover :activator.sync="modal">
-      <template #title>Créer un client</template>
-
-      <form @submit.prevent="saveCustomer(false)">
-        <customers-inputs
-          :fields="team.extensions.customers.fields"
-          :customer-state.sync="customer"
-        />
-
-        <div class="flex w-full justify-end items-center mt-2">
-          <base-button info type="submit">Sauvegarder</base-button>
-        </div>
-      </form>
-    </base-slideover>
   </div>
 </template>
 
@@ -111,8 +93,11 @@ export default defineComponent({
     const store = useStore<RootState>()
 
     // Computed
-    const team = computed(() => store.state.team.team!)
     const role = computed(() => store.getters['team/role'])
+    const canLoadMore = computed(() => {
+      return team.value.counter.customers !== results.value.length
+    })
+    const team = computed(() => store.state.team.team!)
 
     // Data
     const { state, hasChanges, resetState, saveCustomer } = useCustomer()
@@ -121,7 +106,7 @@ export default defineComponent({
     const values = getValues(team.value, 'customers')
 
     // Search
-    const { search, results, canLoadMore, fetchData } = useSearch<Customer>(
+    const { search, results, fetchData } = useSearch<Customer>(
       'customers',
       `/teams/${team.value.$key}/customers`,
       primary.value
@@ -136,11 +121,10 @@ export default defineComponent({
     })
 
     return {
-      resetState,
-      saveCustomer,
-      fetchData,
       ...state,
       hasChanges,
+      resetState,
+      saveCustomer,
       modal,
       role,
       team,
@@ -148,11 +132,12 @@ export default defineComponent({
       primary,
       search,
       results,
+      fetchData,
       canLoadMore,
     }
   },
   head: {
-    title: 'Clients',
+    title: 'Contrats',
   },
 })
 </script>

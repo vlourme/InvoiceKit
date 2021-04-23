@@ -1,12 +1,13 @@
-import { useContext, useRouter, useStore } from '@nuxtjs/composition-api'
+import { useContext, useRouter } from '@nuxtjs/composition-api'
 import { computed, reactive, toRefs, watch } from '@vue/composition-api'
 import _ from 'lodash'
 import { getFinalPrice, getTotalTaxes } from './useInvoicePricing'
 import { mapDocument } from '~/helpers/documentMapper'
-import RootState from '~/store'
 import { Address, defaultAddress } from '~/types/address'
 import { Customer, defaultCustomer } from '~/types/customer'
 import { defaultInvoice, Invoice } from '~/types/invoice'
+import useUserRole from '~/composables/useUserRole'
+import useIsEqual from '~/composables/useIsEqual'
 
 const state = reactive({
   oldState: defaultInvoice(),
@@ -23,13 +24,11 @@ const state = reactive({
 export default () => {
   // Context
   const ctx = useContext()
-  const store = useStore<RootState>()
   const router = useRouter()
 
   // Computed
-  const user = computed(() => store.state.auth.user!)
-  const role = computed(() => store.getters['team/role'])
-  const hasChanges = computed(() => !_.isEqual(state.invoice, state.oldState))
+  const { user, role } = useUserRole()
+  const hasChanges = useIsEqual(state.customer, state.oldState)
   const canDelete = computed(() => state.invoice.$key != null)
 
   // Watchers

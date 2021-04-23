@@ -1,16 +1,12 @@
-import {
-  toRefs,
-  useContext,
-  useRouter,
-  useStore,
-} from '@nuxtjs/composition-api'
-import { computed, reactive } from '@vue/composition-api'
+import { toRefs, useContext, useRouter } from '@nuxtjs/composition-api'
+import { reactive } from '@vue/composition-api'
 import _ from 'lodash'
 import { mapDocument, mapSnapshot } from '~/helpers/documentMapper'
-import RootState from '~/store'
 import { Address } from '~/types/address'
 import { Customer, defaultCustomer } from '~/types/customer'
 import { Invoice } from '~/types/invoice'
+import useUserRole from '~/composables/useUserRole'
+import useIsEqual from '~/composables/useIsEqual'
 
 const state = reactive({
   oldState: defaultCustomer(),
@@ -22,13 +18,11 @@ const state = reactive({
 export default () => {
   // Context
   const ctx = useContext()
-  const store = useStore<RootState>()
   const router = useRouter()
 
   // Computed
-  const user = computed(() => store.state.auth.user!)
-  const role = computed(() => store.getters['team/role'])
-  const hasChanges = computed(() => !_.isEqual(state.customer, state.oldState))
+  const { user, role } = useUserRole()
+  const hasChanges = useIsEqual(state.customer, state.oldState)
 
   // Methods
   const resetState = () => {

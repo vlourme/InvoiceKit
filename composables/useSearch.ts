@@ -1,4 +1,10 @@
-import { Ref, ref, useContext, useStore } from '@nuxtjs/composition-api'
+import {
+  computed,
+  Ref,
+  ref,
+  useContext,
+  useStore,
+} from '@nuxtjs/composition-api'
 import algolia from 'algoliasearch'
 import { mapSnapshot } from '~/helpers/documentMapper'
 import RootState from '~/store'
@@ -12,6 +18,7 @@ export default <T extends OptionalProperty>(
   indexName: string,
   path: string,
   primaryKey: string,
+  counter?: string[],
   value: T[] = []
 ) => {
   // Context
@@ -39,6 +46,22 @@ export default <T extends OptionalProperty>(
   const mode = ref('base')
   const search = ref('')
   const results = ref(value) as Ref<OptionalProperty[]>
+
+  // Computed
+  const team = computed(() => store.state.team.team!)
+  const canLoadMore = computed(() => {
+    let max = 0
+
+    if (!counter) {
+      max = team.value.counter[indexName]
+    } else {
+      for (const val of counter) {
+        max += team.value.counter[val]
+      }
+    }
+
+    return max !== results.value.length
+  })
 
   // Methods
   const fetchData = async (): Promise<void> => {
@@ -88,5 +111,5 @@ export default <T extends OptionalProperty>(
     results.value = hits
   }
 
-  return { search, results, fetchData }
+  return { search, results, canLoadMore, fetchData }
 }
