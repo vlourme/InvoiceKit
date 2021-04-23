@@ -60,6 +60,7 @@ export interface ExtensibleField {
 export interface Extension {
   formatting: string
   fields: ExtensibleField[]
+  models?: any[]
 }
 export interface Team extends Model {
   // Team details
@@ -118,6 +119,12 @@ export const defaultRendering = (): Rendering => ({
   accentEnabled: false,
   quantityEnabled: true,
   signature: RenderingSignature.Both,
+})
+
+export const defaultExtension = (): Extension => ({
+  formatting: '',
+  fields: [],
+  models: [],
 })
 
 export const defaultExtensionField = (): ExtensibleField => ({
