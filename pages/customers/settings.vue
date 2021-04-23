@@ -46,7 +46,7 @@ import {
 } from '@nuxtjs/composition-api'
 import _ from 'lodash'
 import RootState from '~/store'
-import { defaultExtension, defaultTeam } from '~/types/team'
+import { defaultTeam } from '~/types/team'
 import { NotificationType } from '~/types/notification'
 import useExtension from '~/composables/useExtension'
 
