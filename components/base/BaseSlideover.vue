@@ -67,6 +67,11 @@ export default defineComponent({
       type: Boolean,
       required: true,
     } as PropOptions<boolean>,
+    onClose: {
+      type: Function,
+      required: false,
+      default: () => {},
+    } as PropOptions<Function>,
   },
   setup(props, { emit }) {
     const show = computed({
@@ -74,6 +79,10 @@ export default defineComponent({
         return props.activator ?? false
       },
       set(value: boolean): void {
+        if (!value && props.onClose) {
+          props.onClose()
+        }
+
         emit('update:activator', value)
       },
     })

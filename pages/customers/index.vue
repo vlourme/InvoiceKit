@@ -72,7 +72,7 @@
         Charger plus de résultats
       </BaseButton>
     </div>
-    <base-slideover :activator.sync="modal">
+    <base-slideover :activator.sync="modal" :on-close="closeModal">
       <template #title>Créer un client</template>
 
       <form @submit.prevent="saveCustomer(false)">
@@ -101,7 +101,7 @@ import {
 import useSearch from '~/composables/useSearch'
 import { getPrimaryKey, getValues } from '~/composables/useExtensibleField'
 import RootState from '~/store'
-import { Customer } from '~/types/customer'
+import { Customer, defaultCustomer } from '~/types/customer'
 import useCustomer from '~/composables/useCustomer'
 
 export default defineComponent({
@@ -128,11 +128,14 @@ export default defineComponent({
     )
 
     // Methods
-    onMounted(resetState)
+    const closeModal = () => {
+      state.customer.value = defaultCustomer()
+    }
 
-    // Mounted
+    // Fetch
     useFetch(async () => {
       await fetchData()
+      resetState()
     })
 
     return {
@@ -149,6 +152,7 @@ export default defineComponent({
       search,
       results,
       canLoadMore,
+      closeModal,
     }
   },
   head: {
