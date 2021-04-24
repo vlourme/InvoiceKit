@@ -83,7 +83,7 @@ export default defineComponent({
     }
 
     return {
-      ...state,
+      extension: state,
       hasPrimaryKey,
       isAdmin,
       saveTeam,

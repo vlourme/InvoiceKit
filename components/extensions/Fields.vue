@@ -249,9 +249,9 @@ export default defineComponent({
       data.field.value = slugify(data.field.name, '_')
 
       if (data.update > -1) {
-        state.extension.value.fields[data.update] = data.field
+        state.value.fields[data.update] = data.field
       } else {
-        state.extension.value.fields.push(data.field)
+        state.value.fields.push(data.field)
       }
 
       closeDialog()
@@ -259,13 +259,13 @@ export default defineComponent({
 
     const editField = (idx: number) => {
       data.update = idx
-      data.field = state.extension.value.fields[data.update]
+      data.field = state.value.fields[data.update]
       data.select = data.field.selects.map((value) => value.text).join(';')
       data.dialog = true
     }
 
     const deleteField = (idx: number) => {
-      state.extension.value.fields.splice(idx, 1)
+      state.value.fields.splice(idx, 1)
     }
 
     const closeDialog = () => {
@@ -293,7 +293,7 @@ export default defineComponent({
 
     return {
       ...toRefs(data),
-      ...state,
+      extension: state,
       isAdmin,
       addField,
       editField,
