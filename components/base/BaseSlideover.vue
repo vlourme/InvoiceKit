@@ -67,10 +67,6 @@ export default defineComponent({
       type: Boolean,
       required: true,
     } as PropOptions<boolean>,
-    extended: {
-      type: Boolean,
-      required: false,
-    } as PropOptions<boolean>,
   },
   setup(props, { emit }) {
     const show = computed({
