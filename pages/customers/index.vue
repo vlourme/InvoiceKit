@@ -93,7 +93,6 @@
 import {
   computed,
   defineComponent,
-  onMounted,
   ref,
   useFetch,
   useStore,
