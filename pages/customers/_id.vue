@@ -26,9 +26,9 @@
         </FormDescription>
       </template>
 
-      <customers-inputs
+      <extensions-inputs
         :fields="team.extensions.customers.fields"
-        :customer-state.sync="customer"
+        :state.sync="customer"
       />
     </FormBox>
 

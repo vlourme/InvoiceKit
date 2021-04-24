@@ -76,9 +76,9 @@
       <template #title>Créer un client</template>
 
       <form @submit.prevent="saveCustomer(false)">
-        <customers-inputs
+        <extensions-inputs
           :fields="team.extensions.customers.fields"
-          :customer-state.sync="customer"
+          :state.sync="customer"
         />
 
         <div class="flex w-full justify-end items-center mt-2">

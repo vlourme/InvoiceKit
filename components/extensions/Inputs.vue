@@ -8,7 +8,7 @@
       <base-select
         v-if="field.type === FieldType.Select"
         :id="field.value"
-        v-model="customer[field.value]"
+        v-model="container[field.value]"
         :items="field.selects"
       />
 
@@ -16,7 +16,7 @@
       <base-textarea
         v-else-if="field.type === FieldType.Textarea"
         :id="field.value"
-        v-model="customer[field.value]"
+        v-model="container[field.value]"
         :placeholder="field.placeholder"
       ></base-textarea>
 
@@ -24,17 +24,17 @@
       <base-input
         v-else-if="field.type === FieldType.Number"
         :id="field.value"
-        v-model.number="customer[field.value]"
+        v-model.number="container[field.value]"
         :required="field.required"
         :placeholder="field.placeholder"
-        :type="number"
+        type="number"
       />
 
       <!-- Input -->
       <base-input
         v-else
         :id="field.value"
-        v-model.trim="customer[field.value]"
+        v-model.trim="container[field.value]"
         :required="field.required"
         :placeholder="field.placeholder"
         :type="getInputType(field.type)"
@@ -45,7 +45,6 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropOptions } from '@nuxtjs/composition-api'
-import { Customer } from '~/types/customer'
 import { ExtensibleField, FieldType } from '~/types/team'
 import { getInputType } from '~/composables/useExtensibleField'
 
@@ -55,24 +54,24 @@ export default defineComponent({
       type: Array,
       required: true,
     } as PropOptions<ExtensibleField[]>,
-    customerState: {
+    state: {
       type: Object,
       required: true,
-    } as PropOptions<Customer>,
+    } as PropOptions<{ [key: string]: any }>,
   },
   setup(props, { emit }) {
     // Computed
     const inputs = computed(() => props.fields ?? [])
-    const customer = computed({
-      get(): Customer {
-        return props.customerState!
+    const container = computed({
+      get(): { [key: string]: any } {
+        return props.state!
       },
       set(v): void {
         emit('update:customer', v)
       },
     })
 
-    return { inputs, customer, FieldType, getInputType }
+    return { inputs, container, FieldType, getInputType }
   },
 })
 </script>
