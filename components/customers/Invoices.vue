@@ -173,7 +173,6 @@ export default defineComponent({
 
     const importDone = async (event: any): Promise<void> => {
       const docId = await importLegacy(
-        ctx.app,
         state.customer.value,
         importAddress.value.$key!,
         event.target.files[0]
