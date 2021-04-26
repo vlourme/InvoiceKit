@@ -19,48 +19,20 @@
     <div class="flex-1 flex flex-col h-8/9">
       <div class="flex flex-col h-full">
         <div class="flex-grow overflow-auto">
-          <table class="relative w-full">
-            <thead>
-              <tr class="border-b">
-                <template
-                  v-for="(field, idx) in team.extensions.customers.fields"
-                >
-                  <th
-                    v-if="field.featured"
-                    :key="idx"
-                    class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
-                  >
-                    {{ field.name }}
-                  </th>
-                </template>
-                <th class="sticky top-0 bg-gray-50 text-right"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(customer, idx) in results"
-                :key="idx"
-                class="even:bg-gray-50"
+          <extensions-table
+            name="customers"
+            :extension="extension"
+            :results="results"
+            :is-index="true"
+          >
+            <template #link="{ id }">
+              <nuxt-link
+                class="text-blue-500 hover:text-blue-700 transition-colors"
+                :to="`/customers/${id}`"
+                >Voir la fiche</nuxt-link
               >
-                <td class="px-6 py-4 text-left">
-                  {{ customer[values[0]] }}
-                </td>
-                <td class="px-6 py-4 text-left">
-                  {{ customer[values[1]] }}
-                </td>
-                <td class="px-6 py-4 text-left">
-                  {{ customer[values[2]] }}
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <nuxt-link
-                    class="text-blue-500 hover:text-blue-700 transition-colors"
-                    :to="`/customers/${customer.$key}`"
-                    >Voir la fiche</nuxt-link
-                  >
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            </template>
+          </extensions-table>
         </div>
       </div>
     </div>
@@ -76,10 +48,7 @@
       <template #title>Créer un client</template>
 
       <form @submit.prevent="saveCustomer(false)">
-        <extensions-inputs
-          :fields="team.extensions.customers.fields"
-          :state.sync="customer"
-        />
+        <extensions-inputs :fields="extension.fields" :state.sync="customer" />
 
         <div class="flex w-full justify-end items-center mt-2">
           <base-button info type="submit">Sauvegarder</base-button>
@@ -98,7 +67,7 @@ import {
   useStore,
 } from '@nuxtjs/composition-api'
 import useSearch from '~/composables/useSearch'
-import { getPrimaryKey, getValues } from '~/composables/useExtensibleField'
+import { getPrimaryKey } from '~/composables/useExtensibleField'
 import RootState from '~/store'
 import { Customer, defaultCustomer } from '~/types/customer'
 import useCustomer from '~/composables/useCustomer'
@@ -112,12 +81,12 @@ export default defineComponent({
     // Computed
     const team = computed(() => store.state.team.team!)
     const role = computed(() => store.getters['team/role'])
+    const extension = computed(() => team.value.extensions.customers!)
 
     // Data
     const { state, hasChanges, resetState, saveCustomer } = useCustomer()
     const modal = ref(false)
     const primary = getPrimaryKey(team.value, 'customers')
-    const values = getValues(team.value, 'customers')
 
     // Search
     const { search, results, canLoadMore, fetchData } = useSearch<Customer>(
@@ -145,8 +114,7 @@ export default defineComponent({
       hasChanges,
       modal,
       role,
-      team,
-      values,
+      extension,
       primary,
       search,
       results,
