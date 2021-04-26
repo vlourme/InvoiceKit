@@ -12,7 +12,7 @@
           }"
           class="ml-2 mb-1 font-light text-sm"
         >
-          {{ diff > 0 ? '▲' : '▲' }} {{ diff || 0 }}%
+          {{ diff > 0 ? '▲' : '▼' }} {{ diff || 0 }}%
         </p>
       </div>
     </div>
