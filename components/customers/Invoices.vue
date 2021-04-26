@@ -127,7 +127,6 @@
 import {
   defineComponent,
   ref,
-  useContext,
   useFetch,
   useRouter,
 } from '@nuxtjs/composition-api'
@@ -138,7 +137,6 @@ import { defaultAddress } from '~/types/address'
 export default defineComponent({
   setup() {
     // Context
-    const ctx = useContext()
     const router = useRouter()
 
     // Data
