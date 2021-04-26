@@ -3,7 +3,7 @@
     <FormDescription>
       <template #title> Factures </template>
       <template #description> Gerez les factures du client </template>
-      <template #actions>
+      <template v-if="role > 0" #actions>
         <base-button-inline info icon="plus" @click.prevent="dialog = true">
           Créer un nouveau devis ou facture
         </base-button-inline>

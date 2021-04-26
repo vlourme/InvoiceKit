@@ -6,7 +6,7 @@
         Gerez les adresses du client, ces adresses seront utilisables pour des
         futurs devis, factures ou contrats.
       </template>
-      <template #actions>
+      <template v-if="role > 0" #actions>
         <base-button-inline info icon="plus" @click.prevent="dialog = true">
           Ajouter une adresse
         </base-button-inline>
