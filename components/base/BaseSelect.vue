@@ -11,7 +11,7 @@
       "
     >
       <template v-for="item in options">
-        <option :key="item.value" :value="item.value">
+        <option :key="item.text" :value="item.value">
           {{ item.text }}
         </option>
       </template>
