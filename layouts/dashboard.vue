@@ -153,12 +153,14 @@ export default defineComponent({
           routes: [
             {
               route: '/dashboard',
+              absolute: false,
               name: 'Tableau de bord',
               icon: 'bxs-home',
               team: false,
             },
             {
               route: '/customers',
+              absolute: false,
               name: 'Clients',
               icon: 'bxs-user',
               settings: '/customers/settings',
@@ -166,8 +168,17 @@ export default defineComponent({
             },
             {
               route: '/invoices',
+              absolute: false,
               name: 'Factures',
-              icon: 'bxs-cabinet',
+              icon: 'bxs-receipt',
+              team: true,
+            },
+            {
+              route: '/contracts',
+              absolute: false,
+              name: 'Contrats',
+              icon: 'bxs-package',
+              settings: '/contracts/settings',
               team: true,
             },
           ],
@@ -177,6 +188,7 @@ export default defineComponent({
           routes: [
             {
               route: '/support',
+              absolute: false,
               name: 'Aide & Support',
               icon: 'bxs-message',
               team: false,

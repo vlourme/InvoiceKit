@@ -32,15 +32,13 @@
       />
     </FormBox>
 
-    <customers-addresses
-      v-if="!$fetchState.pending"
-      class="my-4"
-    ></customers-addresses>
+    <div v-if="!$fetchState.pending">
+      <customers-addresses class="my-4"></customers-addresses>
 
-    <customers-invoices
-      v-if="!$fetchState.pending"
-      class="my-4"
-    ></customers-invoices>
+      <customers-invoices class="my-4"></customers-invoices>
+
+      <customers-contracts class="my-4"> </customers-contracts>
+    </div>
   </form>
 </template>
 

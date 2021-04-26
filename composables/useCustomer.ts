@@ -11,12 +11,14 @@ import { Address } from '~/types/address'
 import { Customer, defaultCustomer } from '~/types/customer'
 import { Invoice } from '~/types/invoice'
 import useUserRole from '~/composables/useUserRole'
+import { Contract } from '~/types/contract'
 
 const state = reactive({
   oldState: defaultCustomer(),
   customer: defaultCustomer(),
   addresses: [] as Address[],
   invoices: [] as Invoice[],
+  contracts: [] as Contract[],
 })
 
 export default () => {
@@ -72,6 +74,18 @@ export default () => {
       })
   }
 
+  const loadContracts = (customerId: string) => {
+    ctx.$fire.firestore
+      .collection('teams')
+      .doc(user.value.team!)
+      .collection('customers')
+      .doc(customerId)
+      .collection('contracts')
+      .onSnapshot((snapshot) => {
+        state.contracts = mapSnapshot<Contract>(snapshot)
+      })
+  }
+
   const saveCustomer = async (update: boolean): Promise<void> => {
     if (update) {
       await ctx.$fire.firestore
@@ -113,6 +127,7 @@ export default () => {
     loadCustomer,
     loadAddresses,
     loadInvoices,
+    loadContracts,
     saveCustomer,
     deleteCustomer,
   }

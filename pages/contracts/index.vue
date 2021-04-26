@@ -1,5 +1,5 @@
 <template>
-  <div v-if="team" class="flex flex-col h-full max-h-screen overflow-y-hidden">
+  <div class="flex flex-col h-full max-h-screen overflow-y-hidden">
     <Header class="bg-gray-50">
       Contrats
 
@@ -15,48 +15,20 @@
     <div class="flex-1 flex flex-col h-8/9">
       <div class="flex flex-col h-full">
         <div class="flex-grow overflow-auto">
-          <table class="relative w-full">
-            <thead>
-              <tr class="border-b">
-                <template
-                  v-for="(field, idx) in team.extensions.customers.fields"
-                >
-                  <th
-                    v-if="field.featured"
-                    :key="idx"
-                    class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
-                  >
-                    {{ field.name }}
-                  </th>
-                </template>
-                <th class="sticky top-0 bg-gray-50 text-right"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(customer, idx) in results"
-                :key="idx"
-                class="even:bg-gray-50"
+          <extensions-table
+            name="contracts"
+            :extension="extension"
+            :results="results"
+            :is-index="true"
+          >
+            <template #link="{ id }">
+              <nuxt-link
+                class="text-blue-500 hover:text-blue-700 transition-colors"
+                :to="`/contracts/${id}`"
+                >Voir la fiche</nuxt-link
               >
-                <td class="px-6 py-4 text-left">
-                  {{ customer[values[0]] }}
-                </td>
-                <td class="px-6 py-4 text-left">
-                  {{ customer[values[1]] }}
-                </td>
-                <td class="px-6 py-4 text-left">
-                  {{ customer[values[2]] }}
-                </td>
-                <td width="200" class="px-6 py-4 text-right">
-                  <nuxt-link
-                    class="text-blue-500 hover:text-blue-700 transition-colors"
-                    :to="`/customers/${customer.$key}`"
-                    >Voir la fiche</nuxt-link
-                  >
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            </template>
+          </extensions-table>
         </div>
       </div>
     </div>
@@ -75,16 +47,13 @@
 import {
   computed,
   defineComponent,
-  onMounted,
-  ref,
   useFetch,
   useStore,
 } from '@nuxtjs/composition-api'
 import useSearch from '~/composables/useSearch'
 import { getPrimaryKey, getValues } from '~/composables/useExtensibleField'
 import RootState from '~/store'
-import { Customer } from '~/types/customer'
-import useCustomer from '~/composables/useCustomer'
+import { Contract } from '~/types/contract'
 
 export default defineComponent({
   layout: 'dashboard',
@@ -98,22 +67,18 @@ export default defineComponent({
       return team.value.counter.customers !== results.value.length
     })
     const team = computed(() => store.state.team.team!)
+    const extension = computed(() => team.value.extensions.contracts!)
 
     // Data
-    const { state, hasChanges, resetState, saveCustomer } = useCustomer()
-    const modal = ref(false)
-    const primary = getPrimaryKey(team.value, 'customers')
-    const values = getValues(team.value, 'customers')
+    const primary = getPrimaryKey(team.value, 'contracts')
+    const values = getValues(team.value, 'contracts')
 
     // Search
-    const { search, results, fetchData } = useSearch<Customer>(
-      'customers',
-      `/teams/${team.value.$key}/customers`,
+    const { search, results, fetchData } = useSearch<Contract>(
+      'contracts',
+      `/teams/${team.value.$key}/contracts`,
       primary.value
     )
-
-    // Methods
-    onMounted(resetState)
 
     // Mounted
     useFetch(async () => {
@@ -121,13 +86,8 @@ export default defineComponent({
     })
 
     return {
-      ...state,
-      hasChanges,
-      resetState,
-      saveCustomer,
-      modal,
       role,
-      team,
+      extension,
       values,
       primary,
       search,

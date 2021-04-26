@@ -205,5 +205,10 @@ export const defaultTeam = (): Team => ({
         },
       ],
     },
+    contracts: {
+      formatting: '',
+      fields: [],
+      models: [],
+    },
   },
 })
