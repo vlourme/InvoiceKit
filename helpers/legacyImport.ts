@@ -1,20 +1,24 @@
 /**
- * Legacy Import from HCInvoice
+ * Legacy Import from old invoice system
  */
 
-import { NuxtAppOptions } from '@nuxt/types'
+import { useContext, useStore } from '@nuxtjs/composition-api'
 import { format, parse } from 'date-fns'
 import firebase from 'firebase'
+import RootState from '~/store'
 import { Customer } from '~/types/customer'
 import { Invoice, InvoiceStatus, InvoiceType } from '~/types/invoice'
 import { LegacyInvoice } from '~/types/legacyInvoice'
 
 export const importLegacy = async (
-  app: NuxtAppOptions,
   customer: Customer,
   addressId: string,
   file: File
 ): Promise<string> => {
+  // Context
+  const { $fire } = useContext()
+  const store = useStore<RootState>()
+
   // Parse file
   const text = await file.text()
   const json = JSON.parse(text) as LegacyInvoice
@@ -50,13 +54,10 @@ export const importLegacy = async (
     })
   }
 
-  // Send to Firestore
-  const state = app.store?.state
-
   // Create invoice
-  const doc = await app.$fire.firestore
+  const doc = await $fire.firestore
     .collection('teams')
-    .doc(state.auth.user.team)
+    .doc(store.state.team.team?.$key)
     .collection('customers')
     .doc(customer.$key!)
     .collection('invoices')
