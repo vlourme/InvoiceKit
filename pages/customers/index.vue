@@ -25,10 +25,10 @@
             :results="results"
             :is-index="true"
           >
-            <template #link="{ id }">
+            <template #link="{ data }">
               <nuxt-link
                 class="text-blue-500 hover:text-blue-700 transition-colors"
-                :to="`/customers/${id}`"
+                :to="`/customers/${data.$key}`"
                 >Voir la fiche</nuxt-link
               >
             </template>

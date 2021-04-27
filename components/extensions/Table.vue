@@ -2,6 +2,7 @@
   <table class="relative w-full">
     <thead>
       <tr class="border-b">
+        <slot name="header-before"></slot>
         <template v-for="(field, idx) in extension.fields">
           <th
             v-if="field.featured"
@@ -15,6 +16,7 @@
             {{ field.name }}
           </th>
         </template>
+        <slot name="header-after"></slot>
         <th
           :class="{ 'sticky top-0': isIndex }"
           class="bg-gray-50 text-right"
@@ -22,18 +24,24 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(result, idx) in results" :key="idx" class="even:bg-gray-50">
-        <td class="px-6 py-4 text-left">
-          {{ result[values[0]] }}
+      <tr
+        v-for="(result, idx) in results || []"
+        :key="idx"
+        class="even:bg-gray-50"
+      >
+        <slot name="data-before" :data="result"></slot>
+        <td
+          v-for="(value, index) in values || []"
+          :key="index"
+          class="px-6 py-4 text-left"
+        >
+          <slot :name="value" :data="result">
+            {{ result[value] }}
+          </slot>
         </td>
-        <td class="px-6 py-4 text-left">
-          {{ result[values[1]] }}
-        </td>
-        <td class="px-6 py-4 text-left">
-          {{ result[values[2]] }}
-        </td>
+        <slot name="data-after" :data="result"></slot>
         <td class="px-6 py-4 text-right">
-          <slot name="link" :id="result.$key"></slot>
+          <slot name="link" :data="result"></slot>
         </td>
       </tr>
     </tbody>
@@ -47,7 +55,7 @@ import {
   PropOptions,
   useStore,
 } from '@nuxtjs/composition-api'
-import { getValues } from '~/composables/useExtensibleField'
+import { getFeaturedValues } from '~/composables/useExtensibleField'
 import RootState from '~/store'
 import { Extension } from '~/types/team'
 
@@ -78,7 +86,7 @@ export default defineComponent({
     const team = computed(() => store.state.team.team!)
 
     // Data
-    const values = getValues(team.value, props.name!)
+    const values = getFeaturedValues(team.value, props.name!)
 
     return { values }
   },

@@ -21,10 +21,41 @@
             :results="results"
             :is-index="true"
           >
-            <template #link="{ id }">
+            <template #header-before>
+              <th
+                class="px-6 py-3 bg-gray-50 text-left text-gray-700 font-medium"
+              >
+                Client
+              </th>
+            </template>
+            <template #header-after>
+              <th
+                class="px-6 py-3 bg-gray-50 text-left text-gray-700 font-medium"
+              >
+                Événements
+              </th>
+            </template>
+
+            <template #data-before="{ data }">
+              <td class="px-6 py-4 text-left">
+                <nuxt-link
+                  class="border-b border-blue-300 pb-1 hover:text-blue-500 hover:border-blue-400 transition-colors"
+                  :to="'/customers/' + data.customer.$key"
+                >
+                  {{ data.customer[customerPrimary.value] }}
+                </nuxt-link>
+              </td>
+            </template>
+            <template #data-after="{ data }">
+              <td class="px-6 py-4 text-left">
+                {{ data.events.length }}
+              </td>
+            </template>
+
+            <template #link="{ data }">
               <nuxt-link
                 class="text-blue-500 hover:text-blue-700 transition-colors"
-                :to="`/contracts/${id}`"
+                :to="`/contracts/${data.customer.$key}/${data.link}`"
                 >Voir la fiche</nuxt-link
               >
             </template>
@@ -70,6 +101,7 @@ export default defineComponent({
     const extension = computed(() => team.value.extensions.contracts!)
 
     // Data
+    const customerPrimary = getPrimaryKey(team.value, 'customers')
     const primary = getPrimaryKey(team.value, 'contracts')
     const values = getValues(team.value, 'contracts')
 
@@ -90,6 +122,7 @@ export default defineComponent({
       extension,
       values,
       primary,
+      customerPrimary,
       search,
       results,
       fetchData,

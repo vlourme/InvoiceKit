@@ -36,6 +36,15 @@ export const getFeaturedFields = (
   team.extensions[extension].fields.filter((value) => value.featured)
 
 /**
+ * Get a string array of featured values
+ * @param {Team} team
+ * @param {string} extension
+ * @returns {string[]}
+ */
+export const getFeaturedValues = (team: Team, extension: string): string[] =>
+  getFeaturedFields(team, extension).map((value) => value.value)
+
+/**
  * Get formatted field
  * @param {Team} team
  * @param {Customer} customer
