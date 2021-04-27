@@ -13,7 +13,7 @@ At **2.x release** :
 | Invoices | No |
 | Contracts/Subscriptions | Yes |
 
-You can look here for [future releases plans](https://github.com/vlourme/InvoiceKit/projects) and (here for every ideas)[https://github.com/vlourme/InvoiceKit/projects/7] we're thinking about.
+You can look here for [future releases plans](https://github.com/vlourme/InvoiceKit/projects) and [here for every ideas](https://github.com/vlourme/InvoiceKit/projects/7) we're thinking about.
 
 ## Plans for v3.x
 
