@@ -91,8 +91,6 @@ export default <T extends OptionalProperty>(
 
   const executeSearch = async (): Promise<void> => {
     // Query
-    console.log(search.value)
-    console.log(mode.value)
     const query = await index.search(search.value)
 
     const hits: OptionalProperty[] = []
@@ -104,9 +102,6 @@ export default <T extends OptionalProperty>(
       obj.$key = hit.objectID
       hits.push(obj)
     }
-
-    console.log(query)
-    console.log(hits)
 
     results.value = hits
   }
