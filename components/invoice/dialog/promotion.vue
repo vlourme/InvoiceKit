@@ -10,7 +10,16 @@
 
         <base-input
           id="promotion"
-          v-model.number="invoice.promotion"
+          v-model.number="invoice.promotion.percent"
+          type="number"
+        />
+      </div>
+      <div class="mt-2">
+        <base-label for="promotion">Réduction en Euro (€)</base-label>
+
+        <base-input
+          id="promotion"
+          v-model.number="invoice.promotion.fixed"
           type="number"
         />
       </div>

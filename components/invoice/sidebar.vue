@@ -49,8 +49,13 @@
         <div class="inline-flex items-center">
           <i class="bx text-xl bxs-offer text-yellow-500"></i>
           <p class="ml-3 text-gray-500">
-            <span class="font-medium text-gray-600"
-              >{{ invoice.promotion || 0 }} %</span
+            <span
+              v-if="invoice.promotion.fixed || 0 > 0"
+              class="font-medium text-gray-600"
+              >{{ invoice.promotion.fixed || 0 }} €</span
+            >
+            <span v-else class="font-medium text-gray-600"
+              >{{ invoice.promotion.percent || 0 }} %</span
             >
             de réduction
           </p>

@@ -21,6 +21,11 @@ export interface Field {
   tax: number
 }
 
+export interface Promotion {
+  percent: number
+  fixed: number
+}
+
 export interface Invoice extends Model {
   id: string
   date: string
@@ -28,7 +33,7 @@ export interface Invoice extends Model {
   status: InvoiceStatus
   address: string
   fields: Field[]
-  promotion: number
+  promotion: Promotion
   deposit: number
   note: string
   createdAt: firebase.firestore.Timestamp
@@ -59,7 +64,10 @@ export const defaultInvoice = (): Invoice => ({
   type: InvoiceType.Invoice,
   address: '',
   fields: [],
-  promotion: 0,
+  promotion: {
+    percent: 0,
+    fixed: 0,
+  },
   deposit: 0,
   note: '',
   createdAt: firebase.firestore.Timestamp.fromDate(new Date()),

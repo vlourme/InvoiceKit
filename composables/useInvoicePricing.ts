@@ -81,7 +81,11 @@ export const getFinalPrice = (invoice: Invoice): number => {
   let price = getTotalPrice(invoice) + getTotalTaxes(invoice)
 
   // Set promotion
-  price = price * (1 - invoice.promotion / 100)
+  if (invoice.promotion.fixed > 0) {
+    price = price - invoice.promotion.fixed
+  } else {
+    price = price * (1 - invoice.promotion.percent / 100)
+  }
 
   // Remove deposit
   price -= invoice.deposit
