@@ -62,6 +62,7 @@ import {
   getInputType,
   getFormattedField,
 } from '~/composables/useExtensibleField'
+import { Address } from '~/types/address'
 
 export default defineComponent({
   layout: 'dashboard',
@@ -78,7 +79,7 @@ export default defineComponent({
       role,
       hasChanges,
       loadCustomer,
-      loadAddresses,
+      loadCollection,
       saveCustomer,
       deleteCustomer,
     } = useCustomer()
@@ -94,7 +95,7 @@ export default defineComponent({
     useFetch(async () => {
       const id = route.value.params.id
       await loadCustomer(id)
-      loadAddresses(id)
+      loadCollection<Address>('addresses', true)
 
       meta.title.value = `${state.customer.value[primary.value]} — Fiche client`
     })

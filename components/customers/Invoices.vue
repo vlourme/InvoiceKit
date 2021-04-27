@@ -22,7 +22,7 @@
             </tr>
           </thead>
           <tbody class="divide-y even:bg-gray-100">
-            <tr v-for="(item, idx) in invoices" :key="idx">
+            <tr v-for="(item, idx) in collections.invoices" :key="idx">
               <td class="p-3">{{ item.id }}</td>
               <td class="p-3">
                 {{ item.type === 'QUOTE' ? 'Devis' : 'Facture' }}
@@ -73,7 +73,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y">
-                <tr v-for="(item, idx) in addresses" :key="idx">
+                <tr v-for="(item, idx) in collections.addresses" :key="idx">
                   <td class="px-4 py-2">
                     <input
                       :id="`address-${idx}`"
@@ -133,6 +133,7 @@ import {
 import useCustomer from '~/composables/useCustomer'
 import { importLegacy } from '~/helpers/legacyImport'
 import { defaultAddress } from '~/types/address'
+import { Invoice } from '~/types/invoice'
 
 export default defineComponent({
   setup() {
@@ -146,11 +147,11 @@ export default defineComponent({
     const fileInput = ref<HTMLElement | null>(null)
 
     // Computed
-    const { state, role, loadInvoices } = useCustomer()
+    const { state, role, loadCollection } = useCustomer()
 
     // Fetch
-    useFetch(() => {
-      loadInvoices(state.customer.value.$key!)
+    useFetch(async () => {
+      await loadCollection<Invoice>('invoices')
     })
 
     // Methods
@@ -159,13 +160,13 @@ export default defineComponent({
         path: '/invoices/create',
         query: {
           customer: state.customer.value.$key,
-          address: state.addresses.value[selected.value].$key,
+          address: state.collections.value.addresses[selected.value].$key,
         },
       })
     }
 
     const startImport = (): void => {
-      importAddress.value = state.addresses.value[selected.value]
+      importAddress.value = state.collections.value.addresses[selected.value]
       fileInput.value?.click()
     }
 

@@ -19,7 +19,7 @@
         <extensions-table
           name="contracts"
           :extension="extension"
-          :results="contracts"
+          :results="collections.contracts"
         >
           <template #link="{ id }">
             <nuxt-link
@@ -43,6 +43,7 @@ import {
 } from '@nuxtjs/composition-api'
 import useCustomer from '~/composables/useCustomer'
 import RootState from '~/store'
+import { Contract } from '~/types/contract'
 
 export default defineComponent({
   setup() {
@@ -53,11 +54,11 @@ export default defineComponent({
     const extension = computed(
       () => store.state.team.team?.extensions.contracts!
     )
-    const { state, role, loadContracts } = useCustomer()
+    const { state, role, loadCollection } = useCustomer()
 
     // Fetch
-    useFetch(() => {
-      loadContracts(state.customer.value.$key!)
+    useFetch(async () => {
+      await loadCollection<Contract>('contracts')
     })
 
     return {

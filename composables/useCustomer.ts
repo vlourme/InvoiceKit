@@ -7,18 +7,21 @@ import {
 } from '@nuxtjs/composition-api'
 import _ from 'lodash'
 import { mapDocument, mapSnapshot } from '~/helpers/documentMapper'
-import { Address } from '~/types/address'
 import { Customer, defaultCustomer } from '~/types/customer'
-import { Invoice } from '~/types/invoice'
 import useUserRole from '~/composables/useUserRole'
+import { Model } from '~/types/model'
+import { Address } from '~/types/address'
+import { Invoice } from '~/types/invoice'
 import { Contract } from '~/types/contract'
 
 const state = reactive({
   oldState: defaultCustomer(),
   customer: defaultCustomer(),
-  addresses: [] as Address[],
-  invoices: [] as Invoice[],
-  contracts: [] as Contract[],
+  collections: {
+    addresses: [] as Address[],
+    invoices: [] as Invoice[],
+    contracts: [] as Contract[],
+  } as { [key: string]: any[] },
 })
 
 export default () => {
@@ -34,8 +37,6 @@ export default () => {
   const resetState = () => {
     state.oldState = defaultCustomer()
     state.customer = defaultCustomer()
-    state.addresses = []
-    state.invoices = []
   }
 
   const loadCustomer = async (customerId: string) => {
@@ -50,40 +51,25 @@ export default () => {
     state.oldState = _.cloneDeep(state.customer)
   }
 
-  const loadAddresses = (customerId: string) => {
-    ctx.$fire.firestore
+  const loadCollection = async <T extends Model>(
+    name: string,
+    listener = false
+  ) => {
+    const ref = ctx.$fire.firestore
       .collection('teams')
       .doc(user.value.team!)
       .collection('customers')
-      .doc(customerId)
-      .collection('addresses')
-      .onSnapshot((snapshot) => {
-        state.addresses = mapSnapshot<Address>(snapshot)
-      })
-  }
+      .doc(state.customer.$key)
+      .collection(name)
 
-  const loadInvoices = (customerId: string) => {
-    ctx.$fire.firestore
-      .collection('teams')
-      .doc(user.value.team!)
-      .collection('customers')
-      .doc(customerId)
-      .collection('invoices')
-      .onSnapshot((snapshot) => {
-        state.invoices = mapSnapshot<Invoice>(snapshot)
+    if (listener) {
+      ref.onSnapshot((snapshot) => {
+        state.collections[name] = mapSnapshot<T>(snapshot)
       })
-  }
-
-  const loadContracts = (customerId: string) => {
-    ctx.$fire.firestore
-      .collection('teams')
-      .doc(user.value.team!)
-      .collection('customers')
-      .doc(customerId)
-      .collection('contracts')
-      .onSnapshot((snapshot) => {
-        state.contracts = mapSnapshot<Contract>(snapshot)
-      })
+    } else {
+      const data = await ref.get()
+      state.collections[name] = mapSnapshot<T>(data)
+    }
   }
 
   const saveCustomer = async (update: boolean): Promise<void> => {
@@ -125,9 +111,7 @@ export default () => {
     hasChanges,
     resetState,
     loadCustomer,
-    loadAddresses,
-    loadInvoices,
-    loadContracts,
+    loadCollection,
     saveCustomer,
     deleteCustomer,
   }

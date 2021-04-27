@@ -25,7 +25,7 @@
             </tr>
           </thead>
           <tbody class="divide-y">
-            <tr v-for="(item, idx) in addresses" :key="idx">
+            <tr v-for="(item, idx) in collections.addresses" :key="idx">
               <td class="p-3">{{ item.street }}</td>
               <td class="p-3">{{ item.zip }} {{ item.city }}</td>
               <td class="p-3">{{ item.country }}</td>
