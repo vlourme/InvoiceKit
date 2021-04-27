@@ -69,7 +69,7 @@ export default (customerId: string) => {
         .collection('contracts')
         .add(state.contract)
 
-      await router.push(`/customers/${doc.id}`)
+      await router.push(`/contracts/${state.customerId}/${doc.id}`)
     }
   }
 
@@ -83,7 +83,7 @@ export default (customerId: string) => {
       .doc(state.contract.$key!)
       .delete()
 
-    await router.push('/customers')
+    await router.push(`/customers/${state.customerId}`)
   }
 
   return {
