@@ -1,130 +1,155 @@
 <template>
-  <Header with-search>
-    <template #title> Factures </template>
+  <div class="flex flex-col h-screen overflow-y-hidden">
+    <Header class="bg-gray-50">
+      Factures
 
-    <template #actions>
-      <v-text-field
-        v-model="search"
-        single-line
-        flat
-        solo-inverted
-        hide-details
-        label="Chercher une facture (par ID)"
-        @input="doSearch"
-      ></v-text-field>
-    </template>
+      <template #actions>
+        <base-nav-input
+          v-model="search"
+          placeholder="Chercher une facture"
+          @input="fetchData"
+        />
+      </template>
+    </Header>
 
-    <Card :width="1000" no-body no-toolbar no-divider>
-      <v-data-table
-        :search="search"
-        :headers="headers"
-        :items="invoices"
-        :loading="loading"
-        :options.sync="options"
-        :server-items-length="invoiceCount"
-        :items-per-page="15"
-        @click:row="navigateToInvoice"
-      >
-        <template #item.type="{ item }">
-          {{ item.type === 'QUOTE' ? 'Devis' : 'Facture' }}
-        </template>
-        <template #item.status="{ item }">
-          <v-chip :color="getStatusColor(item)">
-            {{ getStatus(item) }}
-          </v-chip>
-        </template>
-        <template #item.updatedAt="{ item }">
-          {{ new Date(item.updatedAt.seconds * 1000).toLocaleDateString() }}
-        </template>
-      </v-data-table>
-    </Card>
-  </Header>
+    <div class="flex-1 flex flex-col h-8/9">
+      <div class="flex flex-col h-full">
+        <div class="flex-grow overflow-auto">
+          <table class="relative w-full">
+            <thead>
+              <tr class="border-b">
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
+                  <abbr title="Identifiant">#</abbr>
+                </th>
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
+                  Type
+                </th>
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
+                  Client
+                </th>
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
+                  Statut
+                </th>
+                <th
+                  class="sticky top-0 px-6 py-3 bg-gray-50 text-gray-700 text-left"
+                >
+                  Dernière mise à jour
+                </th>
+                <th class="sticky top-0 bg-gray-50 text-right"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(invoice, idx) in results"
+                :key="idx"
+                class="even:bg-gray-50"
+              >
+                <td class="px-6 py-4 font-semibold">
+                  {{ invoice.id }}
+                </td>
+                <td class="px-6 py-4">
+                  {{ invoice.type === 'QUOTE' ? 'Devis' : 'Facture' }}
+                </td>
+                <td class="px-6 py-4">
+                  <nuxt-link
+                    class="border-b border-blue-300 pb-1 hover:text-blue-500 hover:border-blue-400 transition-colors"
+                    :to="'/customers/' + invoice.customer.$key"
+                  >
+                    {{ invoice.customer[primary.value] }}
+                  </nuxt-link>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="inline-flex items-center">
+                    <div
+                      :class="{
+                        'bg-gray-400': invoice.status === InvoiceStatus.None,
+                        'bg-red-400': invoice.status === InvoiceStatus.Unpaid,
+                        'bg-yellow-400':
+                          invoice.status === InvoiceStatus.Pending,
+                        'bg-green-400': invoice.status === InvoiceStatus.Paid,
+                      }"
+                      class="h-2 w-2 rounded-full mr-2"
+                    ></div>
+                    {{ getStatus(invoice) }}
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  {{ getDate(invoice) }}
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <nuxt-link
+                    class="text-blue-500 hover:text-blue-700 transition-colors"
+                    :to="`/invoices/${invoice.customer.$key}/${invoice.link}`"
+                  >
+                    Voir le document
+                  </nuxt-link>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="results.length >= 15"
+      class="flex h-1/9 items-center justify-end px-4 py-2 bg-gray-50 border-t"
+    >
+      <BaseButton base :disabled="!canLoadMore" @click.prevent="fetchData">
+        Charger plus de résultats
+      </BaseButton>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapState } from 'vuex'
-import { InvoiceHeaders, InvoiceIndex, InvoiceStatus } from '@/types/invoice'
-import { mapSnapshot } from '~/helpers/documentMapper'
+import {
+  computed,
+  defineComponent,
+  useFetch,
+  useStore,
+} from '@nuxtjs/composition-api'
+import firebase from 'firebase'
+import { getPrimaryKey } from '~/composables/useExtensibleField'
+import useSearch from '~/composables/useSearch'
+import RootState from '~/store'
+import { InvoiceIndex, InvoiceStatus } from '~/types/invoice'
 
-export default Vue.extend({
-  name: 'Invoices',
+export default defineComponent({
   layout: 'dashboard',
-  data: () => ({
-    loading: false,
-    search: '',
-    options: {},
-    headers: InvoiceHeaders,
-    invoices: [] as InvoiceIndex[],
-  }),
-  head: {
-    title: 'Factures',
-  },
-  computed: {
-    ...mapState('auth', ['user']),
-    ...mapState('team', ['team']),
-    invoiceCount(): number {
-      return (
-        (this.team?.counter?.INVOICE ?? 0) + (this.team?.counter?.QUOTE ?? 0)
-      )
-    },
-  },
-  watch: {
-    options: {
-      deep: true,
-      async handler(): Promise<void> {
-        await this.getData()
-      },
-    },
-  },
-  methods: {
-    async doSearch(): Promise<void> {
-      if (this.search.length >= 2 || this.search.length === 0) {
-        this.invoices = []
-        await this.getData()
-      }
-    },
+  setup() {
+    // Context
+    const store = useStore<RootState>()
 
-    async getData(): Promise<void> {
-      // Toggle loading
-      this.loading = true
+    // Computed
+    const team = computed(() => store.state.team.team!)
 
-      // Query
-      let query = this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('invoices')
-        .orderBy('id')
-        .startAfter(
-          this.invoices.length > 0
-            ? this.invoices[this.invoices.length - 1].id
-            : null
-        )
-        .limit(15)
+    // Data
+    const primary = getPrimaryKey(team.value, 'customers')
 
-      // On search
-      if (this.search.length >= 3) {
-        this.invoices = []
-        query = query.startAt(this.search).endAt(this.search + '\uF8FF')
-      }
+    // Search
+    const { search, results, canLoadMore, fetchData } = useSearch<InvoiceIndex>(
+      'invoices',
+      `/teams/${team.value.$key}/invoices`,
+      'id',
+      ['INVOICE', 'QUOTE']
+    )
 
-      // Get ref
-      const ref = await query.get()
+    // Mounted
+    useFetch(async () => {
+      await fetchData()
+    })
 
-      // Push customers
-      this.invoices.push(...mapSnapshot<InvoiceIndex>(ref))
-
-      // Untoggle loading
-      this.loading = false
-    },
-
-    async navigateToInvoice(invoice: InvoiceIndex): Promise<void> {
-      await this.$router.push(
-        `/invoices/${invoice.customer.$key}/${invoice.link}`
-      )
-    },
-
-    getStatus(invoice: InvoiceIndex): string {
+    // Methods
+    const getStatus = (invoice: InvoiceIndex): string => {
       switch (invoice.status) {
         case InvoiceStatus.Unpaid:
           return 'Impayé'
@@ -136,21 +161,29 @@ export default Vue.extend({
         default:
           return 'Aucun'
       }
-    },
+    }
 
-    getStatusColor(invoice: InvoiceIndex): string {
-      switch (invoice.status) {
-        case InvoiceStatus.Unpaid:
-          return 'error'
-        case InvoiceStatus.Pending:
-          return 'warning'
-        case InvoiceStatus.Paid:
-          return 'success'
-        case InvoiceStatus.None:
-        default:
-          return 'primary'
+    const getDate = (invoice: InvoiceIndex): string => {
+      if (invoice.updatedAt instanceof firebase.firestore.Timestamp) {
+        return invoice.updatedAt.toDate().toLocaleString()
+      } else {
+        return new Date(invoice.updatedAt).toLocaleString()
       }
-    },
+    }
+
+    return {
+      fetchData,
+      getDate,
+      getStatus,
+      search,
+      results,
+      canLoadMore,
+      primary,
+      InvoiceStatus,
+    }
+  },
+  head: {
+    title: 'Factures',
   },
 })
 </script>

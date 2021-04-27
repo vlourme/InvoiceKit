@@ -19,8 +19,8 @@
       "@/*": ["./*"]
     },
     "outDir": "dist",
-    "types": ["@nuxt/types", "@types/node", "@nuxtjs/firebase", "vuetify", "lodash"],
-    "typeRoots": ["types", "node_modules/vuetify/types", "node_modules/@types"]
+    "types": ["@nuxt/types", "@types/node", "@nuxtjs/firebase", "@nuxt/content", "lodash"],
+    "typeRoots": ["types", "node_modules/@types"]
   },
   "exclude": ["types", "node_modules", ".nuxt", "dist"]
 }

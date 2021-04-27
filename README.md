@@ -2,35 +2,28 @@
 
 # InvoiceKit
 
-InvoiceKit is a static website using Nuxt and Firebase to manage customers, invoices, contracts and more, it's a kind of CRM that aims to be easy to use and modulable with dynamic fields, team support, etc...
+InvoiceKit is a CRM solution based on VueJS and Firebase. It aims to be simple to use and extensible a maximum with a extension system which means you can add pages with CRUD principles.
 
-A more documented README will be redacted soon, you can still contribute!
+## Features
 
-**This project is a work-in-progress. This is actually not meant to be used in production environment.**
+At **2.x release** :
+| Features | Extensible |
+|:--------:|:----------:|
+| Customers | Yes |
+| Invoices | No |
+| Contracts/Subscriptions | Yes |
+
+You can look here for [future releases plans](https://github.com/vlourme/InvoiceKit/projects) and [here for every ideas](https://github.com/vlourme/InvoiceKit/projects/7) we're thinking about.
+
+## Plans for v3.x
+
+We're planning in the 3.x version to bring a complete Extension API that will allow creating and storing data with CRUD principles and pages to display those data.
 
 ## Contribute
 
-### Project Structure
+We'd be more than happy to receive some help and contributions. These contributions can be about some issues reported or future plans (that you can find in [Projects](https://github.com/vlourme/invoicekit/projects)).
 
-```sh
-.
-├── assets # Every uncompiled assets (CSS, JS).
-├── components # Components that aims to be re-used (navbar, forms, etc.)
-├── layouts
-│   ├── auth.vue # Authentication Layout
-│   ├── dashboard.vue # Dashboard and more, accessible to authenticated users
-│   └── default.vue # Default layout, will be used for landing page
-├── middleware
-│   ├── auth.ts # Prevent user accessing dashboard without being logged
-│   └── preventAuth.ts # Prevent logged user doing a new registration or login
-├── pages # Every pages
-├── static # Static files (images, favicon, etc.)
-├── store # Vuex Store (contains User and Authentication related code)
-├── implementations # Class implemeting TS Types
-└── types # TypeScript types
-```
-
-### Build Setup
+### Development building
 
 ```bash
 # Clone project
@@ -38,39 +31,33 @@ $ git clone https://github.com/vlourme/invoicekit
 
 # install dependencies
 $ npm install
+# or: yarn
 
-# serve with hot reload at localhost:3000
+# start development server
 $ npm run dev
+# or: yarn dev
 
-# build for production and launch server
-$ npm run build
-$ npm run start
-
-# generate static project
-$ npm run generate
+# start the firebase emulator
+$ npm run dev:firebase
+# or: yarn dev:firebase
 ```
 
 **Important!** You'll need to setup Firebase. Create a project on [Firebase dashboard](https://console.firebase.google.com/), then copy your configuration in `nuxt.config.ts` at `modules -> '@nuxt/firebase' -> config`.
 
-Then, while using the app, Firebase library creates collections automatically. There is nothing more to do (no indexes, etc.).
+Then, while using the app, Firebase will create collections automatically.
 
 ### Documentations
 
-This project is based on these dependencies:
+Main project dependencies:
 
-- [NuxtJS](https://nuxtjs.org) for the structure.
-- [VueJS](https://vuejs.org) as framework (along with Nuxt).
+- [NuxtJS](https://nuxtjs.org) and [VueJS](https://vuejs.org) for the structure.
 - [Firebase](https://firebase.google.com/docs) for storing data.
-- [@nuxt/firebase](https://firebase.nuxtjs.org/) module to improve firebase usage.
-- [Vuex](https://vuex.vuejs.org/) to manage state.
-- [@nuxt/typescript](https://typescript.nuxtjs.org/) to support TypeScript with Vue.
-- [Vuetify](https://vuetifyjs.com/) to build UI.
+- [TailwindCSS](https://tailwindcss.com) for the UI.
 
 ### Contributions rules
 
 While working on this project, please keep in mind a few things:
 
-- Keep it simple, try to simplify the maximum you can the code.
-- Avoid using work-around. Use work-around only if there is no other ways.
-- Use TypeScript. Actually, we're using [Options API](https://typescript.nuxtjs.org/cookbook/components) but as soon as [Vuetify](https://vuetifyjs.com/) gets updated to support Vue 3.0, we'll switch to [Composition API](https://v3.vuejs.org/guide/composition-api-introduction.html). We'll not use Class API for the moment.
-- Commonize code when it's possible. If you're developing something that can be reusable, then make it reusable component.
+- Keep the code simple yet readable.
+- As 2.x release, the codebase is now using Vue Composition API which allow us splitting code easily (cf. `composables` directory).
+- We're trying to make a maximum of code on the client-side, Cloud Functions are only used for a security matter most of the time.

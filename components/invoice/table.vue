@@ -1,200 +1,211 @@
 <template>
-  <Card no-body :width="1000" class="my-4">
-    <template #title>Facturation</template>
-
-    <template #actions>
-      <v-btn v-if="role > 0" text color="primary" @click="dialog = true">
-        <v-icon left>mdi-plus</v-icon>
-        Nouveau prix
-      </v-btn>
-    </template>
-
-    <v-data-table
-      locale="fr-fr"
-      :headers="fieldHeaders"
-      :items="invoice.data.fields"
-      :items-per-page="-1"
+  <div class="px-4">
+    <div
+      class="w-full overflow-x-auto max-w-7xl mx-auto rounded-lg bg-gray-50 pt-2 pb-4"
     >
-      <template #body="props">
-        <draggable :list="props.items" tag="tbody">
-          <tr v-for="(item, idx) in props.items" :key="idx">
-            <td>
-              <v-icon v-if="role > 0" class="cursor-move">mdi-menu</v-icon>
+      <!-- Actions -->
+      <div class="flex justify-end items-center px-4 py-2">
+        <base-button base @click.prevent="dialog = true">
+          Ajouter un objet
+        </base-button>
+      </div>
+
+      <!-- Fields -->
+      <table class="w-full table-auto">
+        <thead>
+          <tr class="border-b">
+            <th class="px-4 py-2 w-4"></th>
+            <th class="text-left font-medium text-gray-600 px-4 py-2">Objet</th>
+            <th
+              v-if="team.rendering.quantityEnabled"
+              class="text-right font-medium text-gray-600 px-4 py-2"
+            >
+              Quantité
+            </th>
+            <th class="text-right font-medium text-gray-600 px-4 py-2">Prix</th>
+            <th class="text-right font-medium text-gray-600 px-4 py-2">
+              Total TTC
+            </th>
+          </tr>
+        </thead>
+        <draggable v-model="invoice.fields" tag="tbody" class="divide-y">
+          <tr
+            v-for="(item, idx) in invoice.fields"
+            :key="idx"
+            class="cursor-move even:bg-gray-100 active:bg-blue-100"
+          >
+            <td class="px-4 py-3 w-4">
+              <button
+                class="focus:outline-none mt-2"
+                type="button"
+                @click.prevent="editField(idx)"
+              >
+                <i class="bx bxs-pencil text-2xl text-indigo-500"></i>
+              </button>
             </td>
-            <v-menu max-width="150" offset-y>
-              <template #activator="{ on, attrs }">
-                <td
-                  v-bind="attrs"
-                  v-on="on"
-                  v-html="replaceWithHTMLBreak(item.description)"
-                ></td>
-              </template>
-              <v-list v-if="role > 0" dense color="grey darken-3">
-                <v-list-item link @click="editField(idx)">
-                  <v-list-item-icon>
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>Modifier</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item link @click="invoice.data.fields.splice(idx, 1)">
-                  <v-list-item-icon>
-                    <v-icon>mdi-delete</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>Supprimer</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-            <td v-if="team.rendering.quantityEnabled">{{ item.quantity }}</td>
-            <td>
-              <div class="d-flex flex-column justify-center">
-                {{ item.price }} €
-                <span class="font-weight-bold text-caption grey--text">
-                  {{ item.tax }}% taxes
-                </span>
+            <td
+              class="px-4 py-3 text-left whitespace-pre-line"
+              v-text="item.description"
+            ></td>
+            <td
+              v-if="team.rendering.quantityEnabled"
+              class="px-4 py-3 text-right"
+            >
+              {{ item.quantity }}
+            </td>
+            <td class="px-4 py-3 text-right">{{ item.price }} €</td>
+            <td class="px-4 py-3 text-right font-semibold">
+              {{ getPriceAtIndex(invoice, idx) }} €
+              <div class="text-sm font-normal text-gray-400">
+                dont {{ item.tax }} % de taxes
               </div>
             </td>
-            <td>{{ invoice.getPriceAtIndex(idx) }} €</td>
           </tr>
         </draggable>
-      </template>
-    </v-data-table>
+      </table>
 
-    <v-dialog v-model="dialog" width="500" @click:outside="closeField">
-      <v-card>
-        <v-card-title>Ajouter un objet</v-card-title>
+      <form @submit.prevent="addField">
+        <BaseSlideover :activator.sync="dialog">
+          <template #title>
+            {{ update > -1 ? 'Modifier un objet' : 'Ajouter un objet' }}
+          </template>
 
-        <v-card-text>
-          <v-textarea
-            v-model="field.description"
-            label="Description"
-            rows="3"
-          ></v-textarea>
+          <div>
+            <base-label for="description">Description</base-label>
+            <base-textarea
+              id="description"
+              v-model.trim="field.description"
+              spellcheck
+              required
+              rows="5"
+            ></base-textarea>
+          </div>
+          <div v-if="team.rendering.quantityEnabled" class="mt-2">
+            <base-label for="quantity">Quantité</base-label>
+            <base-input
+              id="quantity"
+              v-model.number="field.quantity"
+              min="0"
+              required
+            />
+          </div>
 
-          <v-row>
-            <v-col v-if="team.rendering.quantityEnabled">
-              <v-text-field
-                v-model.number="field.quantity"
-                label="Quantité"
-              ></v-text-field>
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-model.number="field.price"
-                label="Prix HT"
-                suffix="€"
-              ></v-text-field>
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-model.number="field.tax"
-                label="Taxes"
-                suffix="%"
-                type="number"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-        </v-card-text>
+          <div class="mt-2">
+            <base-label for="price"> Prix en Euro (€) </base-label>
+            <base-input id="price" v-model.number="field.price" min="0" />
+          </div>
 
-        <v-divider></v-divider>
+          <div class="mt-2">
+            <base-label for="taxes"> Taxes en pourcentage (%) </base-label>
+            <base-input id="taxes" v-model.number="field.tax" min="0" />
+          </div>
+          <div class="flex justify-between items-center w-full mt-4">
+            <div>
+              <base-button
+                v-if="update > -1"
+                danger
+                :margin="false"
+                @click.prevent="deleteField"
+              >
+                Supprimer
+              </base-button>
+            </div>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="closeField">Annuler</v-btn>
-          <v-btn color="success" text @click="addField">
-            {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </Card>
+            <div>
+              <base-button
+                base
+                :margin="false"
+                type="button"
+                @click.prevent="closeField"
+              >
+                Fermer
+              </base-button>
+
+              <base-button info class="ml-2" :margin="false" type="submit">
+                {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
+              </base-button>
+            </div>
+          </div>
+        </BaseSlideover>
+      </form>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import draggable from 'vuedraggable'
-import { DataTableHeader } from 'vuetify'
-import { mapGetters, mapState } from 'vuex'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
 import {
-  defaultField,
-  FieldHeaders,
-  FieldHeadersWithQuantity,
-} from '~/types/invoice'
+  computed,
+  defineComponent,
+  reactive,
+  toRefs,
+  useStore,
+} from '@nuxtjs/composition-api'
+import draggable from 'vuedraggable'
+import { getPriceAtIndex } from '~/composables/useInvoicePricing'
+import useInvoice from '~/composables/useInvoice'
+import { defaultField } from '~/types/invoice'
+import RootState from '~/store'
 
-export default Vue.extend({
-  name: 'InvoiceTable',
+export default defineComponent({
   components: {
     draggable,
   },
-  props: {
-    invoiceState: {
-      type: InvoiceImpl,
-      required: true,
-    } as PropOptions<InvoiceImpl>,
-  },
-  data: () => ({
-    field: defaultField(),
-    fieldHeaders: [] as DataTableHeader[],
-    dialog: false,
-    update: -1,
-  }),
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('team', ['team']),
-    invoice: {
-      get(): InvoiceImpl {
-        return this.invoiceState
-      },
-      set(val: InvoiceImpl): void {
-        this.$emit('update:invoice', val)
-      },
-    },
-  },
-  mounted() {
-    if (this.team.quantityEnabled) {
-      this.fieldHeaders = FieldHeadersWithQuantity
-    } else {
-      this.fieldHeaders = FieldHeaders
-    }
-  },
-  methods: {
-    addField(): void {
-      if (this.update === -1) {
-        this.invoice.data.fields.push(this.field)
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+
+    // Data
+    const { state, role } = useInvoice()
+    const data = reactive({
+      field: defaultField(),
+      dialog: false,
+      update: -1,
+    })
+
+    // Computed
+    const team = computed(() => store.state.team.team!)
+
+    // Methods
+    const addField = (): void => {
+      if (data.update === -1) {
+        state.invoice.value.fields.push(data.field)
       } else {
-        this.invoice.data.fields[this.update] = this.field
+        state.invoice.value.fields[data.update] = data.field
       }
 
-      this.update = -1
-      this.field = defaultField()
-      this.dialog = false
-    },
+      data.update = -1
+      data.field = defaultField()
+      data.dialog = false
+    }
 
-    replaceWithHTMLBreak(str: string) {
-      return str.replace(/\n/g, '<br />')
-    },
+    const deleteField = (): void => {
+      state.invoice.value.fields.splice(data.update, 1)
+      closeField()
+    }
 
-    closeField() {
-      this.field = defaultField()
-      this.update = -1
-      this.dialog = false
-    },
+    const closeField = (): void => {
+      data.field = defaultField()
+      data.update = -1
+      data.dialog = false
+    }
 
-    editField(idx: number): void {
-      this.field = this.invoice.data.fields[idx]
-      this.update = idx
-      this.dialog = true
-    },
+    const editField = (idx: number): void => {
+      data.field = state.invoice.value.fields[idx]
+      data.update = idx
+      data.dialog = true
+    }
+
+    return {
+      ...state,
+      ...toRefs(data),
+      role,
+      team,
+      getPriceAtIndex,
+      addField,
+      deleteField,
+      closeField,
+      editField,
+    }
   },
 })
 </script>
-
-<style scoped>
-.cursor-move {
-  cursor: move;
-}
-</style>

@@ -1,152 +1,196 @@
 <template>
-  <Card>
-    <template #title>Identité de l'entreprise</template>
-
-    <template #actions>
-      <v-btn v-if="isAdmin" text @click="dialog = true">
-        <v-icon left>mdi-image</v-icon>
-        Ajouter un logo
-      </v-btn>
+  <FormBox>
+    <template #description>
+      <FormDescription>
+        <template #title>Identité de la team</template>
+        <template #description>
+          L'identité de la team permettra de remplir correctement les documents
+          PDF.
+        </template>
+        <template #actions>
+          <base-button-inline
+            v-if="isAdmin"
+            info
+            icon="plus"
+            @click.prevent="dialog = true"
+          >
+            Ajouter un logo
+          </base-button-inline>
+        </template>
+      </FormDescription>
     </template>
 
-    <v-text-field
-      v-model="team.identity.title"
-      :disabled="!isAdmin"
-      label="Nom de l'entreprise"
-    ></v-text-field>
+    <div class="mt-2">
+      <base-label for="title">Nom de l'entreprise</base-label>
+      <base-input
+        id="title"
+        v-model="team.identity.title"
+        type="text"
+        :disabled="!isAdmin"
+      />
+    </div>
+    <div class="mt-2">
+      <base-label for="juridicTitle">Nom juridique de l'entreprise</base-label>
+      <base-input
+        id="juridicTitle"
+        v-model="team.identity.juridicalTitle"
+        type="text"
+        :disabled="!isAdmin"
+      />
+    </div>
+    <div class="mt-2">
+      <base-label for="email">Email</base-label>
+      <base-input
+        id="email"
+        v-model="team.identity.email"
+        type="email"
+        :disabled="!isAdmin"
+      />
+    </div>
+    <div class="mt-2">
+      <base-label for="phone">Téléphone</base-label>
+      <base-input
+        id="phone"
+        v-model="team.identity.phone"
+        type="tel"
+        :disabled="!isAdmin"
+      />
+    </div>
+    <div class="mt-2">
+      <base-label for="website">Site internet</base-label>
+      <base-input
+        id="website"
+        v-model="team.identity.website"
+        type="url"
+        :disabled="!isAdmin"
+      />
+    </div>
 
-    <v-text-field
-      v-model="team.identity.juridicalTitle"
-      :disabled="!isAdmin"
-      label="Nom juridique de l'entreprise"
-      placeholder="Entreprise SARL"
-    ></v-text-field>
+    <form @submit.prevent="uploadImage">
+      <Modal :activator.sync="dialog">
+        <template #title> Ajouter ou modifier le logo </template>
+        <template #icon>
+          <base-modal-icon icon="image" />
+        </template>
+        <template #content>
+          <div v-if="image" class="mt-2">
+            <base-label class="text-sm text-gray-500" for="image"
+              >Image actuelle</base-label
+            >
+            <img class="max-h-60" :src="image" />
+          </div>
+          <div class="mt-2">
+            <input
+              ref="fileInput"
+              type="file"
+              accept="image/jpg,image/png,image/jpeg"
+              hidden
+              @change="onFileChange"
+            />
+            <base-button base @click.prevent="$refs.fileInput.click()">
+              Changer l'image
+            </base-button>
 
-    <v-text-field
-      v-model="team.identity.email"
-      :disabled="!isAdmin"
-      label="Email"
-      placeholder="society@example.com"
-      :rules="rules.email"
-    ></v-text-field>
-    <v-text-field
-      v-model="team.identity.phone"
-      :disabled="!isAdmin"
-      label="Téléphone"
-      placeholder="+33 01 02 03 04 05"
-    ></v-text-field>
-    <v-text-field
-      v-model="team.identity.website"
-      :disabled="!isAdmin"
-      label="Site internet"
-      placeholder="example.com"
-      :rules="rules.url"
-    ></v-text-field>
+            <base-button v-if="image" base @click.prevent="deleteImage">
+              Supprimer l'image
+            </base-button>
+          </div>
+        </template>
+        <template #footer>
+          <base-button v-if="file" success type="submit">
+            Ajouter l'image
+          </base-button>
 
-    <v-dialog v-model="dialog" width="500">
-      <v-card>
-        <v-card-title> Ajouter un logo </v-card-title>
-
-        <v-card-text>
-          <v-alert v-if="error" type="error">
-            {{ error }}
-          </v-alert>
-
-          <v-card v-if="image" color="white" class="py-4">
-            <v-img :src="image" contain max-height="150"></v-img>
-          </v-card>
-
-          <v-file-input
-            v-model="file"
-            class="mt-4"
-            accept="image/*"
-            label="Logo"
-          ></v-file-input>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-btn color="warning" text @click="deleteImage">Supprimer</v-btn>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="dialog = false">Annuler</v-btn>
-          <v-btn color="primary" text @click="uploadImage">Confirmer</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </Card>
+          <base-button base type="button" @click.prevent="dialog = false">
+            Fermer
+          </base-button>
+        </template>
+      </Modal>
+    </form>
+  </FormBox>
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { Team } from '@/types/team'
-import { mapGetters, mapState } from 'vuex'
+import {
+  defineComponent,
+  onMounted,
+  reactive,
+  toRefs,
+  useContext,
+  useStore,
+} from '@nuxtjs/composition-api'
+import useTeam from '~/composables/useTeam'
+import RootState from '~/store'
 
-export default Vue.extend({
-  name: 'Identity',
-  props: {
-    teamState: {
-      type: Object,
-      required: true,
-    } as PropOptions<Team>,
-  },
-  data: () => ({
-    rules: {
-      email: [(v: string) => !v || /.+@.+/.test(v) || "L'email est invalide."],
-      url: [(v: string) => !v || /.+\.\w\w.*/.test(v) || "L'URL est invalide."],
-    },
-    dialog: false,
-    error: '',
-    file: null as File | null,
-    image: '',
-  }),
-  computed: {
-    ...mapState('auth', ['user']),
-    ...mapGetters('team', ['isAdmin']),
-    team: {
-      get(): Team {
-        return this.teamState
-      },
+export default defineComponent({
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+    const ctx = useContext()
 
-      set(value: Team): void {
-        this.$emit('update:team', value)
-      },
-    },
-  },
-  mounted() {
-    // Get image
-    this.$fire.storage
-      .ref(this.user.team)
-      .getDownloadURL()
-      .then((url) => {
-        this.image = url
-      })
-  },
-  methods: {
-    async uploadImage() {
-      if (!this.file) {
-        this.error = "Aucune image n'a été séléctionnée."
+    // Data
+    const data = reactive({
+      image: '',
+      file: null as File | null,
+      dialog: false,
+      error: '',
+    })
+
+    // Computed
+    const user = store.state.auth.user
+    const { state, isAdmin } = useTeam()
+
+    // On mount
+    onMounted(() => {
+      ctx.$fire.storage
+        .ref(user?.team!)
+        .getDownloadURL()
+        .then((url) => {
+          data.image = url
+        })
+        .catch(() => {})
+    })
+
+    // Methods
+    const onFileChange = (e: any) => {
+      const files = e.target.files || e.dataTransfer.files
+      if (!files.length) return
+      data.file = files[0]
+    }
+
+    const uploadImage = async () => {
+      if (!data.file) {
+        data.error = "Aucune image n'a été séléctionnée."
         return
       }
 
       // Upload file
-      const task = await this.$fire.storage
-        .ref(`/teams/${this.user.team}`)
-        .put(this.file)
+      const task = await ctx.$fire.storage
+        .ref(`/teams/${user?.team!}`)
+        .put(data.file)
 
       // Change image
-      this.image = await task.ref.getDownloadURL()
+      data.image = await task.ref.getDownloadURL()
 
-      this.dialog = false
-    },
+      data.dialog = false
+    }
 
-    async deleteImage() {
+    const deleteImage = async () => {
       try {
-        await this.$fire.storage.ref(`/teams/${this.user.team}`).delete()
+        await ctx.$fire.storage.ref(`/teams/${user?.team!}`).delete()
 
-        this.image = ''
+        data.image = ''
       } catch {}
-    },
+    }
+
+    return {
+      ...toRefs(data),
+      ...state,
+      isAdmin,
+      onFileChange,
+      uploadImage,
+      deleteImage,
+    }
   },
 })
 </script>

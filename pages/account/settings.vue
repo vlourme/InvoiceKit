@@ -1,166 +1,152 @@
 <template>
-  <Header>
-    <template #title>Paramètres du compte</template>
+  <form @submit.prevent="updateProfile">
+    <Header>
+      Paramètres du compte
 
-    <template #actions>
-      <v-btn :elevation="0" @click="updateProfile">
-        <v-icon left>mdi-check</v-icon>
-        Sauvegarder
-      </v-btn>
-    </template>
+      <template #actions>
+        <base-nav-button type="submit"> Sauvegarder </base-nav-button>
+      </template>
+    </Header>
+    <FormBox>
+      <template #description>
+        <FormDescription>
+          <template #title>Paramètres du compte</template>
+          <template #description
+            >Modifiez les paramètres de votre compte</template
+          >
+        </FormDescription>
+      </template>
 
-    <Card no-divider no-toolbar>
-      <v-form v-model="valid">
-        <v-row>
-          <v-col cols="12" sm="12" md="4">
-            <div
-              class="d-flex fill-height flex-column justify-center align-center"
-            >
-              <v-avatar size="96">
-                <v-img :src="user.image"></v-img>
-              </v-avatar>
+      <div class="mt-2">
+        <base-label> Photo </base-label>
+        <div class="mt-1 flex items-center">
+          <img
+            :src="user.image"
+            class="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100"
+          />
+          <input
+            ref="fileInput"
+            hidden
+            type="file"
+            accept="image/jpg,image/png,image/jpeg"
+            @change="changePicture"
+          />
+          <base-button base type="button" @click="$refs.fileInput.click()">
+            Changer
+          </base-button>
+          <base-button
+            v-if="canDeletePhoto"
+            danger
+            type="button"
+            @click="deletePhoto"
+          >
+            Supprimer l'image
+          </base-button>
+        </div>
+      </div>
 
-              <input
-                ref="upload"
-                hidden
-                type="file"
-                accept="image/*"
-                @change="changePicture"
-              />
-
-              <v-btn text class="mt-2" @click="$refs.upload.click()">
-                Changer la photo
-              </v-btn>
-
-              <v-btn text color="error" class="mt-2" @click="deletePhoto">
-                Supprimer la photo
-              </v-btn>
-            </div>
-          </v-col>
-
-          <v-col cols="12" sm="12" md="8">
-            <v-text-field
-              v-model="name"
-              label="Nom"
-              :rules="rules.name"
-              placeholder="John Doe"
-            ></v-text-field>
-
-            <v-text-field
-              v-model="email"
-              label="Email"
-              :rules="rules.email"
-              placeholder="john.doe@example.com"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-      </v-form>
-    </Card>
-  </Header>
+      <div class="mt-4">
+        <base-label for="name">Nom d'affichage</base-label>
+        <base-input id="name" v-model="name" required minlength="1" />
+      </div>
+    </FormBox>
+  </form>
 </template>
 
 <script lang="ts">
-import { mapState } from 'vuex'
-import { v4 as uuidv4 } from 'uuid'
-import Vue from 'vue'
+import {
+  computed,
+  defineComponent,
+  ref,
+  useContext,
+  useStore,
+} from '@nuxtjs/composition-api'
+import RootState from '~/store'
+import { NotificationType } from '~/types/notification'
 
-export default Vue.extend({
-  name: 'Settings',
+export default defineComponent({
   layout: 'dashboard',
-  data: () => ({
-    valid: false,
-    rules: {
-      name: [(v: string) => !!v || 'Le nom est requis.'],
-      email: [
-        (v: string) => !!v || "L'email est requis.",
-        (v: string) => /.+@.+/.test(v) || "L'adresse mail est invalide.",
-      ],
-    },
-    name: '',
-    email: '',
-  }),
-  head: {
-    title: 'Paramètres du compte',
-  },
-  computed: {
-    ...mapState('auth', ['auth', 'user']),
-  },
-  mounted() {
-    this.name = this.user.name
-    this.email = this.auth.email
-  },
-  methods: {
-    async changePicture(e: any) {
+  setup() {
+    // Context
+    const ctx = useContext()
+    const store = useStore<RootState>()
+
+    // Computed
+    const user = computed(() => store.state.auth.user!)
+    const canDeletePhoto = computed(() => {
+      return !user.value.image.startsWith('https://eu.ui-avatars.com')
+    })
+
+    // Data
+    const name = ref(user.value.name)
+
+    // Methods
+    const changePicture = async (e: any) => {
       const image = e.target.files[0]
 
-      await this.deleteFromStorage()
+      if (canDeletePhoto.value) {
+        await deleteFromStorage()
+      }
 
       // Upload new image
-      this.$fire.storage
-        .ref(uuidv4())
+      ctx.$fire.storage
+        .ref(user.value.$key!)
         .put(image)
         .then(async (snapshot) => {
-          await this.$fire.firestore
+          await ctx.$fire.firestore
             .collection('users')
-            .doc(this.auth.uid)
+            .doc(user.value.$key!)
             .update({
-              ...this.user,
+              ...user.value,
               image: await snapshot.ref.getDownloadURL(),
             })
         })
-    },
+    }
 
-    async deleteFromStorage() {
+    const deleteFromStorage = async () => {
       try {
-        await this.$fire.storage.refFromURL(this.user.photoURL).delete()
+        await ctx.$fire.storage.refFromURL(user.value.image).delete()
       } catch {
-        /* Do nothing */
+        ctx.$notify("Impossible de supprimer l'image", NotificationType.ERROR)
       }
-    },
+    }
 
-    async deletePhoto() {
-      await this.deleteFromStorage()
+    const deletePhoto = async () => {
+      await deleteFromStorage()
 
-      await this.$fire.firestore
+      await ctx.$fire.firestore
         .collection('users')
-        .doc(this.auth.uid)
+        .doc(user.value.$key!)
         .update({
-          ...this.user,
-          image: 'https://eu.ui-avatars.com/api/?name=' + this.user.name,
+          ...user.value,
+          image: 'https://eu.ui-avatars.com/api/?name=' + user.value.name,
         })
-    },
+    }
 
-    async updateProfile() {
-      // Check form
-      if (!this.valid) {
-        return
-      }
-
+    const updateProfile = async () => {
       // Update name
-      if (this.name !== this.user.name) {
-        await this.$fire.firestore
+      if (name.value !== user.value.name) {
+        await ctx.$fire.firestore
           .collection('users')
-          .doc(this.auth.uid)
+          .doc(user.value.$key!)
           .update({
-            ...this.user,
-            name: this.name,
+            ...user.value,
+            name: name.value,
           })
       }
+    }
 
-      // Update email
-      // TODO: Use a modal to ask credentials
-      if (this.email !== this.user.email) {
-        await this.$fire.auth.currentUser?.updateEmail(this.email)
-
-        await this.$fire.firestore
-          .collection('users')
-          .doc(this.auth.uid)
-          .update({
-            ...this.user,
-            email: this.email,
-          })
-      }
-    },
+    return {
+      name,
+      user,
+      canDeletePhoto,
+      updateProfile,
+      deletePhoto,
+      changePicture,
+    }
+  },
+  head: {
+    title: 'Paramètres du compte',
   },
 })
 </script>

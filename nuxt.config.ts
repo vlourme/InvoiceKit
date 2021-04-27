@@ -1,11 +1,19 @@
 import { NuxtConfig } from '@nuxt/types'
 
+const isDev = process.env.NODE_ENV === 'development'
+const useEmulator = true
+
 const config: NuxtConfig = {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
 
   // Disable server rendering
   ssr: false,
+
+  // Environment variables
+  env: {
+    algolia_app_id: 'DO7CXBGUG7',
+  },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -19,11 +27,19 @@ const config: NuxtConfig = {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: '' },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      { rel: 'preconnect', href: 'https://fonts.gstatic.com' },
+      {
+        rel: 'stylesheet',
+        href:
+          'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
+      },
+    ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [],
+  css: ['boxicons/css/boxicons.min.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: ['~/plugins/notification.ts', '~/plugins/dialog.ts'],
@@ -32,10 +48,15 @@ const config: NuxtConfig = {
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-  buildModules: ['@nuxt/typescript-build', '@nuxtjs/vuetify'],
+  buildModules: [
+    '@nuxt/typescript-build',
+    '@nuxtjs/tailwindcss',
+    '@nuxtjs/composition-api',
+  ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    '@nuxt/content',
     [
       '@nuxtjs/firebase',
       {
@@ -54,20 +75,18 @@ const config: NuxtConfig = {
             initialize: {
               onAuthStateChangedAction: 'auth/onAuthStateChanged',
             },
-            emulatorPort:
-              process.env.NODE_ENV === 'development' ? 9099 : undefined,
+            emulatorPort: useEmulator && isDev ? 9099 : undefined,
             emulatorHost: 'http://localhost',
             disableEmulatorWarnings: true,
           },
           firestore: {
-            emulatorPort:
-              process.env.NODE_ENV === 'development' ? 8080 : undefined,
+            enablePersistence: true,
+            emulatorPort: useEmulator && isDev ? 8080 : undefined,
             emulatorHost: 'localhost',
           },
           functions: {
             location: 'europe-west1',
-            emulatorPort:
-              process.env.NODE_ENV === 'development' ? 5001 : undefined,
+            emulatorPort: useEmulator && isDev ? 5001 : undefined,
             emulatorHost: 'http://localhost',
           },
           storage: true,
@@ -79,11 +98,9 @@ const config: NuxtConfig = {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
 
-  // Vuetify Configuration
-  vuetify: {
-    theme: {
-      dark: true,
-    },
+  // TailwindCSS
+  tailwindcss: {
+    jit: true,
   },
 }
 

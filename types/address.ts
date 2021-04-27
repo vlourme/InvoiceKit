@@ -1,4 +1,4 @@
-import Model from './model'
+import { Model } from './model'
 
 export interface Address extends Model {
   street: string
@@ -7,25 +7,9 @@ export interface Address extends Model {
   country: string
 }
 
-export const AddressHeaders = [
-  {
-    text: 'Adresse',
-    value: 'street',
-  },
-  {
-    text: 'Ville',
-    value: 'city',
-  },
-  {
-    text: 'Code postal',
-    value: 'zip',
-  },
-  {
-    text: 'Pays',
-    value: 'country',
-  },
-  {
-    value: 'actions',
-    align: 'right',
-  },
-]
+export const defaultAddress = (): Address => ({
+  street: '',
+  zip: '',
+  city: '',
+  country: '',
+})

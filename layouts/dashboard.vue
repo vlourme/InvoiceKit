@@ -1,169 +1,226 @@
 <template>
-  <v-app>
-    <v-navigation-drawer v-model="drawer" color="#24272b" app width="300">
-      <v-list>
-        <v-menu offset-y>
-          <template #activator="{ on, attrs }">
-            <v-list-item v-bind="attrs" link class="px-4" v-on="on">
-              <v-list-item-avatar>
-                <v-img :src="user.image"></v-img>
-              </v-list-item-avatar>
+  <div class="font-body subpixel-antialiased w-full h-screen bg-white">
+    <transition
+      enter-class="-translate-x-full"
+      enter-to-class="translate-x-0"
+      enter-active-class="transform transition ease-in-out duration-500"
+      leave-active-class="transform transition ease-in-out duration-500"
+      leave-class="translate-x-0 w-0"
+      leave-to-class="-translate-x-full"
+    >
+      <nav
+        v-show="drawer"
+        class="fixed top-0 left-0 z-10 flex flex-col h-screen w-screen md:max-w-xs md:w-full bg-gray-100 border-r"
+      >
+        <div class="flex-1">
+          <div class="p-6 flex justify-between items-center">
+            <div class="text-3xl">
+              <p class="font-medium text-gray-500">
+                Invoice<span class="font-semibold text-gray-600">Kit</span>
+              </p>
+            </div>
+            <Dropdown v-if="user">
+              <img
+                class="rounded-full h-11 w-11 cursor-pointer"
+                :src="user.image"
+                @click="open = !open"
+              />
 
-              <v-list-item-content>
-                <v-list-item-title class="title">
-                  {{ user.name }}
-                </v-list-item-title>
-                <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
+              <template #content>
+                <div class="py-1" role="none">
+                  <nuxt-link
+                    to="/account/settings"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    role="menuitem"
+                    >Paramètres du compte</nuxt-link
+                  >
+                  <a
+                    class="block cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    role="menuitem"
+                    @click="logout"
+                    >Se deconnecter</a
+                  >
+                </div>
+              </template>
+            </Dropdown>
+          </div>
 
-          <v-list dense>
-            <v-list-item link to="/account/settings">
-              <v-list-item-title>Paramètres du compte</v-list-item-title>
-            </v-list-item>
-            <v-list-item link @click="logout">
-              <v-list-item-title>Se déconnecter</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-list>
+          <aside class="px-6">
+            <div v-for="link in links" :key="link.name" class="my-2">
+              <p class="font-semibold text-xs uppercase text-gray-400">
+                {{ link.name }}
+              </p>
+              <div class="py-1">
+                <component
+                  :is="item.absolute ? 'a' : 'nuxt-link'"
+                  v-for="item in link.routes"
+                  :key="item.route"
+                  :target="item.absolute ? '_blank' : null"
+                  :to="item.absolute ? null : item.route"
+                  :href="item.absolute ? item.route : null"
+                  :class="{
+                    'bg-gray-200 opacity-60 pointer-events-none':
+                      item.team && user.team === null,
+                    'bg-white rounded-md shadow': $route.path.startsWith(
+                      item.route
+                    ),
+                  }"
+                  class="my-2 flex items-center justify-between w-full py-2 px-3 text-gray-500 cursor-pointer group hover:bg-white hover:bg-opacity-50 rounded-md transition-colors"
+                >
+                  <div class="inline-flex items-center">
+                    <i
+                      :class="{
+                        [item.icon]: true,
+                        'text-indigo-600': $route.path.startsWith(item.route),
+                      }"
+                      class="bx text-xl mr-4"
+                    ></i>
 
-      <v-divider></v-divider>
+                    <p
+                      :class="{
+                        'font-bold': $route.path.startsWith(item.route),
+                      }"
+                      class="font-medium"
+                    >
+                      {{ item.name }}
+                    </p>
+                  </div>
 
-      <v-list nav dense>
-        <v-list-item
-          v-for="link in links"
-          :key="link.route"
-          :to="link.route"
-          :disabled="link.teamRequired && !user.team"
-          :color="!link.teamRequired ? 'primary' : ''"
-          link
-        >
-          <v-list-item-icon>
-            <v-icon>{{ link.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>{{ link.name }}</v-list-item-title>
-        </v-list-item>
-      </v-list>
+                  <div
+                    v-if="item.settings"
+                    class="opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition inline-flex items-center"
+                  >
+                    <nuxt-link title="Paramètres" :to="item.settings">
+                      <i class="bx bxs-customize text-lg"></i>
+                    </nuxt-link>
+                  </div>
+                </component>
+              </div>
+            </div>
+          </aside>
+        </div>
+        <!-- Nav footer -->
+        <div class="md:hidden">
+          <button
+            class="w-full py-4 bg-gray-100 hover:bg-blue-400 focus:outline-none"
+            @click="toggleDrawer"
+          >
+            Cacher le menu
+          </button>
+        </div>
+      </nav>
+    </transition>
 
-      <template #append>
-        <v-list dense>
-          <v-menu>
-            <template #activator="{ on, attrs }">
-              <v-list-item v-bind="attrs" v-on="on">
-                <v-list-item-icon>
-                  <v-icon>mdi-briefcase</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ teamName }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>Espace de travail</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
-
-            <v-list dense>
-              <v-list-item
-                v-for="(team, key) in teams"
-                :key="team.name"
-                link
-                @click="switchTeam(key)"
-              >
-                <v-list-item-icon v-if="user.team === key">
-                  <v-icon>mdi-check</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ team.name }}
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider v-if="hasTeams"></v-divider>
-              <v-list-item link to="/teams/create">
-                <v-list-item-title>Créer une team</v-list-item-title>
-              </v-list-item>
-              <v-list-item v-if="user.team" link to="/teams/settings">
-                <v-list-item-title>Paramètres de la team</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-list>
-      </template>
-    </v-navigation-drawer>
-
-    <v-main class="main-bg">
+    <main
+      :class="{ 'pl-80': drawer, 'pl-0': !drawer }"
+      class="max-h-screen w-full overflow-y-auto transition-all duration-500"
+    >
       <nuxt></nuxt>
-    </v-main>
+    </main>
 
-    <!-- Plugins -->
-    <notification></notification>
+    <Notification></Notification>
     <Dialog></Dialog>
-  </v-app>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapActions, mapState } from 'vuex'
+import {
+  computed,
+  defineComponent,
+  reactive,
+  toRefs,
+  useContext,
+  useRouter,
+  useStore,
+} from '@nuxtjs/composition-api'
+import RootState from '~/store'
 
-export default Vue.extend({
+export default defineComponent({
   name: 'Dashboard',
   middleware: 'auth',
-  data: () => ({
-    links: [
-      {
-        route: '/dashboard',
-        name: 'Accueil',
-        icon: 'mdi-home',
-        teamRequired: false,
-      },
-      {
-        route: '/customers',
-        name: 'Clients',
-        icon: 'mdi-account-multiple',
-        teamRequired: true,
-      },
-      {
-        route: '/invoices',
-        name: 'Factures',
-        icon: 'mdi-table',
-        teamRequired: true,
-      },
-    ],
-  }),
-  computed: {
-    ...mapState('auth', ['auth', 'user']),
-    ...mapState('team', ['teams']),
-    teamName() {
-      return !this.user.team ? 'Personnel' : this.teams[this.user.team].name
-    },
-    hasTeams(): boolean {
-      return (this.teams.length ?? 0) > 0
-    },
-    drawer: {
-      get() {
-        return this.$store.state.sidebar.drawer
-      },
-      set(val) {
-        this.$store.commit('sidebar/SET_DRAWER', val)
-      },
-    },
-  },
-  methods: {
-    ...mapActions('team', ['switchTeam']),
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+    const ctx = useContext()
+    const router = useRouter()
 
-    async logout() {
-      await this.$fire.auth.signOut()
+    // Data
+    const data = reactive({
+      open: false,
+      links: [
+        {
+          name: 'General',
+          routes: [
+            {
+              route: '/dashboard',
+              absolute: false,
+              name: 'Tableau de bord',
+              icon: 'bxs-home',
+              team: false,
+            },
+            {
+              route: '/customers',
+              absolute: false,
+              name: 'Clients',
+              icon: 'bxs-user',
+              settings: '/customers/settings',
+              team: true,
+            },
+            {
+              route: '/invoices',
+              absolute: false,
+              name: 'Factures',
+              icon: 'bxs-receipt',
+              team: true,
+            },
+            {
+              route: '/contracts',
+              absolute: false,
+              name: 'Contrats',
+              icon: 'bxs-package',
+              settings: '/contracts/settings',
+              team: true,
+            },
+          ],
+        },
+        {
+          name: 'Support',
+          routes: [
+            {
+              route: '/support',
+              absolute: false,
+              name: 'Aide & Support',
+              icon: 'bxs-message',
+              team: false,
+            },
+            {
+              route: 'https://github.com/vlourme/invoicekit',
+              absolute: true,
+              name: 'Signaler un bug',
+              icon: 'bxs-bug',
+              team: false,
+            },
+          ],
+        },
+      ],
+    })
 
-      await this.$router.push({ path: '/' })
-    },
+    // Computed
+    const drawer = computed(() => store.state.drawer.drawer)
+    const user = computed(() => store.state.auth.user!)
+
+    // Methods
+    const logout = async (): Promise<void> => {
+      await ctx.$fire.auth.signOut()
+
+      await router.push({ path: '/' })
+    }
+
+    const toggleDrawer = (): void => {
+      store.dispatch('drawer/toggle')
+    }
+
+    return { ...toRefs(data), user, logout, drawer, toggleDrawer }
   },
 })
 </script>
-
-<style scoped>
-.main-bg {
-  background: #07070a;
-}
-</style>

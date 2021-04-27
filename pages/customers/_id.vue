@@ -1,158 +1,144 @@
 <template>
-  <Header>
-    <template #title>Modifier une fiche client</template>
+  <form @submit.prevent="updateCustomer">
+    <Header>
+      {{ title }}
 
-    <template v-if="role > 0" #actions>
-      <v-btn class="ml-2" :elevation="0" color="red" @click="deleteCustomer">
-        <v-icon left>mdi-delete</v-icon>
-        Supprimer
-      </v-btn>
-
-      <v-badge overlap color="warning" :value="hasChanges">
-        <v-btn class="ml-2" :elevation="0" @click="updateCustomer">
-          <v-icon left>mdi-check</v-icon>
+      <template v-if="role > 0" #actions>
+        <base-nav-button type="submit" :disabled="!hasChanges">
           Mettre à jour
-        </v-btn>
-      </v-badge>
-    </template>
+        </base-nav-button>
+      </template>
+    </Header>
 
-    <Card no-toolbar no-divider margin>
-      <v-form v-model="valid">
-        <v-text-field
-          v-model="customer.fullName"
-          label="Nom complet"
-          :disabled="role === 0"
-          placeholder="John Doe"
-        ></v-text-field>
+    <FormBox>
+      <template #description>
+        <FormDescription>
+          <template #title>Mettre à jour un nouveau client</template>
+          <template #description>
+            Mettre à jour un client pour lui assigner des adresses, factures et
+            contrats.
+          </template>
+          <template v-if="role > 0" #actions>
+            <base-button-inline danger icon="minus" @click.prevent="askDelete">
+              Supprimer le client
+            </base-button-inline>
+          </template>
+        </FormDescription>
+      </template>
 
-        <v-text-field
-          v-model="customer.society"
-          :disabled="role === 0"
-          label="Société"
-        ></v-text-field>
+      <extensions-inputs
+        :fields="team.extensions.customers.fields"
+        :state.sync="customer"
+      />
+    </FormBox>
 
-        <v-text-field
-          v-model="customer.email"
-          :rules="rules.email"
-          :disabled="role === 0"
-          label="Email"
-        ></v-text-field>
+    <div v-if="!$fetchState.pending">
+      <customers-addresses class="my-4"></customers-addresses>
 
-        <v-text-field
-          v-model="customer.phone"
-          :disabled="role === 0"
-          label="Téléphone"
-        ></v-text-field>
+      <customers-invoices class="my-4"></customers-invoices>
 
-        <v-textarea
-          v-model="customer.notes"
-          :disabled="role === 0"
-          label="Notes"
-        ></v-textarea>
-      </v-form>
-    </Card>
-
-    <customers-addresses class="my-4"></customers-addresses>
-
-    <customers-invoices class="my-4"></customers-invoices>
-  </Header>
+      <customers-contracts class="my-4"> </customers-contracts>
+    </div>
+  </form>
 </template>
 
 <script lang="ts">
-import { mapGetters, mapState } from 'vuex'
-import Vue from 'vue'
-import _ from 'lodash'
-import { NotificationType } from '~/types/notification'
-import { Customer } from '~/types/customer'
+import {
+  computed,
+  defineComponent,
+  useContext,
+  useFetch,
+  useMeta,
+  useRoute,
+  useStore,
+} from '@nuxtjs/composition-api'
 import { DialogType } from '~/types/dialog'
+import { NotificationType } from '~/types/notification'
+import useCustomer from '~/composables/useCustomer'
+import { FieldType } from '~/types/team'
+import RootState from '~/store'
+import {
+  getPrimaryKey,
+  getInputType,
+  getFormattedField,
+} from '~/composables/useExtensibleField'
+import { Address } from '~/types/address'
 
-export default Vue.extend({
-  name: 'ViewCustomer',
+export default defineComponent({
   layout: 'dashboard',
-  async asyncData({ route, store }) {
-    const { id } = route.params
-    await store.dispatch('payload/fetchCustomer', id)
-    await store.dispatch('payload/fetchAddresses', id)
-  },
-  data: () => ({
-    valid: false,
-    hasChanges: false,
-    rules: {
-      email: [(v: string) => !v || /.+@.+/.test(v) || "L'email est invalide."],
-    },
-    customer: {} as Customer,
-    dialog: false,
-  }),
-  head() {
-    return {
-      title: `${this.customerState.fullName} — Fiche client`,
-    }
-  },
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('auth', ['user']),
-    ...mapState('payload', {
-      customerState: 'customer',
-    }),
-  },
-  mounted() {
-    this.customer = Object.assign({}, this.customerState)
+  setup() {
+    // Context
+    const ctx = useContext()
+    const meta = useMeta()
+    const route = useRoute()
+    const store = useStore<RootState>()
 
-    this.$watch(
-      'customer',
-      () => {
-        this.hasChanges = !_.isEqual(this.customer, this.customerState)
-      },
-      { deep: true }
+    // Data
+    const {
+      state,
+      role,
+      hasChanges,
+      loadCustomer,
+      loadCollection,
+      saveCustomer,
+      deleteCustomer,
+    } = useCustomer()
+
+    // Computed
+    const team = computed(() => store.state.team.team!)
+    const primary = getPrimaryKey(team.value, 'customers')
+    const title = computed(() =>
+      getFormattedField(team.value, state.customer.value, 'customers')
     )
-  },
-  methods: {
-    async updateCustomer(): Promise<void> {
-      // Check validity
-      if (!this.valid) {
-        this.$notify('Le formulaire est invalide', NotificationType.WARNING)
-        return
-      }
 
-      // Update customer
-      await this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('customers')
-        .doc(this.customerState.$key)
-        .update(this.customer)
+    // Fetch data
+    useFetch(async () => {
+      const id = route.value.params.id
+      await loadCustomer(id)
+      loadCollection<Address>('addresses', true)
 
-      this.$notify('Le document à été sauvegardé', NotificationType.SUCCESS)
-      this.hasChanges = false
-    },
+      meta.title.value = `${state.customer.value[primary.value]} — Fiche client`
+    })
 
-    /**
-     * TODO: There is a small error during less than 1 second after deleting
-     * This is due to the snapshot trying to refresh.
-     */
-    deleteCustomer(): void {
-      this.$dialog({
+    const askDelete = (): void => {
+      ctx.$dialog({
         title: 'Supprimer cette fiche client',
         message:
           'Tout le contenu associé sera supprimé (factures, contrats, etc.) et irrécuperable.',
         type: DialogType.Error,
-        callback: async () => await this.deleteCallback(),
+        callback: async () => {
+          await deleteCustomer()
+          ctx.$notify('Le client a été supprimé.', NotificationType.SUCCESS)
+        },
         showCancel: true,
         actionMessage: 'Supprimer',
       })
-    },
+    }
 
-    async deleteCallback(): Promise<void> {
-      // Delete customer
-      await this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('customers')
-        .doc(this.customerState.$key)
-        .delete()
+    const updateCustomer = async () => {
+      await saveCustomer(true)
+      ctx.$notify(
+        'Les changements ont étés sauvegardés',
+        NotificationType.SUCCESS
+      )
+    }
 
-      await this.$router.push('/customers')
-    },
+    return {
+      ...state,
+      deleteCustomer,
+      updateCustomer,
+      hasChanges,
+      askDelete,
+      primary,
+      team,
+      FieldType,
+      role,
+      getInputType,
+      title,
+    }
+  },
+  head: {
+    title: 'Fiche client',
   },
 })
 </script>

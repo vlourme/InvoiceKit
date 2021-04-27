@@ -16,29 +16,33 @@
     "start:functions": "npm run watch --prefix functions"
   },
   "dependencies": {
-    "@mdi/js": "^5.9.55",
+    "@nuxt/content": "^1.14.0",
+    "@nuxtjs/composition-api": "^0.22.4",
     "@nuxtjs/firebase": "^7.5.0",
+    "@tailwindcss/typography": "^0.4.0",
+    "algoliasearch": "^4.9.0",
+    "boxicons": "^2.0.7",
     "core-js": "^3.9.0",
     "date-fns": "^2.19.0",
-    "firebase": "^8.2.9",
+    "firebase": "^8.3.2",
+    "jspdf": "^2.3.1",
     "jspdf-autotable": "^3.5.14",
     "lodash": "^4.17.21",
-    "nuxt": "^2.15.1",
-    "uuid": "^8.3.2",
-    "vue-property-decorator": "^9.1.2",
+    "nuxt": "2.15.3",
+    "slugify": "^1.5.0",
     "vuedraggable": "^2.24.3",
-    "vuex": "^3.6.2",
-    "vuex-module-decorators": "^1.0.1"
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@nuxt/types": "^2.15.1",
     "@nuxt/typescript-build": "^2.0.5",
     "@nuxtjs/eslint-config-typescript": "^5.0.0",
     "@nuxtjs/eslint-module": "^3.0.2",
-    "@nuxtjs/vuetify": "^1.11.3",
+    "@nuxtjs/tailwindcss": "^4.0.2",
+    "@tailwindcss/postcss7-compat": "npm:@tailwindcss/postcss7-compat@^2.0.4",
     "@types/lodash": "^4.14.168",
-    "@types/uuid": "^8.3.0",
-    "autoprefixer": "^9",
+    "@vue/runtime-dom": "^3.0.11",
+    "autoprefixer": "^9.8.6",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.18.0",
     "eslint-config-prettier": "^7.2.0",
@@ -46,8 +50,8 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.5.0",
     "npm-run-all": "^4.1.5",
-    "postcss": "^7",
+    "postcss": "^8.2.10",
     "prettier": "^2.2.1",
-    "vuetify": "^2.4.5"
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.4"
   }
 }

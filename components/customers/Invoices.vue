@@ -1,142 +1,195 @@
 <template>
-  <Card no-body>
-    <template #title>Factures</template>
-
-    <template v-if="role > 0" #actions>
-      <v-btn color="success" text @click="dialog = true">
-        <v-icon left>mdi-plus</v-icon>
-        Ajouter
-      </v-btn>
-    </template>
-
-    <v-data-table
-      :items="invoices"
-      :headers="invoiceHeaders"
-      @click:row="navigateToInvoice"
-    >
-      <template #item.updatedAt="{ item }">
-        {{ new Date(item.updatedAt.seconds * 1000).toLocaleString() }}
+  <div class="py-8 px-6 max-w-7xl mx-auto grid grid-cols-3">
+    <FormDescription>
+      <template #title> Factures </template>
+      <template #description> Gerez les factures du client </template>
+      <template v-if="role > 0" #actions>
+        <base-button-inline info icon="plus" @click.prevent="dialog = true">
+          Créer un nouveau devis ou facture
+        </base-button-inline>
       </template>
-    </v-data-table>
+    </FormDescription>
 
-    <v-dialog v-model="dialog" width="650">
-      <v-card>
-        <v-card-title> Créer une nouvelle facture </v-card-title>
+    <div class="col-span-2 mx-2 bg-gray-50 py-2 rounded-lg">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b">
+              <th class="text-left p-4 font-medium text-gray-600">ID</th>
+              <th class="text-left p-4 font-medium text-gray-600">Type</th>
+              <th class="text-left p-4 font-medium text-gray-600">Date</th>
+              <th class="text-left p-4"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y even:bg-gray-100">
+            <tr v-for="(item, idx) in collections.invoices" :key="idx">
+              <td class="p-3">{{ item.id }}</td>
+              <td class="p-3">
+                {{ item.type === 'QUOTE' ? 'Devis' : 'Facture' }}
+              </td>
+              <td class="p-3">{{ item.date }}</td>
+              <td class="p-3 text-right">
+                <nuxt-link
+                  class="text-blue-500 border-b border-blue-400 transition-colors hover:text-blue-600 hover:border-blue-500"
+                  :to="`/invoices/${customer.$key}/${item.$key}`"
+                  >Voir le document</nuxt-link
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <v-card-text>
-          Séléctionnez l'adresse à utiliser pour la facture.
-        </v-card-text>
+    <form @submit.prevent="makeInvoice">
+      <Modal :activator.sync="dialog" extended>
+        <template #title> Créer un devis ou une facture </template>
+        <template #icon>
+          <div
+            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10"
+          >
+            <i class="bx bxs-receipt text-indigo-600 text-xl"></i>
+          </div>
+        </template>
+        <template #content>
+          <input ref="fileInput" hidden type="file" accept="application/json" />
 
-        <input
-          ref="fileInput"
-          accept="application/json"
-          type="file"
-          hidden
-          @change="importDone"
-        />
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th
+                    class="text-left font-medium text-gray-600 px-4 py-2"
+                  ></th>
+                  <th class="text-left font-medium text-gray-600 px-4 py-2">
+                    Adresse
+                  </th>
+                  <th class="text-left font-medium text-gray-600 px-4 py-2">
+                    Ville
+                  </th>
+                  <th class="text-left font-medium text-gray-600 px-4 py-2">
+                    Pays
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                <tr v-for="(item, idx) in collections.addresses" :key="idx">
+                  <td class="px-4 py-2">
+                    <input
+                      :id="`address-${idx}`"
+                      v-model="selected"
+                      :value="idx"
+                      name="address"
+                      type="radio"
+                      required
+                      class="focus:outline-none mt-1 h-4 w-4 text-indigo-600 border-gray-300"
+                    />
+                  </td>
+                  <td class="px-4 py-2">
+                    <label :for="`address-${idx}`">{{ item.street }}</label>
+                  </td>
+                  <td class="px-4 py-2">
+                    <label :for="`address-${idx}`">
+                      {{ item.zip }} {{ item.city }}
+                    </label>
+                  </td>
+                  <td class="px-4 py-2">
+                    <label :for="`address-${idx}`">
+                      {{ item.country }}
+                    </label>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </template>
+        <template #footer>
+          <base-button success :disabled="!!selected" type="submit">
+            Confirmer
+          </base-button>
 
-        <v-data-table
-          :headers="addressHeaders"
-          :items="addresses"
-          :items-per-page="-1"
-          hide-default-footer
-          @click:row="makeInvoice"
-        >
-          <template #item.actions="{ item }">
-            <v-btn icon @click.stop="startImport(item)">
-              <v-icon>mdi-upload</v-icon>
-            </v-btn>
-          </template>
-        </v-data-table>
+          <base-button base type="button" @click.prevent="dialog = false">
+            Annuler
+          </base-button>
 
-        <v-divider></v-divider>
+          <div class="w-full"></div>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="warning" text @click="dialog = false">Annuler</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </Card>
+          <base-button base :disabled="!!selected" @click.prevent="startImport">
+            Importer
+          </base-button>
+        </template>
+      </Modal>
+    </form>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { DataTableHeader } from 'vuetify'
-import { mapGetters, mapState } from 'vuex'
-import { mapSnapshot } from '~/helpers/documentMapper'
-import { Address, AddressHeaders } from '~/types/address'
-import { Invoice } from '~/types/invoice'
+import {
+  defineComponent,
+  ref,
+  useFetch,
+  useRouter,
+} from '@nuxtjs/composition-api'
+import useCustomer from '~/composables/useCustomer'
 import { importLegacy } from '~/helpers/legacyImport'
+import { defaultAddress } from '~/types/address'
+import { Invoice } from '~/types/invoice'
 
-export default Vue.extend({
-  name: 'Invoices',
-  data: () => ({
-    invoiceHeaders: [
-      {
-        text: 'ID',
-        value: 'id',
-      },
-      {
-        text: 'Date de facturation',
-        value: 'date',
-      },
-      {
-        text: 'Dernière mise à jour',
-        value: 'updatedAt',
-      },
-    ] as Array<DataTableHeader>,
-    invoices: [] as Invoice[],
-    addressHeaders: AddressHeaders,
-    dialog: false,
-    import: {} as Address,
-  }),
-  fetch() {
-    this.$fire.firestore
-      .collection('teams')
-      .doc(this.user.team)
-      .collection('customers')
-      .doc(this.customer.$key)
-      .collection('invoices')
-      .onSnapshot((snapshot) => {
-        this.invoices = mapSnapshot<Invoice>(snapshot)
-      })
-  },
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('auth', ['user']),
-    ...mapState('payload', ['customer', 'addresses']),
-  },
-  methods: {
-    makeInvoice(item: Address) {
-      this.$router.push({
+export default defineComponent({
+  setup() {
+    // Context
+    const router = useRouter()
+
+    // Data
+    const selected = ref(-1)
+    const dialog = ref(false)
+    const importAddress = ref(defaultAddress())
+    const fileInput = ref<HTMLElement | null>(null)
+
+    // Computed
+    const { state, role, loadCollection } = useCustomer()
+
+    // Fetch
+    useFetch(async () => {
+      await loadCollection<Invoice>('invoices')
+    })
+
+    // Methods
+    const makeInvoice = () => {
+      router.push({
         path: '/invoices/create',
         query: {
-          customer: this.customer.$key,
-          address: item.$key,
+          customer: state.customer.value.$key,
+          address: state.collections.value.addresses[selected.value].$key,
         },
       })
-    },
+    }
 
-    startImport(address: Address): void {
-      this.import = address
-      ;(this.$refs.fileInput as any).click()
-    },
+    const startImport = (): void => {
+      importAddress.value = state.collections.value.addresses[selected.value]
+      fileInput.value?.click()
+    }
 
-    async importDone(event: any): Promise<void> {
+    const importDone = async (event: any): Promise<void> => {
       const docId = await importLegacy(
-        this.$nuxt.context,
-        this.customer,
-        this.import.$key!,
+        state.customer.value,
+        importAddress.value.$key!,
         event.target.files[0]
       )
 
-      this.$router.push(`/invoices/${this.customer.$key}/${docId}`)
-    },
+      router.push(`/invoices/${state.customer.value.$key}/${docId}`)
+    }
 
-    navigateToInvoice(invoice: Invoice) {
-      this.$router.push(`/invoices/${this.customer.$key}/${invoice.$key}`)
-    },
+    return {
+      ...state,
+      fileInput,
+      selected,
+      dialog,
+      role,
+      makeInvoice,
+      startImport,
+      importDone,
+    }
   },
 })
 </script>

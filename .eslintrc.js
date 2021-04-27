@@ -21,6 +21,7 @@ module.exports = {
       },
     ],
     'new-cap': [1],
+    'no-console': [0],
   },
   ignorePatterns: ['functions/lib'],
 }

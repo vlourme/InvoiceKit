@@ -1,6 +1,7 @@
 import * as admin from 'firebase-admin'
 import { firestore } from 'firebase-admin'
 import * as functions from 'firebase-functions'
+import { client, getIndexName } from '../algolia'
 const tools = require('firebase-tools')
 
 const db = admin.firestore()
@@ -9,6 +10,10 @@ const FieldValue = firestore.FieldValue
 export const onTeamCustomerDelete = functions.firestore
   .document('/teams/{teamId}/customers/{customerId}')
   .onDelete(async (handler, context) => {
+    // Delete in algolia
+    const index = client.initIndex(getIndexName('customers'))
+    await index.deleteObject(handler.id)
+
     // Delete sub-collections
     await tools.firestore.delete(handler.ref.path, {
       project: 'invoicekit01',

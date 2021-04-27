@@ -1,60 +1,37 @@
 <template>
-  <v-dialog v-model="display" width="500">
-    <v-card>
-      <v-card-title>Ajouter un acompte</v-card-title>
+  <Modal :activator.sync="depositDialog">
+    <template #icon>
+      <base-modal-icon icon="purchase-tag" />
+    </template>
+    <template #title> Ajouter ou modifier un acompte </template>
+    <template #content>
+      <div class="mt-2">
+        <base-label for="deposit">Acompte en Euro (€)</base-label>
 
-      <v-card-text>
-        <v-text-field
-          v-model.number="invoice.data.deposit"
-          label="Acompte (en Euro)"
-          append-icon="mdi-currency-eur"
+        <base-input
+          id="deposit"
+          v-model.number="invoice.deposit"
           type="number"
-        ></v-text-field>
-      </v-card-text>
-
-      <v-divider></v-divider>
-
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="success" text @click="display = false"> Fermer </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        />
+      </div>
+    </template>
+    <template #footer>
+      <base-button info @click.prevent="depositDialog = false"
+        >Fermer</base-button
+      >
+    </template>
+  </Modal>
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
+import { defineComponent } from '@nuxtjs/composition-api'
+import useInvoice from '~/composables/useInvoice'
 
-export default Vue.extend({
-  name: 'InvoiceDeposit',
-  props: {
-    dialog: {
-      type: Boolean,
-      required: true,
-    } as PropOptions<boolean>,
-    invoiceState: {
-      type: InvoiceImpl,
-      required: true,
-    } as PropOptions<InvoiceImpl>,
-  },
-  computed: {
-    display: {
-      get(): boolean {
-        return this.dialog
-      },
-      set(val: boolean) {
-        this.$emit('update:dialog', val)
-      },
-    },
-    invoice: {
-      get(): InvoiceImpl {
-        return this.invoiceState
-      },
-      set(val: InvoiceImpl): void {
-        this.$emit('update:invoice', val)
-      },
-    },
+export default defineComponent({
+  setup() {
+    const { state } = useInvoice()
+
+    return { ...state }
   },
 })
 </script>

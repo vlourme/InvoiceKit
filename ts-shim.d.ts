@@ -6,8 +6,8 @@ declare module '*.vue' {
   export default Vue
 }
 
-declare module 'vue/types/vue' {
-  interface Vue {
+declare module '@nuxt/types/index' {
+  interface Context {
     /**
      * Send a notification to the user as a snackbar
      *

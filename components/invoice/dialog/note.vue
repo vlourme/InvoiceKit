@@ -1,60 +1,31 @@
 <template>
-  <v-dialog v-model="display" width="500">
-    <v-card>
-      <v-card-title>Ajouter une note</v-card-title>
+  <Modal :activator.sync="noteDialog">
+    <template #icon>
+      <base-modal-icon icon="note" />
+    </template>
+    <template #title> Ajouter ou modifier une note </template>
+    <template #content>
+      <div class="mt-2">
+        <base-label for="note">Note</base-label>
 
-      <v-card-text>
-        <v-textarea
-          v-model.trim="invoice.data.note"
-          label="Notes supplémentaires"
-          type="text"
-        >
-        </v-textarea>
-      </v-card-text>
-
-      <v-divider></v-divider>
-
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="success" text @click="display = false"> Fermer </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <base-textarea id="note" v-model.trim="invoice.note"></base-textarea>
+      </div>
+    </template>
+    <template #footer>
+      <base-button info @click.prevent="noteDialog = false">Fermer</base-button>
+    </template>
+  </Modal>
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
+import { defineComponent } from '@nuxtjs/composition-api'
+import useInvoice from '~/composables/useInvoice'
 
-export default Vue.extend({
-  name: 'InvoiceNote',
-  props: {
-    dialog: {
-      type: Boolean,
-      required: true,
-    } as PropOptions<boolean>,
-    invoiceState: {
-      type: InvoiceImpl,
-      required: true,
-    } as PropOptions<InvoiceImpl>,
-  },
-  computed: {
-    display: {
-      get(): boolean {
-        return this.dialog
-      },
-      set(val: boolean) {
-        this.$emit('update:dialog', val)
-      },
-    },
-    invoice: {
-      get(): InvoiceImpl {
-        return this.invoiceState
-      },
-      set(val: InvoiceImpl): void {
-        this.$emit('update:invoice', val)
-      },
-    },
+export default defineComponent({
+  setup() {
+    const { state } = useInvoice()
+
+    return { ...state }
   },
 })
 </script>

@@ -1,5 +1,5 @@
 import firebase from 'firebase'
-import Model from '~/types/model'
+import { Model } from '~/types/model'
 
 /**
  * Transform a snapshot containing multiple documents into a Array of Model
@@ -10,7 +10,7 @@ import Model from '~/types/model'
  */
 export function mapSnapshot<T extends Model>(
   snapshot: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>
-): Array<T> {
+): T[] {
   return snapshot.docs.map(
     (document) =>
       ({

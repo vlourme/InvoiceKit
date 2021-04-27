@@ -1,3 +1,7 @@
-export default interface Model {
-  $key: string | null
+export interface Model {
+  $key?: string
+}
+
+export interface ExtensibleModel extends Model {
+  [key: string]: any
 }

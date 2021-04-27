@@ -1,89 +1,99 @@
 <template>
-  <Header>
-    <template #title>Créer une team</template>
+  <form @submit.prevent="createTeam">
+    <Header>
+      Créer une team
 
-    <template #actions>
-      <v-btn :elevation="0" @click="createTeam">
-        <v-icon left>mdi-check</v-icon>
-        Créer
-      </v-btn>
-    </template>
+      <template #actions>
+        <base-nav-button type="submit"> Créer </base-nav-button>
+      </template>
+    </Header>
 
-    <Card no-divider no-toolbar>
-      <v-form v-model="valid">
-        <v-text-field
-          label="Propriétaire"
-          readonly
-          disabled
-          :value="user.name"
-        ></v-text-field>
+    <FormBox>
+      <template #description>
+        <FormDescription>
+          <template #title>Créer une team</template>
+          <template #description
+            >Créer une team afin de collaborer avec plusieurs personnes sur les
+            mêmes documents.</template
+          >
+        </FormDescription>
+      </template>
 
-        <v-text-field
-          v-model="name"
-          label="Nom de la team"
-          :rules="rules.name"
-          placeholder="John Doe"
-        ></v-text-field>
-      </v-form>
-    </Card>
-  </Header>
+      <div class="mt-2">
+        <base-label for="user">Propriétaire</base-label>
+        <base-input id="user" :value="user.name" disabled readonly />
+      </div>
+
+      <div class="mt-2">
+        <base-label for="name">Nom de la team</base-label>
+        <base-input
+          id="name"
+          v-model.trim="name"
+          required
+          minlength="1"
+          maxlength="20"
+        />
+      </div>
+    </FormBox>
+  </form>
 </template>
 
 <script lang="ts">
-import { mapActions, mapState } from 'vuex'
-import Vue from 'vue'
-import { Team, defaultTeam, MemberPermission } from '~/types/team'
+import {
+  computed,
+  defineComponent,
+  ref,
+  useContext,
+  useRouter,
+  useStore,
+} from '@nuxtjs/composition-api'
+import RootState from '~/store'
+import { defaultTeam, MemberPermission, Team } from '~/types/team'
 
-export default Vue.extend({
-  name: 'Settings',
+export default defineComponent({
+  name: 'CreateTeam',
   layout: 'dashboard',
-  data: () => ({
-    valid: false,
-    rules: {
-      name: [
-        (v: string) => !!v || 'Le nom est requis.',
-        (v: string) =>
-          v.length < 20 || 'Le nom doit faire maximum 20 caractères',
-      ],
-    },
-    name: '',
-  }),
-  head: {
-    title: 'Créer une team',
-  },
-  computed: {
-    ...mapState('auth', ['auth', 'user']),
-  },
-  methods: {
-    ...mapActions('team', ['getTeams', 'switchTeam']),
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+    const ctx = useContext()
+    const router = useRouter()
 
-    async createTeam(): Promise<void> {
-      // Check validity
-      if (!this.valid) {
-        return
-      }
+    // Data
+    const name = ref('')
 
+    // Computed
+    const user = computed(() => store.state.auth.user!)
+
+    // Methods
+    const createTeam = async (): Promise<void> => {
       // Create team
       const team: Team = {
         ...defaultTeam(),
-        name: this.name,
-        owner: this.user.$key,
+        name: name.value,
+        owner: user.value?.$key!,
         members: {
-          [this.user.$key]: MemberPermission.Admin,
+          [user.value?.$key!]: MemberPermission.Admin,
         },
       }
 
-      const doc = await this.$fire.firestore.collection('teams').add(team)
+      // Create reference
+      const doc = await ctx.$fire.firestore.collection('teams').add(team)
 
       // Reload teams
-      await this.getTeams(false)
+      await store.dispatch('team/getTeams', false)
 
       // Change team
-      await this.switchTeam(doc.id)
+      await store.dispatch('team/switchTeam', doc.id)
 
       // Redirect to settings
-      this.$router.push('/teams/settings')
-    },
+      router.push('/teams/settings')
+    }
+
+    return { name, user, createTeam }
+  },
+  head: {
+    title: 'Créer une team',
   },
 })
 </script>

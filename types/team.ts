@@ -1,5 +1,6 @@
 import { ColorPicker } from './accentColor'
-import Model from './model'
+import { Model } from './model'
+import { SelectItem } from './UI'
 
 export enum RenderingSignature {
   None,
@@ -12,6 +13,15 @@ export enum MemberPermission {
   Viewer,
   Editor,
   Admin,
+}
+
+export enum FieldType {
+  Text,
+  Number,
+  Date,
+  Select,
+  Email,
+  Textarea,
 }
 
 export interface Identity {
@@ -35,6 +45,23 @@ export interface Rendering {
   accentEnabled: boolean
   quantityEnabled: boolean
 }
+
+export interface ExtensibleField {
+  value: string
+  name: string
+  placeholder: string
+  type: FieldType
+  selects: SelectItem[]
+  featured: boolean
+  primary: boolean
+  required: boolean
+}
+
+export interface Extension {
+  formatting: string
+  fields: ExtensibleField[]
+  models?: any[]
+}
 export interface Team extends Model {
   // Team details
   name: string
@@ -42,6 +69,9 @@ export interface Team extends Model {
   members: {
     [key: string]: MemberPermission
   }
+
+  // Search
+  algoliaKey: string
 
   // Society Identity
   identity: Identity
@@ -55,8 +85,18 @@ export interface Team extends Model {
   // Distributed counter
   counter: { [key: string]: number }
 
+  // Charts
+  charts: {
+    [key: string]: {
+      [key: string]: number
+    }
+  }
+
   // Society fields
   fields: Array<string>
+
+  // Customer fields
+  extensions: { [key: string]: Extension }
 }
 
 export const defaultIdentity = (): Identity => ({
@@ -81,14 +121,94 @@ export const defaultRendering = (): Rendering => ({
   signature: RenderingSignature.Both,
 })
 
+export const defaultExtension = (): Extension => ({
+  formatting: '',
+  fields: [],
+  models: [],
+})
+
+export const defaultExtensionField = (): ExtensibleField => ({
+  name: '',
+  placeholder: '',
+  featured: false,
+  primary: false,
+  type: FieldType.Text,
+  selects: [],
+  value: '',
+  required: false,
+})
+
 export const defaultTeam = (): Team => ({
-  $key: null,
   name: '',
   owner: '',
   members: {},
+  algoliaKey: '',
   identity: defaultIdentity(),
   localization: defaultLocalization(),
   rendering: defaultRendering(),
   counter: {},
+  charts: {},
   fields: [],
+  extensions: {
+    customers: {
+      formatting: '%{=fullName=}% %{(=society=)}%',
+      fields: [
+        {
+          name: 'Nom complet',
+          value: 'fullName',
+          selects: [],
+          placeholder: '',
+          type: FieldType.Text,
+          featured: true,
+          primary: true,
+          required: true,
+        },
+        {
+          name: 'Entreprise',
+          value: 'society',
+          selects: [],
+          placeholder: '',
+          type: FieldType.Text,
+          featured: true,
+          primary: false,
+          required: false,
+        },
+        {
+          name: 'Email',
+          value: 'email',
+          selects: [],
+          placeholder: '',
+          type: FieldType.Email,
+          featured: true,
+          primary: false,
+          required: false,
+        },
+        {
+          name: 'Téléphone',
+          value: 'phone',
+          selects: [],
+          placeholder: '',
+          type: FieldType.Text,
+          featured: false,
+          primary: false,
+          required: false,
+        },
+        {
+          name: 'Notes',
+          value: 'notes',
+          selects: [],
+          placeholder: '',
+          type: FieldType.Textarea,
+          featured: true,
+          primary: false,
+          required: false,
+        },
+      ],
+    },
+    contracts: {
+      formatting: '',
+      fields: [],
+      models: [],
+    },
+  },
 })

@@ -1,122 +1,129 @@
 <template>
-  <Header with-search>
-    <template #title> Clients </template>
+  <div class="flex flex-col h-full max-h-screen overflow-y-hidden">
+    <Header class="bg-gray-50">
+      Clients
 
-    <template #search>
-      <v-text-field
-        v-model="search"
-        single-line
-        flat
-        solo-inverted
-        hide-details
-        label="Chercher un client (par nom complet)"
-        @input="doSearch"
-      ></v-text-field>
-    </template>
+      <template #actions>
+        <base-nav-input
+          v-model="search"
+          placeholder="Chercher un client"
+          @input="fetchData"
+        />
 
-    <template v-if="role > 0" #actions>
-      <v-btn :elevation="0" to="/customers/create">
-        <v-icon left> mdi-plus </v-icon>
+        <base-nav-button v-if="role > 0" @click.prevent="modal = true">
+          Créer un client
+        </base-nav-button>
+      </template>
+    </Header>
 
-        Ajouter un client
-      </v-btn>
-    </template>
+    <div class="flex-1 flex flex-col h-8/9">
+      <div class="flex flex-col h-full">
+        <div class="flex-grow overflow-auto">
+          <extensions-table
+            name="customers"
+            :extension="extension"
+            :results="results"
+            :is-index="true"
+          >
+            <template #link="{ data }">
+              <nuxt-link
+                class="text-blue-500 hover:text-blue-700 transition-colors"
+                :to="`/customers/${data.$key}`"
+                >Voir la fiche</nuxt-link
+              >
+            </template>
+          </extensions-table>
+        </div>
+      </div>
+    </div>
+    <div
+      v-if="results.length >= 15"
+      class="flex h-1/9 items-center justify-end px-4 py-2 bg-gray-50 border-t"
+    >
+      <BaseButton base :disabled="!canLoadMore" @click.prevent="fetchData">
+        Charger plus de résultats
+      </BaseButton>
+    </div>
+    <base-slideover :activator.sync="modal" :on-close="closeModal">
+      <template #title>Créer un client</template>
 
-    <Card :width="1000" no-body no-toolbar no-divider>
-      <v-data-table
-        :search="search"
-        :headers="headers"
-        :items="customers"
-        :loading="loading"
-        :server-items-length="customerCount"
-        :items-per-page="15"
-        :options.sync="options"
-        @click:row="navigateToCustomer"
-      >
-      </v-data-table>
-    </Card>
-  </Header>
+      <form @submit.prevent="saveCustomer(false)">
+        <extensions-inputs :fields="extension.fields" :state.sync="customer" />
+
+        <div class="flex w-full justify-end items-center mt-2">
+          <base-button info type="submit">Sauvegarder</base-button>
+        </div>
+      </form>
+    </base-slideover>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapGetters, mapState } from 'vuex'
-import { Customer, CustomerHeaders } from '@/types/customer'
-import { mapSnapshot } from '~/helpers/documentMapper'
+import {
+  computed,
+  defineComponent,
+  ref,
+  useFetch,
+  useStore,
+} from '@nuxtjs/composition-api'
+import useSearch from '~/composables/useSearch'
+import { getPrimaryKey } from '~/composables/useExtensibleField'
+import RootState from '~/store'
+import { Customer, defaultCustomer } from '~/types/customer'
+import useCustomer from '~/composables/useCustomer'
 
-export default Vue.extend({
-  name: 'Customers',
+export default defineComponent({
   layout: 'dashboard',
-  data: () => ({
-    loading: false,
-    search: '',
-    options: {},
-    headers: CustomerHeaders,
-    customers: [] as Customer[],
-  }),
+  setup() {
+    // Context
+    const store = useStore<RootState>()
+
+    // Computed
+    const team = computed(() => store.state.team.team!)
+    const role = computed(() => store.getters['team/role'])
+    const extension = computed(() => team.value.extensions.customers!)
+
+    // Data
+    const { state, hasChanges, resetState, saveCustomer } = useCustomer()
+    const modal = ref(false)
+    const primary = getPrimaryKey(team.value, 'customers')
+
+    // Search
+    const { search, results, canLoadMore, fetchData } = useSearch<Customer>(
+      'customers',
+      `/teams/${team.value.$key}/customers`,
+      primary.value
+    )
+
+    // Methods
+    const closeModal = () => {
+      state.customer.value = defaultCustomer()
+    }
+
+    // Fetch
+    useFetch(async () => {
+      await fetchData()
+      resetState()
+    })
+
+    return {
+      resetState,
+      saveCustomer,
+      fetchData,
+      ...state,
+      hasChanges,
+      modal,
+      role,
+      extension,
+      primary,
+      search,
+      results,
+      canLoadMore,
+      closeModal,
+    }
+  },
   head: {
     title: 'Clients',
-  },
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('auth', ['user']),
-    ...mapState('team', ['team']),
-    customerCount(): number {
-      return this.team?.counter?.customers ?? 0
-    },
-  },
-  watch: {
-    options: {
-      deep: true,
-      async handler(): Promise<void> {
-        await this.getData()
-      },
-    },
-  },
-  methods: {
-    async doSearch(): Promise<void> {
-      if (this.search.length >= 3 || this.search.length === 0) {
-        this.customers = []
-        await this.getData()
-      }
-    },
-
-    async getData(): Promise<void> {
-      // Toggle loading
-      this.loading = true
-
-      // Query
-      let query = this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('customers')
-        .orderBy('fullName')
-        .startAfter(
-          this.customers.length > 0
-            ? this.customers[this.customers.length - 1].fullName
-            : null
-        )
-        .limit(15)
-
-      // On search
-      if (this.search.length >= 3) {
-        this.customers = []
-        query = query.startAt(this.search).endAt(this.search + '\uF8FF')
-      }
-
-      // Get ref
-      const ref = await query.get()
-
-      // Push customers
-      this.customers.push(...mapSnapshot<Customer>(ref))
-
-      // Untoggle loading
-      this.loading = false
-    },
-
-    async navigateToCustomer(customer: Customer): Promise<void> {
-      await this.$router.push(`/customers/${customer.$key}`)
-    },
   },
 })
 </script>

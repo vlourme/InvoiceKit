@@ -1,140 +1,147 @@
 <template>
-  <Card>
-    <template #title>Champs</template>
-
-    <template #actions>
-      <v-btn v-if="isAdmin" text @click="dialog = true">
-        <v-icon left>mdi-plus</v-icon>
-        Ajouter un champ
-      </v-btn>
-    </template>
-
-    <v-simple-table>
-      <template #default>
-        <thead>
-          <tr>
-            <th class="text-left">Champ</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, idx) in team.fields" :key="item">
-            <td>{{ item }}</td>
-            <td class="text-right d-flex align-center">
-              <v-btn
-                v-if="isAdmin"
-                icon
-                color="warning"
-                @click="editField(idx)"
-              >
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-              <v-btn
-                v-if="isAdmin"
-                icon
-                color="error"
-                @click="deleteField(idx)"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </td>
-          </tr>
-        </tbody>
+  <div class="py-8 px-6 max-w-7xl mx-auto grid grid-cols-3">
+    <FormDescription>
+      <template #title>Champs personnalisés</template>
+      <template #description>
+        Les champs personnalisés sont affichés en pied de page, ils sont
+        utilisés pour afficher des informations nécéssaires comme le numéro de
+        SIRET.
       </template>
-    </v-simple-table>
+      <template #actions>
+        <base-button-inline
+          v-if="isAdmin"
+          info
+          icon="plus"
+          @click.prevent="dialog = true"
+        >
+          Ajouter un champ
+        </base-button-inline>
+      </template>
+    </FormDescription>
 
-    <v-dialog v-model="dialog" width="500">
-      <v-card>
-        <v-card-title>
-          {{
-            update > -1
-              ? 'Mettre à jour une information'
-              : 'Ajouter une information'
-          }}
-        </v-card-title>
+    <div class="col-span-2 mx-2 bg-gray-50 rounded-lg py-2">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b">
+              <th class="text-left p-4 font-medium text-gray-600">Champ</th>
+              <th class="p-4 font-medium text-gray-600"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(field, idx) in team.fields" :key="idx">
+              <td class="px-4 py-3">{{ field }}</td>
+              <td class="px-4 py-3 text-right">
+                <button
+                  v-if="isAdmin"
+                  class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
+                  type="button"
+                  @click.prevent="editField(idx)"
+                >
+                  Modifier
+                </button>
 
-        <v-card-text>
-          <v-text-field
-            v-model="value"
-            label="Texte"
-            placeholder="Identifiant TVA: FR 00 123456789"
-            hint="Ces champs seront ajoutés en bas de page sur les documents"
-          ></v-text-field>
-        </v-card-text>
+                <button
+                  v-if="isAdmin"
+                  class="ml-4 text-sm font-semibold text-red-400 hover:text-red-500 inline-flex items-center focus:outline-none"
+                  type="button"
+                  @click.prevent="deleteField(idx)"
+                >
+                  Supprimer
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="closeDialog">Annuler</v-btn>
-          <v-btn color="primary" text @click="addField">
+    <form @submit.prevent="addField">
+      <Modal :activator.sync="dialog">
+        <template #title>
+          {{ update > -1 ? 'Modifier un champ' : 'Ajouter un champ' }}
+        </template>
+        <template #icon>
+          <base-modal-icon icon="info-circle" />
+        </template>
+        <template #content>
+          <div class="mt-2">
+            <base-label for="field">Champ</base-label>
+            <base-input
+              id="field"
+              v-model="value"
+              :disabled="!isAdmin"
+              type="text"
+              required
+              :class="{ 'opacity-60': !isAdmin }"
+            />
+          </div>
+        </template>
+        <template #footer>
+          <base-button success type="submit">
             {{ update > -1 ? 'Mettre à jour' : 'Ajouter' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </Card>
+          </base-button>
+
+          <base-button base @click.prevent="closeDialog">Annuler</base-button>
+        </template>
+      </Modal>
+    </form>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { Team } from '@/types/team'
+import { defineComponent, ref } from '@nuxtjs/composition-api'
 import _ from 'lodash'
-import { mapGetters } from 'vuex'
+import useTeam from '~/composables/useTeam'
 
-export default Vue.extend({
-  name: 'Fields',
-  props: {
-    teamState: {
-      type: Object,
-      required: true,
-    } as PropOptions<Team>,
-  },
-  data: () => ({
-    dialog: false,
-    value: '',
-    update: -1,
-  }),
-  computed: {
-    ...mapGetters('team', ['isAdmin']),
-    team: {
-      get(): Team {
-        return this.teamState
-      },
+export default defineComponent({
+  setup() {
+    // Data
+    const dialog = ref(false)
+    const update = ref(-1)
+    const value = ref('')
 
-      set(value: Team): void {
-        this.$emit('update:team', value)
-      },
-    },
-  },
-  methods: {
-    addField() {
-      if (this.update === -1) {
-        this.team.fields.push(this.value)
+    // Computed
+    const { state, isAdmin } = useTeam()
+
+    // Methods
+    const addField = () => {
+      if (update.value > -1) {
+        state.team.value.fields[update.value] = value.value
       } else {
-        this.team.fields[this.update] = this.value
+        state.team.value.fields.push(value.value)
       }
 
-      this.closeDialog()
-    },
+      closeDialog()
+    }
 
-    editField(idx: number) {
-      this.update = idx
-      this.value = _.clone(this.team.fields[this.update])
-      this.dialog = true
-    },
+    const editField = (idx: number) => {
+      update.value = idx
+      value.value = _.clone(state.team.value.fields[update.value])
+      dialog.value = true
+    }
 
-    deleteField(idx: number) {
-      this.team.fields.splice(idx, 1)
-    },
+    const deleteField = (idx: number) => {
+      state.team.value.fields.splice(idx, 1)
+    }
 
-    closeDialog() {
-      this.$nextTick(() => {
-        this.dialog = false
-        this.update = -1
-        this.value = ''
-      })
-    },
+    const closeDialog = () => {
+      dialog.value = false
+      update.value = -1
+      value.value = ''
+    }
+
+    return {
+      ...state,
+      dialog,
+      update,
+      value,
+      isAdmin,
+      addField,
+      editField,
+      deleteField,
+      closeDialog,
+    }
   },
 })
 </script>

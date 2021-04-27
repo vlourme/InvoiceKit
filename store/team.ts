@@ -1,5 +1,5 @@
 import { ActionTree, GetterTree, MutationTree } from 'vuex/types/index'
-import { mapDocument } from '~/helpers/documentMapper'
+import { mapDocument, mapSnapshot } from '~/helpers/documentMapper'
 import RootState from '~/store'
 import { MemberPermission, Team } from '~/types/team'
 import User from '~/types/user'
@@ -43,27 +43,27 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
   /**
    * Get teams user belong to
    */
-  async getTeams(
-    { commit, dispatch, rootState },
-    reload: boolean = true
-  ): Promise<void> {
+  async getTeams({ commit, rootState }): Promise<void> {
     const uid = rootState.auth.auth?.uid
 
-    const doc = await this.$fire.firestore
-      .collection('teams')
-      .where(`members.${uid}`, '>=', 0)
-      .get()
+    try {
+      const ref = await this.$fire.firestore
+        .collection('teams')
+        .where(`members.${uid}`, '>=', 0)
+        .get()
 
-    const teams = doc.docs.reduce(
-      (ac, a) => ({ ...ac, [a.id]: a.data() }),
-      {}
-    ) as { [key: string]: Team }
+      const teams = mapSnapshot<Team>(ref)
 
-    if (reload) {
-      dispatch('switchTeam', rootState.auth?.user?.team)
+      const sorted: { [key: string]: Team } = {}
+
+      teams.forEach((team) => {
+        sorted[team.$key!] = team
+      })
+
+      commit('SET_TEAMS', sorted)
+    } catch (err) {
+      console.error(err)
     }
-
-    commit('SET_TEAMS', teams)
   },
 
   async switchTeam(
@@ -87,18 +87,19 @@ export const actions: ActionTree<TeamModuleState, RootState> = {
 
     // Load team
     if (id) {
-      this.$fire.firestore
-        .collection('teams')
-        .doc(id)
-        .onSnapshot(
-          (snapshot) => {
-            commit('SET_TEAM', mapDocument<Team>(snapshot))
-          },
-          async () => {
-            // Error with the team, change it
-            await dispatch('switchTeam', null)
-          }
-        )
+      try {
+        console.log('[Store] Loading team:', id)
+        const ref = await this.$fire.firestore.collection('teams').doc(id).get()
+
+        if (ref.exists) {
+          commit('SET_TEAM', mapDocument<Team>(ref))
+        } else {
+          throw new Error('cannot get team')
+        }
+      } catch {
+        console.log('[Store] Switching to empty team')
+        await dispatch('switchTeam', null)
+      }
     }
   },
 }

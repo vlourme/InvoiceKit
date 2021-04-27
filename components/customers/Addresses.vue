@@ -1,148 +1,201 @@
 <template>
-  <Card no-body>
-    <template #title>Adresses</template>
-
-    <template v-if="role > 0" #actions>
-      <v-btn color="success" text @click="dialog = true">
-        <v-icon left>mdi-plus</v-icon>
-        Ajouter
-      </v-btn>
-    </template>
-
-    <v-data-table :items="addresses" :headers="addressHeaders">
-      <template v-if="role > 0" #item.actions="{ item }">
-        <v-btn color="warning" icon @click="editAddress(item)">
-          <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-
-        <v-btn color="error" icon @click="deleteAddress(item.$key)">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
+  <div class="py-8 px-6 max-w-7xl mx-auto grid grid-cols-3">
+    <FormDescription>
+      <template #title> Adresses </template>
+      <template #description>
+        Gerez les adresses du client, ces adresses seront utilisables pour des
+        futurs devis, factures ou contrats.
       </template>
-    </v-data-table>
+      <template v-if="role > 0" #actions>
+        <base-button-inline info icon="plus" @click.prevent="dialog = true">
+          Ajouter une adresse
+        </base-button-inline>
+      </template>
+    </FormDescription>
 
-    <v-dialog v-model="dialog" width="500">
-      <v-card>
-        <v-card-title> Ajouter une adresse </v-card-title>
+    <div class="col-span-2 mx-2 bg-gray-50 rounded-lg py-2">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b">
+              <th class="text-left p-4 font-medium text-gray-600">Adresse</th>
+              <th class="text-left p-4 font-medium text-gray-600">Ville</th>
+              <th class="text-left p-4 font-medium text-gray-600">Pays</th>
+              <th class="p-4 font-medium text-gray-600"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr v-for="(item, idx) in collections.addresses" :key="idx">
+              <td class="p-3">{{ item.street }}</td>
+              <td class="p-3">{{ item.zip }} {{ item.city }}</td>
+              <td class="p-3">{{ item.country }}</td>
+              <td class="p-3 text-right">
+                <button
+                  type="button"
+                  class="text-sm font-semibold text-indigo-400 hover:text-indigo-500 inline-flex items-center focus:outline-none"
+                  @click.prevent="editAddress(item)"
+                >
+                  Modifier
+                </button>
 
-        <v-card-text>
-          <v-text-field
-            v-model="address.street"
-            label="Numéro et rue"
-            placeholder="12 rue des lilas"
-          ></v-text-field>
+                <button
+                  type="button"
+                  class="ml-4 text-sm font-semibold text-red-400 hover:text-red-500 inline-flex items-center focus:outline-none"
+                  @click.prevent="deleteAddress(item)"
+                >
+                  Supprimer
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-          <v-row>
-            <v-col>
-              <v-text-field
-                v-model="address.city"
-                label="Ville"
-                placeholder="Lille"
-              ></v-text-field>
-            </v-col>
-            <v-col>
-              <v-text-field
+    <form @submit.prevent="addAddress">
+      <Modal :activator.sync="dialog">
+        <template #title>
+          {{ update ? 'Mettre à jour une adresse' : 'Ajouter une adresse' }}
+        </template>
+        <template #icon>
+          <base-modal-icon icon="map" />
+        </template>
+        <template #content>
+          <div class="mt-2">
+            <base-label for="street">Adresse</base-label>
+            <base-input
+              id="street"
+              v-model="address.street"
+              :disabled="role === 0"
+              required
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="mt-2">
+              <base-label for="zip">Code postal</base-label>
+              <base-input
+                id="zip"
                 v-model="address.zip"
-                label="Code postal"
-                placeholder="59000"
-              ></v-text-field>
-            </v-col>
-            <v-col>
-              <v-text-field
-                v-model="address.country"
-                label="Pays"
-                placeholder="France"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-        </v-card-text>
+                :disabled="role === 0"
+                required
+              />
+            </div>
+            <div class="mt-2">
+              <base-label for="city">Ville</base-label>
+              <base-input
+                id="city"
+                v-model="address.city"
+                :disabled="role === 0"
+                required
+              />
+            </div>
+          </div>
+          <div class="mt-2">
+            <base-label for="country">Pays</base-label>
+            <base-input
+              id="country"
+              v-model="address.country"
+              :disabled="role === 0"
+              required
+            />
+          </div>
+        </template>
+        <template #footer>
+          <base-button success type="submit">
+            {{ update ? 'Mettre à jour' : 'Ajouter' }}
+          </base-button>
 
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="warning"
-            text
-            @click="
-              address = {}
-              dialog = false
-            "
-            >Annuler</v-btn
-          >
-          <v-btn color="success" text @click="addAddress">Ajouter</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </Card>
+          <base-button base type="button" @click.prevent="closeDialog">
+            Annuler
+          </base-button>
+        </template>
+      </Modal>
+    </form>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { Address, AddressHeaders } from '@/types/address'
-import { mapGetters, mapState } from 'vuex'
+import { defineComponent, ref, useContext } from '@nuxtjs/composition-api'
+import _ from 'lodash'
+import useCustomer from '~/composables/useCustomer'
+import { Address, defaultAddress } from '~/types/address'
 import { NotificationType } from '~/types/notification'
 
-export default Vue.extend({
-  name: 'Addresses',
-  data: () => ({
-    addressHeaders: AddressHeaders,
-    address: {} as Address,
-    dialog: false,
-    update: false,
-  }),
-  computed: {
-    ...mapGetters('team', ['role']),
-    ...mapState('auth', ['user']),
-    ...mapState('payload', ['customer', 'addresses']),
-  },
-  methods: {
-    async addAddress() {
-      if (this.update && this.address.$key) {
-        await this.$fire.firestore
+export default defineComponent({
+  setup() {
+    // Context
+    const ctx = useContext()
+
+    // Data
+    const { state, user, role } = useCustomer()
+    const address = ref(defaultAddress())
+    const dialog = ref(false)
+    const update = ref(false)
+
+    // Methods
+    const addAddress = async () => {
+      if (update && address.value.$key) {
+        await ctx.$fire.firestore
           .collection('teams')
-          .doc(this.user.team)
+          .doc(user.value.team!)
           .collection('customers')
-          .doc(this.customer.$key)
+          .doc(state.customer.value.$key!)
           .collection('addresses')
-          .doc(this.address.$key)
-          .update(this.address)
+          .doc(address.value.$key)
+          .update(address.value)
       } else {
-        await this.$fire.firestore
+        await ctx.$fire.firestore
           .collection('teams')
-          .doc(this.user.team)
+          .doc(user.value.team!)
           .collection('customers')
-          .doc(this.customer.$key)
+          .doc(state.customer.value.$key!)
           .collection('addresses')
-          .add(this.address)
+          .add(address.value)
       }
 
-      this.address = {} as Address
-      this.dialog = false
-      this.$notify(
+      closeDialog()
+      ctx.$notify(
         'Les changements ont étés sauvegardés',
         NotificationType.SUCCESS
       )
-    },
+    }
 
-    editAddress(address: Address) {
-      this.address = address
-      this.update = true
-      this.dialog = true
-    },
+    const editAddress = (adr: Address) => {
+      address.value = _.cloneDeep(adr)
+      update.value = true
+      dialog.value = true
+    }
 
-    async deleteAddress(id: string) {
-      await this.$fire.firestore
+    const closeDialog = () => {
+      address.value = defaultAddress()
+      dialog.value = false
+      update.value = false
+    }
+
+    const deleteAddress = async (address: Address) => {
+      await ctx.$fire.firestore
         .collection('teams')
-        .doc(this.user.team)
+        .doc(user.value.team!)
         .collection('customers')
-        .doc(this.customer.$key)
+        .doc(state.customer.value.$key!)
         .collection('addresses')
-        .doc(id)
+        .doc(address.$key!)
         .delete()
 
-      this.$notify("L'adresse à été supprimée", NotificationType.SUCCESS)
-    },
+      ctx.$notify("L'adresse à été supprimée", NotificationType.SUCCESS)
+    }
+
+    return {
+      ...state,
+      address,
+      dialog,
+      update,
+      addAddress,
+      closeDialog,
+      editAddress,
+      deleteAddress,
+      role,
+    }
   },
 })
 </script>

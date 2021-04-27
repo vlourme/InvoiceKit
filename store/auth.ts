@@ -31,7 +31,7 @@ export const mutations: MutationTree<AuthModuleState> = {
 
 export const actions: ActionTree<AuthModuleState, AuthModuleState> = {
   async onAuthStateChanged(
-    { commit, dispatch },
+    { state, commit, dispatch },
     { authUser }: { authUser: firebase.User }
   ): Promise<void> {
     if (!authUser) {
@@ -42,7 +42,7 @@ export const actions: ActionTree<AuthModuleState, AuthModuleState> = {
     // Refresh token
 
     try {
-      await authUser.getIdToken(false)
+      await authUser.getIdToken(true)
     } catch (e) {
       console.error(e)
     }
@@ -54,15 +54,20 @@ export const actions: ActionTree<AuthModuleState, AuthModuleState> = {
     await dispatch('getUser')
 
     // Get teams
-    await dispatch('team/getTeams', authUser.uid, { root: true })
+    await dispatch('team/getTeams', undefined, { root: true })
+
+    // Load team
+    if (state.user?.team) {
+      await dispatch('team/switchTeam', state.user.team, { root: true })
+    }
   },
 
-  getUser({ commit, state }): void {
-    this.$fire.firestore
+  async getUser({ commit, state }): Promise<void> {
+    const doc = await this.$fire.firestore
       .collection('users')
       .doc(state.auth?.uid)
-      .onSnapshot((snapshot) => {
-        commit('SET_USER', mapDocument<User>(snapshot))
-      })
+      .get()
+
+    commit('SET_USER', mapDocument<User>(doc))
   },
 }

@@ -1,97 +1,69 @@
 <template>
-  <Header>
-    <template #title> Créer un document </template>
+  <form v-if="!$fetchState.pending" @submit.prevent="saveInvoice(false)">
+    <div class="flex flex-col h-screen overflow-y-hidden pr-80">
+      <Header>
+        Créer un document
 
-    <template #actions>
-      <v-btn :elevation="0" @click="createInvoice">
-        <v-icon left>mdi-check</v-icon>
-        Sauvegarder
-      </v-btn>
-    </template>
+        <template #actions>
+          <base-nav-button :disabled="!hasChanges" type="submit">
+            Enregistrer
+          </base-nav-button>
+        </template>
+      </Header>
 
-    <v-form v-model="valid">
-      <invoice-editor :invoice-state.sync="invoice"></invoice-editor>
+      <div class="flex flex-1 h-full">
+        <div class="flex-1">
+          <invoice-editor
+            :invoice-state.sync="invoice"
+            :customer="customer"
+          ></invoice-editor>
 
-      <invoice-table :invoice-state.sync="invoice"></invoice-table>
+          <invoice-table></invoice-table>
+        </div>
 
-      <invoice-dialog-deposit
-        :invoice-state.sync="invoice"
-        :dialog.sync="depositDialog"
-      ></invoice-dialog-deposit>
+        <invoice-sidebar></invoice-sidebar>
+      </div>
+    </div>
 
-      <invoice-dialog-promotion
-        :invoice-state.sync="invoice"
-        :dialog.sync="promotionDialog"
-      ></invoice-dialog-promotion>
+    <invoice-dialog-deposit></invoice-dialog-deposit>
 
-      <invoice-dialog-note
-        :invoice-state.sync="invoice"
-        :dialog.sync="noteDialog"
-      ></invoice-dialog-note>
+    <invoice-dialog-promotion></invoice-dialog-promotion>
 
-      <invoice-sidebar
-        :customer="customer"
-        :invoice="invoice"
-        :promotion-dialog.sync="promotionDialog"
-        :deposit-dialog.sync="depositDialog"
-        :note-dialog.sync="noteDialog"
-      ></invoice-sidebar>
-    </v-form>
-  </Header>
+    <invoice-dialog-note></invoice-dialog-note>
+  </form>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapState } from 'vuex'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
-import { NotificationType } from '~/types/notification'
+import { defineComponent, useFetch, useRoute } from '@nuxtjs/composition-api'
+import useInvoice from '~/composables/useInvoice'
 
-export default Vue.extend({
-  name: 'CreateInvoice',
+export default defineComponent({
   layout: 'dashboard',
-  async asyncData({ store, route }) {
-    // Type fix
-    const query = route.query as { [key: string]: string }
+  setup() {
+    // Data
+    const route = useRoute()
+    const {
+      state,
+      hasChanges,
+      resetState,
+      loadCustomer,
+      loadAddress,
+      saveInvoice,
+    } = useInvoice()
 
-    await store.dispatch('payload/fetchCustomer', query.customer)
-    await store.dispatch('payload/fetchAddress', query.address)
+    // Fetch
+    useFetch(async () => {
+      const query = route.value.query as { [key: string]: string }
+
+      resetState()
+      await loadCustomer(query.customer)
+      await loadAddress(query.customer, query.address)
+    })
+
+    return { ...state, hasChanges, saveInvoice }
   },
-  data: () => ({
-    invoice: new InvoiceImpl(),
-    promotionDialog: false,
-    depositDialog: false,
-    noteDialog: false,
-    valid: false,
-  }),
   head: {
     title: 'Créer une facture',
-  },
-  computed: {
-    ...mapState('auth', ['user']),
-    ...mapState('payload', ['customer', 'address']),
-  },
-  mounted() {
-    this.invoice.data.address = this.address.$key
-  },
-  methods: {
-    async createInvoice() {
-      if (!this.customer.$key || !this.valid) {
-        this.$notify('Impossible de sauvegarder', NotificationType.WARNING)
-        return
-      }
-
-      // Create invoice
-      const doc = await this.$fire.firestore
-        .collection('teams')
-        .doc(this.user.team)
-        .collection('customers')
-        .doc(this.customer.$key)
-        .collection('invoices')
-        .add(this.invoice.data)
-
-      // Redirect
-      this.$router.push(`/invoices/${this.customer.$key}/${doc.id}`)
-    },
   },
 })
 </script>

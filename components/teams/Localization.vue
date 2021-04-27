@@ -1,67 +1,63 @@
 <template>
-  <Card>
-    <template #title>Information complémentaires de l'entreprise</template>
+  <FormBox>
+    <template #description>
+      <FormDescription>
+        <template #title>Localisation de l'entreprise</template>
+        <template #description>
+          La localisation est utilisée pour remplir les documents PDF.
+        </template>
+      </FormDescription>
+    </template>
 
-    <v-text-field
-      v-model="team.localization.street"
-      :disabled="!isAdmin"
-      label="Adresse"
-      placeholder="12 rue des lilas"
-    ></v-text-field>
-
-    <v-row>
-      <v-col>
-        <v-text-field
-          v-model="team.localization.city"
-          :disabled="!isAdmin"
-          label="Ville"
-          placeholder="Lille"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
+    <div class="mt-2">
+      <base-label for="address">Adresse</base-label>
+      <base-input
+        id="address"
+        v-model="team.localization.street"
+        type="text"
+        :disabled="!isAdmin"
+      />
+    </div>
+    <div class="mt-2 grid grid-cols-3 gap-2">
+      <div>
+        <base-label for="zip">Code postal</base-label>
+        <base-input
+          id="zip"
           v-model="team.localization.zip"
+          type="text"
           :disabled="!isAdmin"
-          label="Code postal"
-          placeholder="59000"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
+        />
+      </div>
+      <div>
+        <base-label for="city">Ville</base-label>
+        <base-input
+          id="city"
+          v-model="team.localization.city"
+          type="text"
+          :disabled="!isAdmin"
+        />
+      </div>
+      <div>
+        <base-label for="zip">Pays</base-label>
+        <base-input
+          id="country"
           v-model="team.localization.country"
+          type="text"
           :disabled="!isAdmin"
-          label="Pays"
-          placeholder="France"
-        ></v-text-field>
-      </v-col>
-    </v-row>
-  </Card>
+        />
+      </div>
+    </div>
+  </FormBox>
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { Team } from '@/types/team'
-import { mapGetters } from 'vuex'
+import { defineComponent } from '@nuxtjs/composition-api'
+import useTeam from '~/composables/useTeam'
 
-export default Vue.extend({
-  name: 'Localization',
-  props: {
-    teamState: {
-      type: Object,
-      required: true,
-    } as PropOptions<Team>,
-  },
-  computed: {
-    ...mapGetters('team', ['isAdmin']),
-    team: {
-      get(): Team {
-        return this.teamState
-      },
-
-      set(value: Team): void {
-        this.$emit('update:team', value)
-      },
-    },
+export default defineComponent({
+  setup() {
+    const { state, isAdmin } = useTeam()
+    return { ...state, isAdmin }
   },
 })
 </script>

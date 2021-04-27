@@ -1,115 +1,116 @@
 <template>
-  <Card no-toolbar no-divider :width="1000">
-    <v-row>
-      <v-col>
-        <v-text-field
-          v-model="invoice.data.id"
-          label="Identifiant"
-          :disabled="role === 0"
-          prepend-icon="mdi-pound"
-          placeholder="41-FR/2021"
-          :rules="[(v) => !!v || 'L\'identifiant est obligatoire']"
-        ></v-text-field>
+  <FormBox>
+    <template #description>
+      <FormDescription>
+        <template #title> Informations sur le document </template>
 
-        <v-select
-          v-model="invoice.data.type"
-          :items="types"
-          :disabled="role === 0"
-          prepend-icon="mdi-file"
-          label="Type de document"
-        ></v-select>
-      </v-col>
-      <v-col>
-        <v-select
-          v-model="invoice.data.status"
-          :items="statuses"
-          :disabled="role === 0"
-          prepend-icon="mdi-chart-line-variant"
-          label="Statut du document"
-        ></v-select>
+        <template #description>
+          Les informations essentielles sur le document
+        </template>
 
-        <v-dialog
-          ref="dialog"
-          v-model="dateMenu"
-          :return-value.sync="invoice.data.date"
-          persistent
-          width="290px"
-          @click:outside="dateMenu = false"
-        >
-          <template #activator="{ on, attrs }">
-            <v-text-field
-              :value="date"
-              label="Date"
-              prepend-icon="mdi-calendar"
-              readonly
-              :disabled="role === 0"
-              v-bind="attrs"
-              v-on="on"
-            ></v-text-field>
-          </template>
-          <v-date-picker v-model="invoice.data.date" locale="fr-fr" scrollable>
-            <v-spacer></v-spacer>
-            <v-btn text color="error" @click="dateMenu = false">
-              Annuler
-            </v-btn>
-            <v-btn
-              text
-              color="primary"
-              @click="$refs.dialog.save(invoice.data.date)"
-            >
-              Confirmer
-            </v-btn>
-          </v-date-picker>
-        </v-dialog>
-      </v-col>
-    </v-row>
-  </Card>
+        <template v-if="canDelete" #actions>
+          <base-button-inline danger icon="minus" @click.prevent="askDelete">
+            Supprimer le document
+          </base-button-inline>
+        </template>
+      </FormDescription>
+    </template>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <div>
+          <base-label for="id">Identifiant</base-label>
+          <base-input
+            id="id"
+            v-model.trim="invoice.id"
+            :disabled="role === 0"
+            required
+          />
+        </div>
+        <div class="mt-1">
+          <base-label for="type">Type de document</base-label>
+          <base-select
+            id="type"
+            v-model="invoice.type"
+            :disabled="role === 0"
+            required
+            :items="types"
+          />
+        </div>
+      </div>
+      <div>
+        <div>
+          <base-label for="date">Date</base-label>
+          <base-input
+            id="date"
+            v-model.trim="invoice.date"
+            :disabled="role === 0"
+            type="date"
+            required
+          />
+        </div>
+
+        <div class="mt-1">
+          <base-label for="status">Statut</base-label>
+          <base-select
+            id="status"
+            v-model="invoice.status"
+            :disabled="role === 0"
+            required
+            :items="statuses"
+          />
+        </div>
+      </div>
+    </div>
+  </FormBox>
 </template>
 
 <script lang="ts">
-import { format, parseISO } from 'date-fns'
-import Vue, { PropOptions } from 'vue'
-import { mapGetters } from 'vuex'
-import InvoiceImpl from '~/implementations/InvoiceImpl'
+import { defineComponent, reactive, useContext } from '@nuxtjs/composition-api'
+import useInvoice from '~/composables/useInvoice'
+import { DialogType } from '~/types/dialog'
 import { InvoiceStatus, InvoiceType } from '~/types/invoice'
 
-export default Vue.extend({
-  name: 'InvoiceStatus',
-  props: {
-    invoiceState: {
-      type: InvoiceImpl,
-      required: true,
-    } as PropOptions<InvoiceImpl>,
-  },
-  data: () => ({
-    types: [
-      { text: 'Facture', value: InvoiceType.Invoice },
-      { text: 'Devis', value: InvoiceType.Estimation },
-    ],
-    statuses: [
-      { text: 'Aucun', value: InvoiceStatus.None },
-      { text: 'Impayé', value: InvoiceStatus.Unpaid },
-      { text: 'En attente', value: InvoiceStatus.Pending },
-      { text: 'Payé', value: InvoiceStatus.Paid },
-    ],
-    dateMenu: false,
-  }),
-  computed: {
-    ...mapGetters('team', ['role']),
-    invoice: {
-      get(): InvoiceImpl {
-        return this.invoiceState
-      },
-      set(val: InvoiceImpl) {
-        this.$emit('update:invoice', val)
-      },
-    },
-    date(): string {
-      return format(
-        parseISO(new Date(this.invoice.data.date).toISOString()),
-        'dd/MM/yyyy'
-      )
-    },
+export default defineComponent({
+  setup() {
+    // Context
+    const ctx = useContext()
+
+    // Data
+    const { state, role, canDelete, deleteInvoice } = useInvoice()
+    const selects = reactive({
+      types: [
+        { text: 'Facture', value: InvoiceType.Invoice },
+        { text: 'Devis', value: InvoiceType.Estimation },
+      ],
+      statuses: [
+        { text: 'Aucun', value: InvoiceStatus.None },
+        { text: 'Impayé', value: InvoiceStatus.Unpaid },
+        { text: 'En attente', value: InvoiceStatus.Pending },
+        { text: 'Payé', value: InvoiceStatus.Paid },
+      ],
+    })
+
+    // Methods
+    const askDelete = (): void => {
+      ctx.$dialog({
+        title: 'Supprimer la facture',
+        message: 'Une fois supprimée, celle-ci sera irrécupérable.',
+        type: DialogType.Error,
+        showCancel: true,
+        actionMessage: 'Supprimer',
+        callback: async () => await deleteInvoice(),
+      })
+    }
+
+    return {
+      ...state,
+      ...selects,
+      role,
+      canDelete,
+      askDelete,
+      deleteInvoice,
+    }
   },
 })
 </script>
