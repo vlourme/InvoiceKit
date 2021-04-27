@@ -17,6 +17,11 @@
           <template #description>
             Remplissez les informations concernant ce contrat.
           </template>
+          <template v-if="role > 0" #actions>
+            <base-button-inline danger icon="minus" @click.prevent="askDelete">
+              Supprimer le contrat
+            </base-button-inline>
+          </template>
         </FormDescription>
       </template>
 
@@ -123,6 +128,7 @@ import {
   onMounted,
   reactive,
   toRefs,
+  useContext,
   useFetch,
   useRoute,
   useStore,
@@ -131,6 +137,7 @@ import draggable from 'vuedraggable'
 import useContract from '~/composables/useContract'
 import RootState from '~/store'
 import { ContractModel, defaultContractEvent } from '~/types/contract'
+import { DialogType } from '~/types/dialog'
 import { SelectItem } from '~/types/UI'
 
 export default defineComponent({
@@ -140,6 +147,7 @@ export default defineComponent({
   layout: 'dashboard',
   setup() {
     // Context
+    const ctx = useContext()
     const route = useRoute()
     const store = useStore<RootState>()
 
@@ -151,6 +159,7 @@ export default defineComponent({
       resetState,
       saveContract,
       loadContract,
+      deleteContract,
     } = useContract(route.value.params.customer)
     const data = reactive({
       selects: [] as SelectItem[],
@@ -216,6 +225,17 @@ export default defineComponent({
       data.event = defaultContractEvent()
     }
 
+    const askDelete = () => {
+      ctx.$dialog({
+        type: DialogType.Error,
+        title: 'Supprimer ce contrat ?',
+        message: 'Une fois supprimé, ce contrat ne sera pas récupérable.',
+        showCancel: true,
+        actionMessage: 'Supprimer',
+        callback: async () => await deleteContract(),
+      })
+    }
+
     return {
       ...state,
       ...toRefs(data),
@@ -227,6 +247,7 @@ export default defineComponent({
       editEvent,
       deleteEvent,
       closeDialog,
+      askDelete,
     }
   },
   head: {
