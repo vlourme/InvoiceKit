@@ -134,7 +134,11 @@ export default class BasicPrintTemplate extends Template {
     if (this.invoice.promotion) {
       text.splice(text.length, 0, [
         'Réduction',
-        `- ${this.invoice.promotion} %`,
+        `- ${
+          this.invoice.promotion.fixed > 0
+            ? this.invoice.promotion.fixed + ' €'
+            : this.invoice.promotion.percent + ' %'
+        }`,
       ])
 
       startY -= 6
