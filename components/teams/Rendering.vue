@@ -61,13 +61,25 @@
         :items="quantity"
       />
     </div>
+    <div class="mt-2">
+      <base-label for="zip">Thème des factures</base-label>
+      <base-select
+        id="role"
+        v-model="team.rendering.template"
+        :disabled="!isAdmin"
+        required
+        :items="templates"
+      />
+    </div>
   </FormBox>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from '@nuxtjs/composition-api'
+import { defineComponent, onMounted, reactive } from '@nuxtjs/composition-api'
 import useTeam from '~/composables/useTeam'
+import { templates } from '~/templates/definitions'
 import { RenderingSignature } from '~/types/team'
+import { SelectItem } from '~/types/UI'
 
 export default defineComponent({
   setup() {
@@ -87,10 +99,21 @@ export default defineComponent({
         { text: 'Utiliser la couleur personnalisée', value: true },
         { text: 'Utiliser la couleur de base', value: false },
       ],
+      templates: [] as SelectItem[],
     })
 
     // Computed
     const { state, isAdmin } = useTeam()
+
+    // Mount
+    onMounted(() => {
+      for (const template of templates) {
+        refs.templates.push({
+          text: template.name,
+          value: template.name,
+        })
+      }
+    })
 
     return { ...state, isAdmin, ...refs }
   },

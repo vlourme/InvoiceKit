@@ -11,7 +11,7 @@ import {
 } from '~/composables/useInvoicePricing'
 import { getFormattedField } from '~/composables/useExtensibleField'
 
-export default class BasicTemplate extends Template {
+export default class BasicPrintTemplate extends Template {
   /**
    * Default configuration for the file
    * This can be: background color, font family, font size, etc.
@@ -36,7 +36,7 @@ export default class BasicTemplate extends Template {
 
     // Set data
     this.doc
-      .setFillColor(249, 250, 251)
+      .setFillColor(255, 255, 255)
       .rect(0, 0, 210, height, 'F')
       .setFontSize(16)
       .setTextColor(this.accentColor)
@@ -91,9 +91,8 @@ export default class BasicTemplate extends Template {
 
     const displayName = getFormattedField(this.team, this.customer, 'customers')
 
+    this.doc.line(0, startY, 210, startY)
     this.doc
-      .setFillColor(229, 231, 235)
-      .rect(0, startY, 210, 35, 'F')
       .setFont('Helvetica', 'normal', 700)
       .setFontSize(12)
       .setTextColor(107, 114, 128)
@@ -205,9 +204,8 @@ export default class BasicTemplate extends Template {
   drawFooter(): void {
     const informations = this.team.fields.join(' • ')
 
+    this.doc.line(0, 258, 210, 258)
     this.doc
-      .setFillColor(249, 250, 261)
-      .rect(0, 258, 210, 40, 'F')
       .setFontSize(10)
       .setTextColor(this.accentColor)
       .setFont('Helvetica', 'Bold')

@@ -154,7 +154,7 @@ import jsPDF from 'jspdf'
 import { getFeaturedFields } from '~/composables/useExtensibleField'
 import useInvoice from '~/composables/useInvoice'
 import RootState from '~/store'
-import BasicInvoiceTemplate from '~/templates/basic'
+import { templates } from '~/templates/definitions'
 
 export default defineComponent({
   setup() {
@@ -179,7 +179,15 @@ export default defineComponent({
           .getDownloadURL()
       } catch {}
 
-      const template = new BasicInvoiceTemplate(
+      const template = templates.find(
+        (value) => value.name === team.value.rendering.template
+      )
+
+      if (!template) {
+        throw new Error('no template defined or not existing')
+      }
+
+      const instance = new template.class(
         state.invoice.value,
         state.customer.value,
         state.address.value,
@@ -187,7 +195,7 @@ export default defineComponent({
         logo
       )
 
-      return await template.render()
+      return await instance.render()
     }
 
     /**

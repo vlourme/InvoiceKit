@@ -44,6 +44,7 @@ export interface Rendering {
   accent: ColorPicker | null
   accentEnabled: boolean
   quantityEnabled: boolean
+  template: string
 }
 
 export interface ExtensibleField {
@@ -119,6 +120,7 @@ export const defaultRendering = (): Rendering => ({
   accentEnabled: false,
   quantityEnabled: true,
   signature: RenderingSignature.Both,
+  template: 'Basic',
 })
 
 export const defaultExtension = (): Extension => ({
