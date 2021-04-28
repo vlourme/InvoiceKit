@@ -36,7 +36,10 @@ export const importLegacy = async (
     updatedAt: firebase.firestore.Timestamp.fromDate(date),
     date: invoiceDate,
     deposit: json.acompte.amount ?? 0,
-    promotion: json.promotion.percentage ?? 0,
+    promotion: {
+      percent: json.promotion.percentage ?? 0,
+      fixed: 0,
+    },
     note: json.details.text.trim() ?? '',
     status: InvoiceStatus.Pending,
     type:
