@@ -4,6 +4,7 @@ import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,7 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    // Check for existing email
     const results = await this.userRepository.find({
       where: {
         email: createUserDto.email,
@@ -31,7 +33,14 @@ export class UsersService {
       throw new HttpException('email already used', 403);
     }
 
-    return this.userRepository.save(createUserDto);
+    // Hash password
+    const hashedPassword = await hash(createUserDto.password, 11);
+
+    // Save
+    return this.userRepository.save({
+      ...createUserDto,
+      password: hashedPassword,
+    });
   }
 
   async update(
