@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 
@@ -12,7 +11,7 @@ import { ConfigModule } from '@nestjs/config';
     TypeOrmModule.forRoot({
       type: 'mongodb',
       url: process.env.DATABASE_URL,
-      entities: [User],
+      entities: ['./dist/**/*.entity.js'],
       useNewUrlParser: true,
       useUnifiedTopology: true,
       synchronize: true,
