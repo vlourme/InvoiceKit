@@ -23,13 +23,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     // Check for existing email
-    const results = await this.userRepository.find({
-      where: {
-        email: createUserDto.email,
-      },
-    });
-
-    if (results.length > 0) {
+    if (await this.findOne(createUserDto.email)) {
       throw new HttpException('email already used', 403);
     }
 
